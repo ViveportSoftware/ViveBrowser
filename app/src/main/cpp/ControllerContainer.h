@@ -44,10 +44,10 @@ public:
   void DestroyController(const int32_t aControllerIndex) override;
   void SetCapabilityFlags(const int32_t aControllerIndex, const device::CapabilityFlags aFlags) override;
   void SetEnabled(const int32_t aControllerIndex, const bool aEnabled) override;
+  void SetModelVisible(const int32_t aControllerIndex, const bool aVisible) override;
   void SetControllerType(const int32_t aControllerIndex, device::DeviceType aType) override;
   void SetTargetRayMode(const int32_t aControllerIndex, device::TargetRayMode aMode) override;
   void SetTransform(const int32_t aControllerIndex, const vrb::Matrix& aTransform) override;
-  void TranslateTransform(const int32_t aControllerIndex, const vrb::Vector &aTranslation) override;
   void SetButtonCount(const int32_t aControllerIndex, const uint32_t aNumButtons) override;
   void SetButtonState(const int32_t aControllerIndex, const Button aWhichButton, const int32_t aImmersiveIndex, const bool aPressed, const bool aTouched, const float aImmersiveTrigger = -1.0f) override;
   void SetAxes(const int32_t aControllerIndex, const float* aData, const uint32_t aLength) override;
@@ -68,6 +68,7 @@ public:
   bool IsVisible() const override;
   void SetVisible(const bool aVisible) override;
   void SetGazeModeIndex(const int32_t aControllerIndex) override;
+  void SetJointsMatrices(const int32_t aControllerIndex, const std::string name, const float *matrices) override;
   void SetHandJointLocations(const int32_t aControllerIndex, std::vector<vrb::Matrix> jointTransforms, std::vector<float> jointRadii) override;
   void SetAimEnabled(const int32_t aControllerIndex, bool aEnabled = true) override;
   void SetHandActionEnabled(const int32_t aControllerIndex, bool aEnabled = false) override;

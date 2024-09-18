@@ -3,6 +3,7 @@ package com.igalia.wolvic.ui.keyboards;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -363,34 +364,40 @@ public class ChinesePinyinKeyboard extends BaseKeyboard {
     private final String[] sqliteArgs = new String[1];
 
     private void loadKeymapTable(String aKey) {
-        SQLiteDatabase reader = SQLiteDatabase.openDatabase(mDB.getPath(), null, SQLiteDatabase.OPEN_READONLY);
-        sqliteArgs[0] = aKey;
-        try (Cursor cursor = reader.rawQuery("SELECT keymap, display, candidates FROM keymaps where keymap = ? ORDER BY _id ASC", sqliteArgs)) {
-            if (!cursor.moveToFirst()) {
-                return;
+        try(SQLiteDatabase reader = SQLiteDatabase.openDatabase(mDB.getPath(), null, SQLiteDatabase.OPEN_READONLY)) {
+            sqliteArgs[0] = aKey;
+            try (Cursor cursor = reader.rawQuery("SELECT keymap, display, candidates FROM keymaps where keymap = ? ORDER BY _id ASC", sqliteArgs)) {
+                if (!cursor.moveToFirst()) {
+                    return;
+                }
+                do {
+                    String key = getString(cursor, 0);
+                    String displays = getString(cursor, 1);
+                    String candidates = getString(cursor, 2);
+                    addToKeyMap(key, key, displays, candidates);
+                } while (cursor.moveToNext());
             }
-            do {
-                String key = getString(cursor, 0);
-                String displays = getString(cursor, 1);
-                String candidates = getString(cursor, 2);
-                addToKeyMap(key, key, displays, candidates);
-            } while (cursor.moveToNext());
+        } catch (SQLiteException e) {
+            e.printStackTrace();
         }
     }
 
     private void loadAutoCorrectTable(String aKey) {
-        SQLiteDatabase reader = SQLiteDatabase.openDatabase(mDB.getPath(), null, SQLiteDatabase.OPEN_READONLY);
-        sqliteArgs[0] = aKey;
-        try  (Cursor cursor = reader.rawQuery("SELECT inputcode, displaycode, display FROM autocorrect where inputcode = ? ORDER BY _id ASC", sqliteArgs)) {
-            if (!cursor.moveToFirst()) {
-                return;
+        try(SQLiteDatabase reader = SQLiteDatabase.openDatabase(mDB.getPath(), null, SQLiteDatabase.OPEN_READONLY)) {
+            sqliteArgs[0] = aKey;
+            try  (Cursor cursor = reader.rawQuery("SELECT inputcode, displaycode, display FROM autocorrect where inputcode = ? ORDER BY _id ASC", sqliteArgs)) {
+                if (!cursor.moveToFirst()) {
+                    return;
+                }
+                do {
+                    String key = getString(cursor, 0);
+                    String code = getString(cursor, 1);
+                    String displays = getString(cursor, 2);
+                    addToKeyMap(key, code, displays);
+                } while (cursor.moveToNext());
             }
-            do {
-                String key = getString(cursor, 0);
-                String code = getString(cursor, 1);
-                String displays = getString(cursor, 2);
-                addToKeyMap(key, code, displays);
-            } while (cursor.moveToNext());
+        } catch (SQLiteException e) {
+            e.printStackTrace();
         }
     }
 

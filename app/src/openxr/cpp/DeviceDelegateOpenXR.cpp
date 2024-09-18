@@ -43,8 +43,6 @@
 #include "OpenXRLayers.h"
 #include "OpenXRPassthroughStrategy.h"
 
-#include "OpenXRActionSet.h"
-
 namespace crow {
 
 struct HandMeshPropertiesMSFT {
@@ -94,8 +92,6 @@ struct DeviceDelegateOpenXR::State {
   vrb::Color clearColor;
   float near = 0.1f;
   float far = 100.f;
-  float nearMin { 0.1f };
-  float farMax { std::numeric_limits<float>::max() };
   bool hasEventFocus = true;
   crow::ElbowModelPtr elbow;
   ControllerDelegatePtr controller;
@@ -105,8 +101,7 @@ struct DeviceDelegateOpenXR::State {
   device::CPULevel minCPULevel = device::CPULevel::Normal;
   device::DeviceType deviceType = device::UnknownType;
   std::vector<const XrCompositionLayerBaseHeader*> frameEndLayers;
-  std::function<void()> controllersCreatedCallback;
-  std::function<bool()> controllersReadyCallback;
+  std::function<void()> controllersReadyCallback;
   std::optional<XrPosef> firstPose;
   bool mHandTrackingSupported = false;
   std::vector<float> refreshRates;
@@ -117,11 +112,6 @@ struct DeviceDelegateOpenXR::State {
   XrEnvironmentBlendMode passthroughBlendMode { XR_ENVIRONMENT_BLEND_MODE_MAX_ENUM };
   HandMeshRendererPtr handMeshRenderer = nullptr;
   HandMeshPropertiesMSFTPtr handMeshProperties;
-  bool keyboardTrackingSupported { false };
-  bool renderModelLoadingSupported { false };
-  float furthestHitDistance { near };
-  OpenXRActionSetPtr eyeActionSet;
-  PointerMode pointerMode { PointerMode::TRACKED_POINTER };
 
   bool IsPositionTrackingSupported() {
       CHECK(system != XR_NULL_SYSTEM_ID);
@@ -202,24 +192,6 @@ struct DeviceDelegateOpenXR::State {
     if (OpenXRExtensions::IsExtensionSupported(XR_EXTX_OVERLAY_EXTENSION_NAME))
         extensions.push_back(XR_EXTX_OVERLAY_EXTENSION_NAME);
 
-    if (OpenXRExtensions::IsExtensionSupported(XR_FB_KEYBOARD_TRACKING_EXTENSION_NAME))
-        extensions.push_back(XR_FB_KEYBOARD_TRACKING_EXTENSION_NAME);
-
-    if (OpenXRExtensions::IsExtensionSupported(XR_FB_RENDER_MODEL_EXTENSION_NAME))
-        extensions.push_back(XR_FB_RENDER_MODEL_EXTENSION_NAME);
-
-    if (OpenXRExtensions::IsExtensionSupported(XR_ML_FRAME_END_INFO_EXTENSION_NAME))
-        extensions.push_back(XR_ML_FRAME_END_INFO_EXTENSION_NAME);
-
-    if (OpenXRExtensions::IsExtensionSupported(XR_EXT_HAND_INTERACTION_EXTENSION_NAME))
-        extensions.push_back(XR_EXT_HAND_INTERACTION_EXTENSION_NAME);
-
-    if (OpenXRExtensions::IsExtensionSupported(XR_EXT_VIEW_CONFIGURATION_DEPTH_RANGE_EXTENSION_NAME))
-        extensions.push_back(XR_EXT_VIEW_CONFIGURATION_DEPTH_RANGE_EXTENSION_NAME);
-
-    if (OpenXRExtensions::IsExtensionSupported(XR_EXT_EYE_GAZE_INTERACTION_EXTENSION_NAME))
-        extensions.push_back(XR_EXT_EYE_GAZE_INTERACTION_EXTENSION_NAME);
-
     java = {XR_TYPE_INSTANCE_CREATE_INFO_ANDROID_KHR};
     java.applicationVM = javaContext->vm;
     java.applicationActivity = javaContext->activity;
@@ -273,29 +245,6 @@ struct DeviceDelegateOpenXR::State {
         systemProperties.next = &handMeshPropertiesMSFT;
     }
 
-    // If XR_FB_keyboard_tracking is present, query whether the runtime actually supports it
-    XrSystemKeyboardTrackingPropertiesFB kbdTrackingPropertiesFB{ XR_TYPE_SYSTEM_KEYBOARD_TRACKING_PROPERTIES_FB};
-    kbdTrackingPropertiesFB.supportsKeyboardTracking = XR_FALSE;
-    if (OpenXRExtensions::IsExtensionSupported(XR_FB_KEYBOARD_TRACKING_EXTENSION_NAME)) {
-        kbdTrackingPropertiesFB.next = systemProperties.next;
-        systemProperties.next = &kbdTrackingPropertiesFB;
-    }
-
-    // If XR_FB_render_model is supported, check whether the runtime is actually able to load models
-    XrSystemRenderModelPropertiesFB renderModelPropertiesFB{ XR_TYPE_SYSTEM_RENDER_MODEL_PROPERTIES_FB };
-    renderModelPropertiesFB.supportsRenderModelLoading = XR_FALSE;
-    if (OpenXRExtensions::IsExtensionSupported(XR_FB_RENDER_MODEL_EXTENSION_NAME)) {
-        renderModelPropertiesFB.next = systemProperties.next;
-        systemProperties.next = &renderModelPropertiesFB;
-    }
-
-    XrSystemEyeGazeInteractionPropertiesEXT eyeGazeProperties{ XR_TYPE_SYSTEM_EYE_GAZE_INTERACTION_PROPERTIES_EXT };
-    if (OpenXRExtensions::IsExtensionSupported(XR_EXT_EYE_GAZE_INTERACTION_EXTENSION_NAME)) {
-        eyeGazeProperties.supportsEyeGazeInteraction = XR_FALSE;
-        eyeGazeProperties.next = systemProperties.next;
-        systemProperties.next = &eyeGazeProperties;
-    }
-
     // Retrieve system info
     CHECK_XRCMD(xrGetSystemProperties(instance, system, &systemProperties))
     VRB_LOG("OpenXR system name: %s", systemProperties.systemName);
@@ -324,23 +273,6 @@ struct DeviceDelegateOpenXR::State {
         handMeshProperties->indexCount = handMeshPropertiesMSFT.maxHandMeshIndexCount;
         VRB_LOG("OpenXR runtime supports XR_MSFT_hand_tracking_mesh");
     }
-
-    if (kbdTrackingPropertiesFB.supportsKeyboardTracking) {
-        keyboardTrackingSupported = true;
-        VRB_LOG("OpenXR runtime supports XR_FB_keyboard_tracking");
-    }
-
-    if (renderModelPropertiesFB.supportsRenderModelLoading) {
-      renderModelLoadingSupported = renderModelPropertiesFB.supportsRenderModelLoading;
-      VRB_LOG("OpenXR runtime supports XR_FB_render_model");
-    }
-
-    bool isEyeTrackingSupported { false };
-    if (OpenXRExtensions::IsExtensionSupported(XR_EXT_EYE_GAZE_INTERACTION_EXTENSION_NAME)) {
-        isEyeTrackingSupported = eyeGazeProperties.supportsEyeGazeInteraction;
-        VRB_LOG("OpenXR runtime %s support XR_EXT_eye_gaze_interaction", isEyeTrackingSupported ? "does" : "doesn't");
-    }
-    VRBrowser::SetEyeTrackingSupported(isEyeTrackingSupported);
   }
 
   // xrGet*GraphicsRequirementsKHR check must be called prior to xrCreateSession
@@ -384,20 +316,9 @@ struct DeviceDelegateOpenXR::State {
     uint32_t viewCount;
     CHECK_XRCMD(xrEnumerateViewConfigurationViews(instance, system, viewConfigType, 0, &viewCount, nullptr));
     CHECK_MSG(viewCount > 0, "OpenXR unexpected viewCount");
-    XrViewConfigurationDepthRangeEXT depthRangeExt {XR_TYPE_VIEW_CONFIGURATION_DEPTH_RANGE_EXT};
-    if (OpenXRExtensions::IsExtensionSupported(XR_EXT_VIEW_CONFIGURATION_DEPTH_RANGE_EXTENSION_NAME)) {
-        viewConfig.resize(viewCount, {XR_TYPE_VIEW_CONFIGURATION_VIEW, &depthRangeExt});
-    } else {
-        viewConfig.resize(viewCount, {XR_TYPE_VIEW_CONFIGURATION_VIEW});
-    }
+    viewConfig.resize(viewCount, {XR_TYPE_VIEW_CONFIGURATION_VIEW});
     CHECK_XRCMD(xrEnumerateViewConfigurationViews(instance, system, viewConfigType, viewCount, &viewCount, viewConfig.data()));
-    if (OpenXRExtensions::IsExtensionSupported(XR_EXT_VIEW_CONFIGURATION_DEPTH_RANGE_EXTENSION_NAME)) {
-      nearMin = depthRangeExt.minNearZ;
-      farMax = depthRangeExt.maxFarZ;
-      SetClipPlanes(depthRangeExt.recommendedNearZ, depthRangeExt.recommendedFarZ);
-      VRB_LOG("OpenXR view configuration depth range: minNearZ=%f maxFarZ=%f recommendedNearZ=%f recommendedFarZ=%f",
-              depthRangeExt.minNearZ, depthRangeExt.maxFarZ, depthRangeExt.recommendedNearZ, depthRangeExt.recommendedFarZ);
-    }
+
     // Cache view buffer (used in xrLocateViews)
     views.resize(viewCount, {XR_TYPE_VIEW});
 
@@ -411,11 +332,6 @@ struct DeviceDelegateOpenXR::State {
       eyeSwapChains.push_back(swapChain);
     }
     VRB_DEBUG("OpenXR available views: %d", (int)eyeSwapChains.size());
-  }
-
-  void SetClipPlanes(float aNear, float aFar) {
-      near = std::max(nearMin, aNear);
-      far = std::min(aFar, farMax);
   }
 
   void InitializeBlendModes() {
@@ -629,11 +545,33 @@ struct DeviceDelegateOpenXR::State {
     return nullptr;
   }
 
+  const char* GetDefaultInteractionProfilePath() {
+#if OCULUSVR
+      return OculusTouch.path;
+#elif PICOXR
+      return Pico4.path;
+#else
+      if (deviceType == device::MagicLeap2)
+          return MagicLeap2.path;
+      return KHRSimple.path;
+#endif
+  }
+
   void BeginXRSession() {
       XrSessionBeginInfo sessionBeginInfo{XR_TYPE_SESSION_BEGIN_INFO};
       sessionBeginInfo.primaryViewConfigurationType = viewConfigType;
       CHECK_XRCMD(xrBeginSession(session, &sessionBeginInfo));
       vrReady = true;
+
+      // If hand tracking is supported, we want to emulate a default interaction
+      // profile, so that if Wolvic is launched without controllers active, we can
+      // still use hand tracking for emulating the controllers.
+      // This is a temporary situation while we don't implement WebXR hand tracking
+      // APIs.
+      if (mHandTrackingSupported) {
+          if (const char* defaultProfilePath = GetDefaultInteractionProfilePath())
+              UpdateInteractionProfile(defaultProfilePath);
+      }
   }
 
   void HandleSessionEvent(const XrEventDataSessionStateChanged& event) {
@@ -710,9 +648,9 @@ struct DeviceDelegateOpenXR::State {
       case device::MetaQuest3:
       case device::OculusQuest2:
       case device::MetaQuestPro:
-      // Pico4x default is 72hz, but has an experimental setting to set it to 90hz. If the setting
+      // PicoXR default is 72hz, but has an experimental setting to set it to 90hz. If the setting
       // is disabled we'll select 72hz which is the only one advertised by OpenXR in that case.
-      case device::Pico4x:
+      case device::PicoXR:
         suggestedRefreshRate = 90.0;
         break;
       case device::OculusQuest:
@@ -794,23 +732,15 @@ struct DeviceDelegateOpenXR::State {
     // TODO: Check if activity globarRef needs to be released
   }
 
-  void MaybeNotifyControllersReady() {
-    ASSERT(input);
-    if (!controllersReadyCallback || !input->AreControllersReady())
-        return;
-    // Invoke the callback. We only clear it if the load has started. Otherwise we will retry later.
-    // This happens for example if a profile with no 3D models like hand interaction is loaded on
-    // start. If we clear the callback it won't ever be called in case the user grabs a controller.
-    if (controllersReadyCallback())
-        controllersReadyCallback = nullptr;
-  }
-
-  void UpdateInteractionProfile() {
+  void UpdateInteractionProfile(const char* emulateProfile = nullptr) {
       if (!input || !controller)
           return;
 
-      input->UpdateInteractionProfile(*controller);
-      MaybeNotifyControllersReady();
+      input->UpdateInteractionProfile(*controller, emulateProfile);
+      if (controllersReadyCallback && input->AreControllersReady()) {
+          controllersReadyCallback();
+          controllersReadyCallback = nullptr;
+      }
   }
 
   bool IsPassthroughLayerReady() {
@@ -904,7 +834,8 @@ DeviceDelegateOpenXR::SetClearColor(const vrb::Color& aColor) {
 
 void
 DeviceDelegateOpenXR::SetClipPlanes(const float aNear, const float aFar) {
-  m.SetClipPlanes(aNear, aFar);
+  m.near = aNear;
+  m.far = aFar;
 }
 
 void
@@ -933,16 +864,8 @@ DeviceDelegateOpenXR::IsPositionTrackingSupported() const {
   return m.IsPositionTrackingSupported();
 }
 
-void DeviceDelegateOpenXR::OnControllersCreated(std::function<void()> callback) {
-  if (m.input) {
-      callback();
-      return;
-  }
-  m.controllersCreatedCallback = std::move(callback);
-}
-
 void
-DeviceDelegateOpenXR::OnControllersReady(const ControllersReadyCallback& callback) {
+DeviceDelegateOpenXR::OnControllersReady(const std::function<void()>& callback) {
   if (m.input && m.input->AreControllersReady()) {
     callback();
     return;
@@ -1173,7 +1096,7 @@ DeviceDelegateOpenXR::StartFrame(const FramePrediction aPrediction) {
     offsets.y() = -0.05;
     offsets.z() = 0.05;
 #endif
-    m.input->Update(frameState, m.localSpace, head, offsets, m.renderMode, m.pointerMode, *m.controller);
+    m.input->Update(frameState, m.localSpace, head, offsets, m.renderMode, *m.controller);
   }
 
   if (m.reorientRequested && m.renderMode == device::RenderMode::StandAlone) {
@@ -1232,22 +1155,14 @@ DeviceDelegateOpenXR::EndFrame(const FrameEndMode aEndMode) {
   layers.clear();
 
   // This limit is valid at least for Pico and Meta.
-  auto submitEndFrame = [&layers, displayTime, session = m.session, blendMode = mIsPassthroughEnabled ? m.passthroughBlendMode : m.defaultBlendMode, distance = m.furthestHitDistance]() {
+  auto submitEndFrame = [&layers, displayTime, session = m.session, blendMode = mIsPassthroughEnabled ? m.passthroughBlendMode : m.defaultBlendMode]() {
       static int i = 0;
       XrFrameEndInfo frameEndInfo{XR_TYPE_FRAME_END_INFO};
       frameEndInfo.displayTime = displayTime;
       frameEndInfo.environmentBlendMode = blendMode;
       frameEndInfo.layerCount = (uint32_t) layers.size();
       frameEndInfo.layers = layers.data();
-
-      XrFrameEndInfoML frameEndInfoML{XR_TYPE_FRAME_END_INFO_ML};
-      if (OpenXRExtensions::IsExtensionSupported(XR_ML_FRAME_END_INFO_EXTENSION_NAME)) {
-            frameEndInfoML.next = nullptr;
-            frameEndInfoML.focusDistance = distance;
-            frameEndInfo.next = &frameEndInfoML;
-      }
-
-      MessageXrResult(xrEndFrame(session, &frameEndInfo));
+      CHECK_XRCMD(xrEndFrame(session, &frameEndInfo));
   };
 
   auto canAddLayers = [&layers, maxLayers = m.systemProperties.graphicsProperties.maxLayerCount]() {
@@ -1260,17 +1175,15 @@ DeviceDelegateOpenXR::EndFrame(const FrameEndMode aEndMode) {
       return;
   }
 
-  XrPosef reorientPose = MatrixToXrPose(GetReorientTransform());
-
   // Add skybox or passthrough layer
   if (mIsPassthroughEnabled) {
       if (m.passthroughLayer && m.passthroughLayer->IsDrawRequested() && m.IsPassthroughLayerReady()) {
-          m.passthroughLayer->Update(m.localSpace, reorientPose, XR_NULL_HANDLE);
+          m.passthroughLayer->Update(m.localSpace, predictedPose, XR_NULL_HANDLE);
           layers.push_back(reinterpret_cast<XrCompositionLayerBaseHeader*>(&m.passthroughLayer->xrCompositionLayer));
           m.passthroughLayer->ClearRequestDraw();
       }
   } else if (m.cubeLayer && m.cubeLayer->IsLoaded() && m.cubeLayer->IsDrawRequested()) {
-    m.cubeLayer->Update(m.localSpace, reorientPose, XR_NULL_HANDLE);
+    m.cubeLayer->Update(m.localSpace, predictedPose, XR_NULL_HANDLE);
     for (uint32_t i = 0; i < m.cubeLayer->HeaderCount(); ++i) {
       layers.push_back(m.cubeLayer->Header(i));
     }
@@ -1279,7 +1192,7 @@ DeviceDelegateOpenXR::EndFrame(const FrameEndMode aEndMode) {
 
   // Add VR video layer
   if (m.equirectLayer && m.equirectLayer->IsDrawRequested()) {
-    m.equirectLayer->Update(m.localSpace, reorientPose, XR_NULL_HANDLE);
+    m.equirectLayer->Update(m.localSpace, predictedPose, XR_NULL_HANDLE);
     for (uint32_t i = 0; i < m.equirectLayer->HeaderCount(); ++i) {
       layers.push_back(m.equirectLayer->Header(i));
     }
@@ -1294,7 +1207,7 @@ DeviceDelegateOpenXR::EndFrame(const FrameEndMode aEndMode) {
   // Add back UI layers
   for (const OpenXRLayerPtr& layer: m.uiLayers) {
     if (!layer->GetDrawInFront() && layer->IsDrawRequested() && canAddLayers()) {
-      layer->Update(m.layersSpace, reorientPose, XR_NULL_HANDLE);
+      layer->Update(m.layersSpace, predictedPose, XR_NULL_HANDLE);
       for (uint32_t i = 0; i < layer->HeaderCount() && canAddLayers(); ++i) {
         layers.push_back(layer->Header(i));
       }
@@ -1329,7 +1242,7 @@ DeviceDelegateOpenXR::EndFrame(const FrameEndMode aEndMode) {
   // Add front UI layers
   for (const OpenXRLayerPtr& layer: m.uiLayers) {
     if (layer->GetDrawInFront() && layer->IsDrawRequested() && canAddLayers()) {
-      layer->Update(m.layersSpace, reorientPose, XR_NULL_HANDLE);
+      layer->Update(m.layersSpace, predictedPose, XR_NULL_HANDLE);
       for (uint32_t i = 0; i < layer->HeaderCount() && canAddLayers(); ++i) {
         layers.push_back(layer->Header(i));
       }
@@ -1554,10 +1467,6 @@ DeviceDelegateOpenXR::DrawHandMesh(const uint32_t aControllerIndex, const vrb::C
   m.handMeshRenderer->Draw(aControllerIndex, aCamera);
 }
 
-void DeviceDelegateOpenXR::SetHitDistance(const float distance) {
-  m.furthestHitDistance = std::max(distance, m.furthestHitDistance);
-}
-
 void
 DeviceDelegateOpenXR::EnterVR(const crow::BrowserEGLContext& aEGLContext) {
   // Reset reorientation after Enter VR
@@ -1585,12 +1494,12 @@ DeviceDelegateOpenXR::EnterVR(const crow::BrowserEGLContext& aEGLContext) {
   createInfo.next = reinterpret_cast<const XrBaseInStructure*>(&m.graphicsBinding);
   createInfo.systemId = m.system;
 
-  XrSessionCreateInfoOverlayEXTX overlayInfo {
+  if (OpenXRExtensions::IsExtensionSupported(XR_EXTX_OVERLAY_EXTENSION_NAME)) {
+    XrSessionCreateInfoOverlayEXTX overlayInfo {
       .type = XR_TYPE_SESSION_CREATE_INFO_OVERLAY_EXTX,
       .createFlags = 0,
       .sessionLayersPlacement = 0
-  };
-  if (OpenXRExtensions::IsExtensionSupported(XR_EXTX_OVERLAY_EXTENSION_NAME)) {
+    };
     auto oldNext = createInfo.next;
     createInfo.next = &overlayInfo;
     overlayInfo.next = oldNext;
@@ -1607,14 +1516,12 @@ DeviceDelegateOpenXR::EnterVR(const crow::BrowserEGLContext& aEGLContext) {
 
   m.passthroughStrategy->initializePassthrough(m.session);
 
-  m.input = OpenXRInput::Create(m.instance, m.session, m.systemProperties, m.localSpace, *m.controller.get());
+  m.input = OpenXRInput::Create(m.instance, m.session, m.systemProperties, *m.controller.get());
   ProcessEvents();
-  if (m.controllersCreatedCallback) {
-    m.controllersCreatedCallback();
-    m.controllersCreatedCallback = nullptr;
+  if (m.controllersReadyCallback && m.input && m.input->AreControllersReady()) {
+    m.controllersReadyCallback();
+    m.controllersReadyCallback = nullptr;
   }
-  m.MaybeNotifyControllersReady();
-  m.input->SetKeyboardTrackingEnabled(m.keyboardTrackingSupported && m.renderModelLoadingSupported);
 
   vrb::RenderContextPtr context = m.context.lock();
 
@@ -1689,9 +1596,5 @@ DeviceDelegateOpenXR::ShouldExitRenderLoop() const
 DeviceDelegateOpenXR::DeviceDelegateOpenXR(State &aState) : m(aState) {}
 
 DeviceDelegateOpenXR::~DeviceDelegateOpenXR() { m.Shutdown(); }
-
-void DeviceDelegateOpenXR::SetPointerMode(const DeviceDelegate::PointerMode mode) {
-  m.pointerMode = mode;
-}
 
 } // namespace crow

@@ -111,7 +111,7 @@
      when there are no exceptions. -->
     <string name="settings_privacy_policy_tracking_empty_description">当您允许网站跟踪您的活动后，会显示在此处。</string>
     <!-- This string labels the Reset button that removes all the sites not allowed to access WebXR -->
-    <string name="settings_privacy_policy_tracking_reset">重置增强型跟踪保护的异常状态。</string>
+    <string name="settings_privacy_policy_tracking_reset">重置 &gt; 例外 - 增强型跟踪保护</string>
     <!-- This string is used as the title of the Tracking dialog used to do not allow websites to bypass tracking protection. -->
     <string name="settings_privacy_policy_login_exceptions_title">例外 - 登录信息</string>
     <!-- This string is displayed under the title the  Tracking dialog used to do not allow websites to bypass tracking protection. -->
@@ -120,7 +120,7 @@
      when there are no exceptions. -->
     <string name="settings_privacy_policy_login_exceptions_empty_description">不保存登录信息的网站将显示于此处。</string>
     <!-- This string labels the Reset button that removes all the sites not allowed to access WebXR -->
-    <string name="settings_privacy_policy_login_exceptions_reset">重置“ 登录信息”异常状态。</string>
+    <string name="settings_privacy_policy_login_exceptions_reset">重置“例外 - 登录信息”</string>
     <!-- This string is displayed in the switch of each item of the the pop-up blocking list when the site is allowed. -->
     <string name="pop_up_site_switch_allow">允许</string>
     <!-- This string is displayed in the switch of each item of the the pop-up blocking list when the site is denied. -->
@@ -357,7 +357,7 @@
     <string name="display_options_latin_auto_complete">拉丁字母键盘输入自动补全</string>
     <!-- This string labels an On/Off switch in the 'Display Options' dialog
          and is used to customize if head lock should be enabled in the app. -->
-    <string name="display_options_head_lock">启用头部锁定</string>
+    <string name="display_options_head_lock">头部锁定</string>
     <!-- This string labels an On/Off switch in the 'Display Options' dialog
          and is used to customize the windows distance. -->
     <string name="display_options_windows_distance">窗口距离</string>
@@ -420,6 +420,8 @@
     <!-- This string is used to label a numerical entry field where the user may enter a new value
          for the virtual displays Dots Per Inch (DPI). -->
     <string name="developer_options_display_dpi">显示像素密度（DPI）：</string>
+    <!-- This string is used to label the experimental features. -->
+    <string name="experimental_features">实验性功能</string>
     <!-- This string is used to label radio buttons for setting Multi-Sample Anti-Aliasing (MSAA) in
          VR Immersive Mode. -->
     <string name="developer_options_msaa">多重采样抗锯齿（MSAA）</string>
@@ -639,7 +641,7 @@
     <string name="security_options_block_pup_up_windows">阻止弹出窗口</string>
     <!-- This string labels the button in the privacy option panel that enables/disables the use of
          system root CA for certificate. -->
-    <string name="security_options_use_system_root_ca">使用系统受信任根证书</string>
+    <string name="security_options_use_system_root_ca">使用受信任的根证书</string>
     <!-- This string labels the button in the privacy option panel that open the dialog to add/remove
          pop-up blocked sites. -->
     <string name="security_options_block_pup_up_settings">高级</string>
@@ -713,7 +715,7 @@
     <string name="crash_dialog_heading">我们遇到了问题并且崩溃了</string>
     <!-- This string explains why Mozilla would like the user to allow the crash data to be uploaded.
          '%1$s' will be replaced at runtime with the app's domain name. -->
-    <string name="crash_dialog_message">希望您发送瘫痪数据，以帮助 Mozilla 改进 %1$s。&lt;a href=more&gt;了解更多&lt;/a&gt;</string>
+    <string name="crash_dialog_message"><![CDATA[希望您发送崩溃数据，以帮助 VIVPORT 改进 %1$s。]]></string>
     <!-- This string labels a checkbox in the crash dialog box. When checked, the user will no longer
          be prompted for permission to upload crash data after an application crash. -->
     <string name="crash_dialog_send_data">不再询问，始终发送数据</string>
@@ -738,7 +740,7 @@
     <!-- This string is displayed when selecting a video playback mode. -->
     <string name="video_mode_3d_side">3D 并排</string>
     <!-- This string is displayed when selecting a video playback mode. -->
-    <string name="video_mode_3d_top_bottom">三维 顶部 底部</string>
+    <string name="video_mode_3d_top_bottom">3D 上下</string>
     <!-- This string is displayed when selecting a video playback mode. -->
     <string name="video_mode_360">360°</string>
     <!-- This string is displayed when selecting a video playback mode. -->
@@ -921,7 +923,7 @@
     <string name="addons_install_dialog_title">要添加 %1$s 吗？</string>
     <!-- This string is displayed in the Addon install dialog body text and it will list the permissions that the addon requires. This dialog is displayed when an addon is installed.
      %1$s will be replaced by the permissions list-->
-    <string name="addons_install_dialog_body">&lt;p ALIGN=LEFT&gt;需要您的允许到网址：&lt;ul&gt;%1$s&lt;/ul&gt;&lt;/p&gt;</string>
+    <string name="addons_install_dialog_body"><![CDATA[<p ALIGN=LEFT>要求取得下列权限：<ul>%1$s</ul></p>]]></string>
     <!-- This string is displayed in the Addon install dialog "Cancel"" button, when pressed the dialog will be dismissed and the Addon install will be canceled.
     This dialog is displayed when an addon is installed. -->
     <string name="addons_install_dialog_cancel">取消</string>
@@ -965,7 +967,7 @@
     <!-- This string is displayed in the remove Addon error dialog title text.
     This dialog is displayed if the user clicks on the remove button from the Addon Details panel and the addon uninstall fails.
     '%1$' Will be replaced at runtime with the add-on name. -->
-    <string name="addons_remove_error_dialog_title">删除 %1$s 时出错</string>
+    <string name="addons_remove_error_dialog_title">移除 %1$s 时出错。</string>
     <!-- This string is displayed in the remove Addon dialog button text.
     This dialog is displayed if the user clicks on the remove button from the Addon Details panel and the addon uninstall fails.
     If the button is clicked, the dialog is dismissed. -->
@@ -1059,7 +1061,7 @@
     <string name="privacy_options_saved_login_delete">删除</string>
     <!-- This string is used to label radio buttons for setting ETP in.
          '%1$' Will be replaced at runtime with the Learn More url for ETP. -->
-    <string name="privacy_options_tracking">增强型跟踪保护。（&lt;a href=%1$s&gt;详细了解&lt;/a&gt;</string>
+    <string name="privacy_options_tracking"><![CDATA[增强型跟踪保护。（<a href="%1$s">详细了解</a>]]></string>
     <!-- This string labels the button in the privacy option panel that opens the dialog to add/remove
          Tracking protection exceptions. -->
     <string name="privacy_options_tracking_exceptions_v1">高级</string>
@@ -1344,7 +1346,7 @@
     <string name="voice_samples_collect_data_dialog_title">允许 %1$s 为研究收集语音样本吗？</string>
     <!-- This string is displayed in the description of the Voice Search samples collect dialog. That dialog is shown the first time
          a user tries to use the voice search. -->
-    <string name="voice_samples_collect_dialog_description2">为了改善语音识别和其他服务，我们需要收集语音样本进行研究。我们将会安全地存储您的数据，无需识别性信息。即使您拒绝我们收集您的语音作样本，您仍可正常使用语音搜索。&lt;a href=privacy&gt;详细了解&lt;/a&gt;</string>
+    <string name="voice_samples_collect_dialog_description2"><![CDATA[为了改善语音识别和其他服务，我们需要收集语音样本进行研究。我们将会安全地存储您的数据，并抹除可识别性信息。即使拒绝收集，您仍可正常使用语音搜索。<a href="privacy">详细了解</a>]]></string>
     <!-- This string is displayed in the button of the Voice Search samples collect dialog.
          When clicked the user opts in to the voice data collection. -->
     <string name="voice_samples_collect_dialog_allow">允许</string>
@@ -1463,7 +1465,7 @@ the Select` button. When clicked it closes all the previously selected tabs -->
     <string name="whats_new_title_1">登录以发送标签页</string>
     <!-- This string is displayed in the body of the what's new dialog that is displayed if the user has updated
          or updated the app and hasn't signed it yet. -->
-    <string name="whats_new_body_1">登录或创建一个新的 Mozilla 账户，以便您在台式机、笔记本电脑、移动设备向头戴式设备上的 Firefox 发送标签页。</string>
+    <string name="whats_new_body_1">创建或登录一个 Mozilla 账户，以便您在台式机、笔记本电脑、移动设备向头戴式设备上的 Firefox 发送标签页。</string>
     <!-- This string is displayed in the body of the what's new dialog that is displayed if the user has updated
          or updated the app and hasn't signed it yet. -->
     <string name="whats_new_body_sub_1">Mozilla 账户还可让您在所有设备上同步书签和历史记录。</string>
@@ -1557,7 +1559,7 @@ the Select` button. When clicked it closes all the previously selected tabs -->
     <string name="download_open_file_open_unsupported_body">不支持的文件类型。</string>
     <!-- This string is displayed in the body of the dialog displayed when we try to hand over the file open to
          the system but the system can't handle it either. -->
-    <string name="download_open_file_error_body">找不到处理此类型文件的应用程序。</string>
+    <string name="download_open_file_error_body">找不到处理此类型文件的应用程序</string>
     <!-- This string is displayed in the title of the dialog displayed when a download has been requested
          so the user can confirm if they want to actually download the file. -->
     <string name="download_confirm_title">您确定要下载此文件吗？</string>
@@ -1676,97 +1678,103 @@ the Select` button. When clicked it closes all the previously selected tabs -->
     <string name="hvr_enter_vr">进入VR</string>
     <!-- This strings are displayed in the privacy dialog on first launch. -->
     <string name="privacy_dialog_title">隐私</string>
-    <string name="privacy_dialog_message">您的隐私很重要。在运行浏览器前，请先同意我们的用户协议与隐私政策。感谢使用Wolvic！</string>
+    <string name="privacy_dialog_message">我们尊重您的隐私。在运行浏览器前，请先同意我们的服务条款与隐私政策。感谢使用Wolvic！</string>
     <string name="privacy_dialog_agree">同意</string>
     <string name="privacy_dialog_disagree">不同意</string>
     <!-- These strings are the content of the Terms of Service. -->
-    <string name="terms_service_title">Wolvic移动应用程序用户协议</string>
+    <string name="terms_service_title">服务条款</string>
     <string name="terms_service_section_1">
-    Wolvic 是免费的开源软件，由来自世界各地的数千名社区构建。您应该了解以下几点：
-    \n\n\t\u2022 Wolvic 是根据 Mozilla 公共许可证的条款向您提供的。这意味着您可以使用、复制 Wolvic 并将其分发给其他人。也欢迎您根据需要修改 Wolvic 的源代码。 Mozilla 公共许可证还赋予您分发修改版本的权利。
-    \n\n\t\u2022 您未被授予 Igalia 或任何一方的任何商标权或商标许可，包括但不限于 Wolvic 名称或徽标。
-    \n\n\t\u2022 Wolvic 中的某些功能（例如崩溃报告器）使您可以选择向 Igalia 提供反馈。选择提交反馈，即表示您授予 Igalia 使用反馈来改进其产品、在其网站上发布匿名反馈以及分发匿名反馈的权限。
-    \n\n\t\u2022 Wolvic 隐私政策中描述了我们如何使用您通过 Wolvic 提交给 Igalia 的个人信息和反馈。
-    \n\n\t\u2022 Wolvic 的一些功能利用基于网络的信息服务；但是，我们不能保证它们 100% 准确或没有错误。更多详细信息，包括有关如何禁用使用这些服务的功能的信息，可以在（如下）服务条款中找到。
+    Wolvic是免费的开源软件，由来自世界各地的数千社区成员建立。请知悉以下事项：
+    \n\n\t\u2022 Wolvic根据Mozilla公共许可证条款服务用户。这意味着您可以使用、复制和发送Wolvic给其他人。您也可以根据个人需求修改Wolvic的源代码。Mozilla公共许可证还赋予您传播个人修改版本的权力。
+    \n\n\t\u2022 您不具备Igalia或任何一方商标的商标使用权或使用许可，包括但不限于Wolvic名称或标志。
+    \n\n\t\u2022 Wolvic的某些功能，如碰撞报告器（Crash Reporter），允许您向Igalia提供反馈。如果选择提交反馈意见，代表您允许Igalia使用反馈意见来改进产品，允许在其网站上匿名公布并传播反馈意见。
+    \n\n\t\u2022 如对我们如何使用您的个人信息和通过Wolvic提交发聩感兴趣，可以访问Wolvic隐私政策。
+    \n\n\t\u2022 Wolvic某些功能利用了基于网络的信息服务；然而，我们不能保证使用信息100%准确性或无误的。更多细节，包括如何禁用使用这些服务功能的信息，请见以下服务条款。
     </string>
     <string name="terms_service_subtitle_2">Wolvic基于网络信息的服务</string>
     <string name="terms_service_section_2">
     Wolvic按照下述条款使用基于网络信息的服务（ “服务”）为您提供Wolvic二进制版本的某些功能：
     \n\n\t\u2022 Igalia及其贡献者、许可人和合作伙伴努力提供最准确和最新的服务。但是，我们不能保证这些信息是全面无误的。例如，安全浏览服务（Safe Browsing Service）可能无法识别一些有风险的网站，并可能错误地识别一些安全的网站；位置感知服务（Location Aware Service）中，服务提供商反馈的所有位置都只是估计位置，我们和服务提供商都不保证所提供的位置的准确性。
     \n\n\t\u2022 Igalia可自行决定停止或改变服务。
-    \n\n\t\u2022 Igalia欢迎您将这些服务与Wolvic配套版本一起使用。Igalia 授予您这样做的权利。Igalia及其许可人保留服务的所有其他权利。这些条款无意限制Wolvic及其相应源代码版本的开源许可证所赋予的任何权利。
+    \n\n\t\u2022 Igalia允许您将这些服务与Wolvic配套版本一起使用。Igalia及其许可人保留服务的所有其他权利。这些条款无意限制Wolvic及其相应源代码版本的开源许可证所赋予的任何权利。
     \n\n\t\u2022 根据“现状流程”提供服务。Igalia、其贡献者、许可人和分销商不提供任何明示或暗示的保证，包括但不限于保证服务适销以及符合您的特定目的。您将全部承担所选择的服务以及服务的质量和性能可能带来的风险。
     \n\n\t\u2022 除非法律要求，Igalia、其贡献者、许可人和分销商不对因使用 Wolvic和服务而引起的或以任何方式与之相关的任何间接、特殊、附带、后果性、惩罚性或惩戒性的损害负责。这些条款下的集体责任将不超过500美元（五百美元）。某些司法管辖区不允许排除或限制某些损害，因此本排除和限制条款可能不适用于您。
     \n\n\t\u2022 Igalia可根据需要不时地更新这些条款。未经Igalia的书面同意，不得修改或取消这些条款。
     \n\n\t\u2022 这些条款受西班牙法律管辖，法律冲突条款除外。如果这些条款的某些部分被认定为无效或不可执行，其余部分仍具备完全的效力和作用。如果这些条款的翻译版本与西班牙语版本之间发生冲突，则应以西班牙语版本为准。
     \n\n\t\u2022 如果您不想使用一项或多项服务，或不接受上述条款，您可以禁用该功能或服务。关于如何禁用某项功能或服务的说明如下。其他功能和服务可在应用程序偏好中禁用。
     \n\n\t\t\u25e6 安全浏览默认启用。不建议禁用安全浏览功能，因为可能会导致您进入不安全的网站。如果您想完全禁用该功能，请遵循以下步骤：
-    \n\n\t\t\t\u2043 在网络地址（URL）栏中，输入about:config。
-    \n\n\t\t\t\u2043 输入browser.safebrowsing.malware.enabled。
-    \n\n\t\t\t\u2043 双击browser.safebrowsing.malware.enabled preference。
-    \n\n\t\t\t\u2043 输入browser.safebrowsing.phishing.enabled。
-    \n\n\t\t\t\u2043 双击browser.safebrowsing.phishing.enabled preference。
+    \n\n\t\t\t\u2043 在网络地址（URL）栏中，输入about:config
+    \n\n\t\t\t\u2043 输入browser.safebrowsing.malware.enabled
+    \n\n\t\t\t\u2043 双击browser.safebrowsing.malware.enabled preference
+    \n\n\t\t\t\u2043 输入browser.safebrowsing.phishing.enabled
+    \n\n\t\t\t\u2043 双击browser.safebrowsing.phishing.enabled preference
     \n\n\t\t\t\u2043 安全浏览已被禁用
     \n\n\t\t\u25e6 位置感知浏览（Location Aware Browsing）：始终需要确认。未经您的许可，绝不会发送任何位置信息。如果您想完全禁用该功能，请按以下步骤操作：
-    \n\n\t\t\t\u2043 在网络地址（URL）栏中，输入about:config。
-    \n\n\t\t\t\u2043 输入geo.enabled。
-    \n\n\t\t\t\u2043 双击geo.enabled preference。
-    \n\n\t\t\t\u2043 位置感知浏览已被禁用。
-    \n\n\t\t\u25e6 Wolvic 中的增强跟踪保护会在您浏览时自动保护您的隐私。它会阻止在线跟踪您的跟踪器，以收集有关您的浏览习惯和兴趣的信息，而不会破坏网站功能。它还包括针对有害脚本的保护，例如耗尽电池电量的恶意软件。跟踪保护共有三种模式：标准、严格和关闭。如果您想将其关闭，请按照下列步骤操作：
-    \n\n\t\t\t\u2043 转到“隐私和安全”设置。
-    \n\n\t\t\t\u2043 选择“关闭”单选按钮。
-    \n\n\t\t\t\u2043 增强跟踪保护现已禁用。
+    \n\n\t\t\t\u2043 在网络地址（URL）栏中，输入 about:config
+    \n\n\t\t\t\u2043 输入 geo.enabled
+    \n\n\t\t\t\u2043 双击geo.enabled preference
+    \n\n\t\t\t\u2043 位置感知浏览功能现已被禁用
+    \n\n\t\t\u25e6 Wolvic的增强跟踪保护功能（Enhanced Tracking Protection）在您浏览时自动保护隐私。它会阻止跟踪器在线跟踪您以收集您的浏览习惯和兴趣信息，而不会破坏网站功能。 它还包括针对有害脚本的保护，例如耗尽电池电量的恶意软件。 跟踪保护有三种模式：标准（Standard）、严格（Strict）和关闭（off）。 如果您想关闭它，请按照下列步骤操作：
+    \n\n\t\t\t\u2043 进入“隐私和安全”（“Privacy &amp; Security”）设置
+    \n\n\t\t\t\u2043 选择“关闭”（“Off”）单选按钮
+    \n\n\t\t\t\u2043 增强跟踪保护功能（Enhanced Tracking Protection）现已被禁用
     </string>
     <!-- These strings are the content of the Privacy Policy. -->
-    <string name="privacy_policy_title">Wolvic移动应用程序隐私政策</string>
-    <string name="privacy_policy_subtitle_1">通告</string>
+    <string name="privacy_policy_title">WOLVIC基本隐私政策</string>
+    <string name="privacy_policy_subtitle_1">基本信息</string>
     <string name="privacy_policy_section_1">
-        该应用程序由 Igalia, SL（以下简称 IGALIA）开发，注册办事处位于 Bugallal Marchesi, 22 – 1°, 15008, A Coruña, Galicia (Spain)，其联系方式为：
-        \n\n\t\u2022 电话号码: +34 981 913991;
-        \n\t\u2022 邮箱: info@igalia.com
-        \n\n构成该应用程序的内容和元素已由 IGALIA 根据开源许可证实施和/或开发，并不受限制地受到西班牙王国的知识产权和工业产权法以及可能存在的国际条约和协议的保护。
+        本应用程序由Igalia, SL公司（以下简称IGALIA）开发，注册地址为西班牙加利西亚拉科鲁尼亚Bugallal Marchesi街22号1层，邮编：15008，（Bugallal Marchesi, 22 - 1º, 15008, A Coruña, Galicia, Spain），联系方式如下：
+        \n\n\t\u2022 电话：+34 981 913991
+        \n\t\u2022 电子邮件: info@igalia.com
+        \n\n 构成应用程序的内容和元素由IGALIA在开放源码许可下实施和/或开发，并无限制地受西班牙王国的知识产权和工业产权法律以及可能涉及的国际条约和协议的保护。
     </string>
     <string name="privacy_policy_subtitle_2">数据保护</string>
     <string name="privacy_policy_section_2">
-    IGALIA 致力于遵守有关保护个人数据的法律规定：欧洲议会和理事会 2016 年 4 月 27 日颁布的关于在处理个人数据和处理方面保护自然人的法规 (EU) 2016/679关于此类数据的自由流动并废除第 95/46/EC 号指令（一般数据保护条例）以及 12 月 5 日第 3/2018 号组织法，关于数据保护和数字权利保障 (LOPDGDD)。
-    \nIGALIA 不会以可识别用户身份的方式收集个人数据。因此，您可以使用该应用程序、查阅和浏览虚拟现实环境，而无需直接或间接透露您的身份或向 IGALIA 提供个人数据；因此，IGALIA 对在 WOLVIC 中输入的任何数据不承担任何责任。
-    \nIGALIA从本应用程序的使用中获得的唯一数据和信息，在任何时候都不会与用户关联，这些数据和信息如下：
-    \n\n\t\u2022 分析性的、纯统计性的、非身份识别性的数据。
-    \n\t\u2022 为了获取声音并将其译成文本，用户的声音数据将通过相关应用程序接口（API）发送到负责每个平台的第三方公司的服务器上：例如，Facebook旗下的Oculus，声音数据将被发送到Oculus Voice SDK。上述数据在任何时候都不会被处理、访问或纳入IGALIA服务器中。传送的数据将由拥有各平台的第三方公司（以下简称“第三方”）全权负责，这些公司可能位于欧盟以外，并受用户隐私保护程度较弱的法律制度约束。我们建议您在接受和使用这些外部平台的服务之前，仔细阅读其隐私政策和使用条款。IGALIA不会直接或间接对上述第三方的个人数据处理负责。
-    \n\t\u2022 地理位置信息可能从浏览器中获得，而非系统所在的地理位置信息。然而，要获取地理位置信息，必须通过相关具体通知设置设备位置权限，IGALIA不会以任何方式将上述信息用以确定和识别您的身份，但上一点中所提及的第三方可能会进行相关操作。我们建议您关注第三方的法律条款。
-    \n\t\u2022 IGALIA不会以任何方式访问或储存您访问过的地址或网络地址（URL）。
-    \n\t\u2022 如果使用云服务（如火狐账户或谷歌账户）集成同步您的浏览历史或用户书签等数据。在这种情况下，IGALIA不会以任何方式访问或处理任何信息，且该信息不会经过IGALIA服务器。
-    \n\n我们再次提醒您，您通过此应用程序访问或使用的第三方平台可能会收集有关您的此或其他识别数据，无论是自愿或非自愿和/或有意或无意地填写，这可能超出欧洲数据保护立法的范围。因此，我们建议您自行了解并特别注意所述第三方的法律条款，例如以下内容：
-    \n\n\t\u2022 Google: https://policies.google.com/privacy
-    \n\t\u2022 Facebook: https://www.facebook.com/about/privacy/update
-    \n\t\u2022 MeetKai: https://meetkai.com/privacy
-    \n\n同样，IGALIA 通知您，在使用浏览器的语音识别选项时，Meetkai 将保留您语音的完全匿名语音转录，以改善他们提供的服务。您的声音不会被保留，也不会以任何方式将转录内容与您的身份联系起来。有关 MeetKai 隐私政策的更多信息，请访问以下链接：https://meetkai.com/es/privacy。 Igalia 既没有兴趣将转录内容与任何用户联系起来，也没有兴趣影响他们的隐私；因此，Igalia 要求其声音地址中不得包含任何类型的个人或机密信息。
-    \n在任何情况下，IGALIA 保证利益相关方对其个人数据行使访问、更正、删除、反对、限制处理和可移植性的权利。
-    \n为此，IGALIA 制定了内部协议/程序来执行它们。
-    \n感兴趣的各方可以通过以下方式行使自己的权利：通过向 IGALIA 的实际地址发送请求：Calle Bugallal Marchesi, 22, 1o, 15008, A Coruña，参考号：“数据保护”；或者发送至以下电子邮件地址：info@igalia.com。
-    \n在这两种情况下，利害关系方都必须附上其国民身份证、护照或身份证明文件的副本以证明其身份。
-    \n\n\t\u2022 数据保护官或受委托管理权利的部门将以为此目的可用的表格记录权利的行使，其中将记录以下数据：
-    \n\t\u2022 申请编号：每份收到的申请都会分配一个编号。
-    \n\t\u2022 总部：如果负责人有多个总部，则将注明收到请求的总部。
-    \n\t\u2022 提出索赔的渠道：将注明接收请求的渠道：实际邮件地址、邮件等。
-    \n\t\u2022 提交日期：将注明提交请求的日期。
-    \n\t\u2022 行使的权利：个人行使的权利类型。
-    \n\t\u2022 回复日：回复发送给相关方的日期。
-    \n\n支持文件（请求/响应的收据、通信等）将被存档，以证明其管理正确。
-    \n同样，我们提醒您，您有权向西班牙数据保护局提出索赔。
+IGALIA承诺遵守相关个人数据保护的法律规定：2016年4月27日欧洲议会和理事会关于保护自然人处理个人数据和此类数据自由流动的第2016/679号欧盟条例，废除95/46/EC欧盟指令（《通用数据保护条例》）；12 月 5 日第 3/2018 号《个人数据保护和保障数字权利组织法》（LOPDGDD）。
+        \n “个人数据”指任何与个人身份识别，提供直接或间接地追踪个人身份的相关信息，特别是身份信息，例如姓名、识别号码、位置数据等，或者结合其它与特定个人相关的可识别信息，例如上述人的身体、生理、遗传、精神、经济、文化或社会身份标识。
+        \n IGALIA不会以可识别用户的方式收集个人数据。因此，您可以在不透露身份的情况下，或直接或间接向IGALIA提供个人数据的情况下使用该应用程序，咨询和浏览虚拟现实环境；因此，IGALIA将不对任何输入WOLVIC的数据负责。
+        \n IGALIA从本应用程序的使用中获得的唯一数据和信息，在任何时候都不会与用户关联，这些数据和信息如下：
+        \n\n\t\u2022 分析性的、纯统计性的、非身份识别性的数据。
+        \n\t\u2022 为了获取声音并将其译成文本，用户的声音数据将通过相关应用程序接口（API）发送到负责每个平台的第三方公司的服务器上：例如，Facebook旗下的Oculus，声音数据将被发送到Oculus Voice SDK。上述数据在任何时候都不会被处理、访问或纳入IGALIA服务器中。传送的数据将由拥有各平台的第三方公司（以下简称“第三方”）全权负责，这些公司可能位于欧盟以外，并受用户隐私保护程度较弱的法律制度约束。我们建议您在接受和使用这些外部平台的服务之前，仔细阅读其隐私政策和使用条款。IGALIA不会直接或间接对上述第三方的个人数据处理负责。
+        \n\t\u2022 地理位置信息可能从浏览器中获得，而非系统所在的地理位置信息。然而，要获取地理位置信息，必须通过相关具体通知设置设备位置权限，IGALIA不会以任何方式将上述信息用以确定和识别您的身份，但上一点中所提及的第三方可能会进行相关操作。我们建议您关注第三方的法律条款。
+        \n\t\u2022 IGALIA不会以任何方式访问或储存您访问过的地址或网络地址（URL）。
+        \n\t\u2022 如果使用云服务（如火狐账户或谷歌账户）集成同步您的浏览历史或用户书签等数据。在这种情况下，IGALIA不会以任何方式访问或处理任何信息，且该信息不会经过IGALIA服务器。
+        \n\n同样，您会注意到本应用程序将针对您的设备请求一系列特殊权限，下面我们就其功能和用途进行说明：
+        \n\n\t\u2022 录音权限：如果您授权，除了Meetkai提供的语音搜索功能（“语音搜索”）之外，它还将用于翻译功能（上述语音到文本），可以在这里阅读其隐私政策： https://meetkai.com/privacy
+        \n\n\t\u2022 拍摄照片和视频的权限：通过跟踪系统，如果用户的设备使用相机记录用户所处物理空间的环境和地点，则可能会请求此权限。 IGLIA 不访问或处理任何信息。
+        \n\n\t\u2022 读取、修改或删除存储卡上的照片、多媒体内容和文件的权限：这是必要的，以便浏览器可以在设备上保存本地信息，例如缓存文件、设置、访问的页面和收藏夹等。IGALIA 不访问或处理所述信息。
+        \n\n\t\u2022 根据 GPS、电话站或 WIFI 等来源获取位置信息的权限：如果您授权，您的应用程序将始终显示一个图标，以示连接类型，以及在适当情况下，上面提到的地理位置。 IGLIA 绝不会将上述信息与您作为已识别或可识别的人联系起来，但是上述第三方可能会这样做（如果适用的话）。请注意他们的法律条款。具体来说，在华为设备中，GPS 信息会被访问并提供给公司名为“LocationService”的服务。
+        \n\n 我们再次提醒您，您访问或使用本应用程序的第三方平台可能会收集上述数据或其他身份识别数据(自愿或非自愿地、有意或无意填写的数据)，相关数据收集可能超出欧洲数据保护立法的范围。因此，我们建议您了解并特别关注相关第三方法律条款，例如：
+        \n\n\t\u2022 谷歌: https://policies.google.com/privacy
+        \n\t\u2022 Facebook: https://www.facebook.com/about/privacy/update
+        \n\t\u2022 华为: https://www.huawei.com/es/privacy-policy
+        \n\n 同样, 望您知悉, 在使用浏览器的语音识别选项时, Meetkai将以完全匿名的方式保存您的语音转录, 用于改善其服务。Meetkai不会直接保存您的语音, 也不会以任何方式关联您的语音转录与您的身份。更多关于MeetKai的隐私策略请看: https://meetkai.com/es/privacy Igalia也无意于关联任何语音转录和身份或影响其隐私, 因此, Igalia 要求其声音地址中不得包含任何个人或机密信息。
+        \n 在任何情况下，IGALIA保证当事人对其个人数据行使访问、纠正、删除、反对、限制处理和转移的权利。
+        \n 为此，IGALIA已建立内部协议/程序来行使以上权利。
+        \n 当事人可通过以下方式行使该权利：致信IGALIA的公司所在地：拉科鲁尼亚Bugallal Marchesi街22号1层，邮编15008，（Calle Bugallal Marchesi, 22, 1º, 15008, A Coruña），注明“数据保护”（“Data Protection”）；或者，发送电子邮件至info@igalia.com。
+        \n 使用以上两种方式联系时，当事人必须附上国民身份证、护照或身份证明文件的副本，以证明其身份。
+        \n\n\t\u2022 数据保护官员或相关权利管理部门将在专用表格中记录权利行使事宜，其中包含以下数据：
+        \n\t\u2022 申请号：将为每份收到的申请分配一个编号。
+        \n\t\u2022 管理部门：如果负责人管理多个部门，将写明收到申请的部门。
+        \n\t\u2022 投诉提交渠道：将写明收到请求的渠道，包括邮寄地址、邮件等。
+        \n\t\u2022 申请日期：将注明申请被提交的日期。
+        \n\t\u2022 行使的权利：当事人行使的权利类型。
+        \n\t\u2022 反馈日期：向当事人发送答复的日期。
+        \n\n 支持性文件（请求/回复受理凭证、通信等）将被存档，以便妥善保管。
+        \n 同样，提醒您，您有权向西班牙数据保护局投诉。
     </string>
     <string name="privacy_policy_subtitle_3">适用法律和原文语言</string>
     <string name="privacy_policy_section_3">
-        本隐私政策受西班牙法律管辖。该应用程序的隐私政策语言是西班牙语。因此，西班牙语原始版本与其翻译成其他语言之间的任何可能的差异都将被视为西班牙语版本中的主要差异，可以在此处找到：https://wolvic.com/es/legal/privacy/。
+        本隐私政策受西班牙法律管辖。本应用程序的隐私政策语言为西班牙语。因此，西班牙语原文版本和其他语言的译文之间可能出现的任何分歧，均以西班牙语版本为准。
     </string>
     <string name="settings_privacy_choose_search_engine_description">选择你偏爱的搜索引擎。</string>
     <string name="voice_search_unsupported">您的语言尚无语音搜索支持。</string>
     <string name="voice_search_server_error">目前尚无语音搜索。</string>
-    <string name="settings_terms_service">用户协议</string>
+    <string name="settings_terms_service">服务条款</string>
     <string name="settings_privacy_search_engine_title">搜索引擎</string>
     <string name="settings_privacy_choose_search_engine_reset">重置搜索引擎设置</string>
-    <string name="external_open_uri_error_title">外部应用程序打开错误</string>
-    <string name="external_open_uri_error_security_exception_body">启动为 %1$s的 意图出现安全异常错误</string>
+    <string name="external_open_uri_error_title">打开其他应用错误</string>
+    <string name="external_open_uri_error_security_exception_body">启动为 %1$s的 intent 出现安全异常错误</string>
     <string name="external_open_uri_error_bad_uri_body">非法uri %1$s</string>
     <string name="external_open_uri_error_no_activity_body">无法找到处理%1$s的应用程序</string>
     <string name="language_options_voice_search_service_title">语音搜索服务</string>
@@ -1774,7 +1782,7 @@ the Select` button. When clicked it closes all the previously selected tabs -->
     <string name="voice_service_huawei_asr">华为自动语音识别</string>
     <string name="language_service_options_reset">重新设置语音搜索服务</string>
     <string name="settings_language_choose_language_voice_search_service_title">语音搜索服务</string>
-    <string name="settings_language_choose_language_voice_search_service_description">选择您偏爱的线上服务来进行语音搜索。</string>
+    <string name="settings_language_choose_language_voice_search_service_description">用你首选的线上服务来进行语音搜索。</string>
     <string name="settings_language_galician">加利西亚语</string>
     <string name="permissions_dialog_remember_choice">记住这个决定</string>
     <string name="settings_language_portuguese_br">西班牙语（巴西）</string>
@@ -1799,38 +1807,26 @@ the Select` button. When clicked it closes all the previously selected tabs -->
     <string name="download_addon_install">安装插件</string>
     <string name="download_addon_install_cancel">取消</string>
     <string name="download_addon_install_blocked_body">要继续安装请在开发者选项中选择允许本地插件安装。</string>
-    <string name="settings_language_portuguese">葡萄牙语</string>
+    <string name="settings_language_portuguese">西班牙语</string>
     <string name="security_options_permission_fine_location_warning">Wolvic 只可以获取您的大致位置。 您可在系统设置菜单更改设置。</string>
     <string name="upload_list_empty">无可上载文档</string>
     <string name="hamburger_menu_toggle_passthrough">通过</string>
-    <string name="deprecated_version_dialog_body">Wolvic 的“App Lab”版本将于2023年10月底删除。
+    <string name="deprecated_version_dialog_body">您当前在运行一Wolvic \"试验应用\" 开发版本。它将在2023年10月底停止使用。
 \n
 \n请安装 Meta Quest 商店的Wolvic最新版本。
 \n
-\n重要提示：除非您用同步，新版 Wolvic应用不会有你的书签和标签页。</string>
-    <string name="deprecated_version_dialog_title">支持即将结束</string>
+\n重要提示：除非您用Mozilla同步，新版 Wolvic应用不会有你的书签和标签页。</string>
+    <string name="deprecated_version_dialog_title">建议的更新</string>
     <string name="deprecated_version_dialog_info_button">了解更多…</string>
     <string name="deprecated_version_dialog_store_button">安装…</string>
     <string name="user_feedback_tooltip">分享想法和反馈</string>
-    <string name="keyboardview_keycode_shift">换档键</string>
+    <string name="keyboardview_keycode_shift">换档</string>
     <string name="keyboardview_keycode_done">完成</string>
     <string name="keyboardview_keycode_delete">删除</string>
-    <string name="keyboardview_keycode_alt">Alt键</string>
+    <string name="keyboardview_keycode_alt">Alt</string>
     <string name="keyboardview_keycode_cancel">取消</string>
     <string name="keyboardview_keycode_mode_change">模式转变</string>
     <string name="keyboardview_keycode_enter">回车键</string>
-    <string name="tray_wifi_unavailable_ssid">服务集标识SSID不可用</string>
-    <string name="permission_camera_and_microphone_rationale">提供视频会议等服务需要您的摄像头和麦克风权限。</string>
-    <string name="permission_persistent_storage_rationale">在设备上保存和打开文件，需要获得在持久存储中存储数据的权限。</string>
-    <string name="permission_microphone_rationale">进行语音搜索和文本输入需要使用您的麦克风权限。</string>
-    <string name="permission_location_rationale">提供附近的新闻和内容，需要获得访问您位置的权限。</string>
-    <string name="permission_notification_rationale">为了通知您新闻和更新，需要获得发送通知的权限。</string>
-    <string name="permission_rationale_title">需要额外权限</string>
-    <string name="permission_camera_rationale">拍摄周围世界的图像需要获得使用您的摄像头的权限。</string>
-    <string name="permission_read_external_storage_rationale">打开设备上的文件需要获得读取您的外部存储权限。</string>
-    <string name="phone_ui_alert_dialog_title">错误</string>
-    <string name="phone_ui_usb_alert_dialog_description">获取 USB 权限失败。尝试拔下眼镜并插回，然后重启 Wolvic。</string>
-    <string name="vision_glass_disconnected_message">请连接Vision Glass</string>
-    <string name="vision_glass_error_message">发生错误。请重试。</string>
-    <string name="phone_ui_set3dmode_alert_dialog_description">切换到 3D 模式失败。尝试拔下眼镜并插回，然后重新启动 Wolvic。</string>
+
+    <string name="tray_wifi_unavailable_ssid">SSID不可知</string>
 </resources>

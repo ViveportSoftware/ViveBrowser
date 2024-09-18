@@ -66,6 +66,8 @@
                         android:id="@+id/favicon"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
+                        android:maxWidth="40dp"
+                        android:adjustViewBounds="true"
                         android:paddingEnd="10dp"
                         android:src="@drawable/ic_icon_globe" />
 

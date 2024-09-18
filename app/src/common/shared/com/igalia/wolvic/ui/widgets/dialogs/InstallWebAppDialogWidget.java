@@ -1,5 +1,6 @@
 package com.igalia.wolvic.ui.widgets.dialogs;
 
+import android.app.Activity;
 import android.content.Context;
 
 import androidx.annotation.NonNull;

@@ -85,30 +85,12 @@ JNI_METHOD(void, drawGL)
 
 JNI_METHOD(void, touchEvent)
 (JNIEnv*, jobject, jboolean aDown, jfloat aX, jfloat aY) {
-    sAppContext->mDevice->ControllerButtonPressed(aDown);
+    sAppContext->mDevice->TouchEvent(aDown, aX, aY);
 }
 
 JNI_METHOD(void, setHead)
 (JNIEnv*, jobject, jdouble aX, jdouble aY, jdouble aZ, jdouble aW) {
-    if (!sAppContext || !sAppContext->mDevice) {
-        return;
-    }
     sAppContext->mDevice->setHead(aX, aY, aZ, aW);
-}
-
-JNI_METHOD(void, setControllerOrientation)
-(JNIEnv*, jobject, jdouble aX, jdouble aY, jdouble aZ, jdouble aW) {
-    if (!sAppContext || !sAppContext->mDevice) {
-        return;
-    }
-    sAppContext->mDevice->setControllerOrientation(aX, aY, aZ, aW);
-}
-
-JNI_METHOD(void, calibrateController)
-(JNIEnv*, jobject) {
-    if (!sAppContext || !sAppContext->mDevice)
-        return;
-    sAppContext->mDevice->CalibrateController();
 }
 
 jint JNI_OnLoad(JavaVM* aVm, void*) {

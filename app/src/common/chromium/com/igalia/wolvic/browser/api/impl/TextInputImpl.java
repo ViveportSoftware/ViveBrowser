@@ -130,7 +130,12 @@ public class TextInputImpl implements WTextInput {
     @Nullable
     @Override
     public InputConnection onCreateInputConnection(@NonNull EditorInfo attrs) {
-        return getImeAdapter().onCreateInputConnection(attrs);
+        ImeAdapter adapter = getImeAdapter();
+        if (adapter == null) {
+            return null;
+        } else {
+            return adapter.onCreateInputConnection(attrs);
+        }
     }
 
     @Override

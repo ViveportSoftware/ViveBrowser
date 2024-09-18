@@ -81,7 +81,7 @@ public class KeyboardWidget extends UIWidget implements CustomKeyboardView.OnKey
     private CustomKeyboardView mKeyboardView;
     private CustomKeyboardView mKeyboardNumericView;
     private CustomKeyboardView mPopupKeyboardView;
-    private ArrayList<KeyboardInterface> mKeyboards;
+    private final ArrayList<KeyboardInterface> mKeyboards = new ArrayList<>();
     private KeyboardInterface mCurrentKeyboard;
     private CustomKeyboard mDefaultKeyboardSymbols;
     private CustomKeyboard mKeyboardNumeric;
@@ -275,15 +275,11 @@ public class KeyboardWidget extends UIWidget implements CustomKeyboardView.OnKey
         mKeyboardLayout = findViewById(R.id.keyboardLayout);
         mKeyboardContainer = findViewById(R.id.keyboardContainer);
         mLanguageSelectorView.setDelegate(aItem -> handleLanguageChange((KeyboardInterface) aItem.tag, Remember.YES));
-        mAutoCompletionView = findViewById(R.id.autoCompletionView);
-        mAutoCompletionView.setExtendedHeight((int)(mWidgetPlacement.height * mWidgetPlacement.density));
-        mAutoCompletionView.setDelegate(this);
         mControlButtons = findViewById(R.id.controlButtons);
 
         mDomainSelectorView = findViewById(R.id.domainSelectorView);
         mDomainSelectorView.setDelegate(this::handleDomainChange);
 
-        mKeyboards = new ArrayList<>();
         mKeyboards.add(new EnglishKeyboard(aContext));
         mKeyboards.add(new ChinesePinyinKeyboard(aContext));
         mKeyboards.add(new ChineseZhuyinKeyboard(aContext));
@@ -398,7 +394,7 @@ public class KeyboardWidget extends UIWidget implements CustomKeyboardView.OnKey
         aPlacement.worldWidth = WidgetPlacement.floatDimension(context, R.dimen.keyboard_world_width);
         aPlacement.visible = false;
         // FIXME: keyboard is misplaced when rendered in a cylinder layer.
-        aPlacement.cylinder = false;
+        aPlacement.cylinder = !((VRBrowserActivity) getContext()).areLayersEnabled();
         aPlacement.layerPriority = 1;
         updatePlacementTranslationZ();
     }
@@ -566,6 +562,7 @@ public class KeyboardWidget extends UIWidget implements CustomKeyboardView.OnKey
     @Override
     public void onPress(int primaryCode) {
         Log.d(LOGTAG, "Keyboard onPress " + primaryCode);
+        mWidgetManager.triggerHapticFeedback();
     }
 
     @Override
@@ -614,6 +611,7 @@ public class KeyboardWidget extends UIWidget implements CustomKeyboardView.OnKey
             handleDomainLongPress();
             mIsLongPress = true;
         }
+        mWidgetManager.triggerHapticFeedback();
     }
 
     public void onMultiTap(Keyboard.Key key) {
@@ -733,6 +731,15 @@ public class KeyboardWidget extends UIWidget implements CustomKeyboardView.OnKey
         if (aLocale == null) {
             return null;
         }
+
+        //When locale is zh, it will get value like zh_TW_#Hant, and it cannot equal to Locale.TRADITIONAL_CHINESE (zh_TW)
+        if(aLocale.toString().contains("zh_TW")){
+            aLocale = Locale.TRADITIONAL_CHINESE;
+        }
+        else if(aLocale.toString().contains("zh_CN")){
+            aLocale = Locale.SIMPLIFIED_CHINESE;
+        }
+
         // Check perfect locale mach
         for (KeyboardInterface keyboard: mKeyboards) {
             if (keyboard.getLocale().equals(aLocale)) {
@@ -871,14 +878,20 @@ public class KeyboardWidget extends UIWidget implements CustomKeyboardView.OnKey
 
     private void handleDomain() {
         if (!mIsLongPress) {
-            handleText(mCurrentKeyboard.getDomains()[0], true);
+            String[] domains = mCurrentKeyboard.getDomains();
+            if (domains != null && domains.length > 0) {
+                handleText(mCurrentKeyboard.getDomains()[0], true);
+            }
         }
     }
 
     private void handleDomainLongPress() {
         ArrayList<KeyboardSelectorView.Item> items = new ArrayList<>();
-        for (String item: mCurrentKeyboard.getDomains()) {
-            items.add(new KeyboardSelectorView.Item(item, item));
+        String[] domains = mCurrentKeyboard.getDomains();
+        if (domains != null && domains.length > 0) {
+            for (String item: mCurrentKeyboard.getDomains()) {
+                items.add(new KeyboardSelectorView.Item(item, item));
+            }
         }
         mDomainSelectorView.setItems(items);
 
@@ -947,7 +960,11 @@ public class KeyboardWidget extends UIWidget implements CustomKeyboardView.OnKey
         NO;
     }
 
-    private void handleLanguageChange(KeyboardInterface aKeyboard, Remember remember) {
+    private void handleLanguageChange(@Nullable KeyboardInterface aKeyboard, Remember remember) {
+        if (aKeyboard == null) {
+            return;
+        }
+
         cleanComposingText();
 
         mCurrentKeyboard = aKeyboard;
@@ -1005,18 +1022,14 @@ public class KeyboardWidget extends UIWidget implements CustomKeyboardView.OnKey
         }
         final InputConnection connection = mInputConnection;
         final int action = mEditorInfo.imeOptions & EditorInfo.IME_MASK_ACTION;
-        final boolean hide = (action == EditorInfo.IME_ACTION_DONE) || (action == EditorInfo.IME_ACTION_GO) ||
-                (action == EditorInfo.IME_ACTION_SEARCH) || (action == EditorInfo.IME_ACTION_SEND);
-        postInputCommand(() -> postDisplayCommand(() -> {
-            // Handle the action before clearing the focus, otherwise URL autocomplete will be lost.
-            connection.performEditorAction(action);
+        postInputCommand(() -> postDisplayCommand(() -> connection.performEditorAction(action)));
 
-            postUICommand(() -> {
-                if (hide && mFocusedView != null) {
-                    mFocusedView.clearFocus();
-                }
-            });
-        }));
+        boolean hide = (action == EditorInfo.IME_ACTION_DONE) || (action == EditorInfo.IME_ACTION_GO) ||
+                (action == EditorInfo.IME_ACTION_SEARCH) || (action == EditorInfo.IME_ACTION_SEND);
+
+        if (hide && mFocusedView != null) {
+            mFocusedView.clearFocus();
+        }
     }
 
     private void handleShowKeyboard(Keyboard aKeyboard) {
@@ -1260,8 +1273,12 @@ public class KeyboardWidget extends UIWidget implements CustomKeyboardView.OnKey
     }
 
     private Runnable mHideSpaceBarLanguageLabel = () -> {
-        mCurrentKeyboard.getAlphabeticKeyboard().setSpaceKeyLabel("");
-        mKeyboardView.invalidateAllKeys();
+        if (mCurrentKeyboard != null) {
+            mCurrentKeyboard.getAlphabeticKeyboard().setSpaceKeyLabel("");
+        }
+        if (mKeyboardView != null) {
+            mKeyboardView.invalidateAllKeys();
+        }
     };
 
     private void updateSpaceBarLanguageLabel() {
@@ -1272,7 +1289,9 @@ public class KeyboardWidget extends UIWidget implements CustomKeyboardView.OnKey
     }
 
     private void setAutoCompletionVisible(boolean aVisible) {
-        mAutoCompletionView.setVisibility(aVisible ? View.VISIBLE : View.GONE);
+        if (mAutoCompletionView != null) {
+            mAutoCompletionView.setVisibility(aVisible ? View.VISIBLE : View.GONE);
+        }
         mAutoCompleteHoverDeviceId = -1;
     }
 
@@ -1376,6 +1395,11 @@ public class KeyboardWidget extends UIWidget implements CustomKeyboardView.OnKey
 
     @Override
     public void showSoftInput(@NonNull WSession session) {
+        
+        if(session != null){
+            session.setFocused(true);
+        }
+
         if (mFocusedView != mAttachedWindow || getVisibility() != View.VISIBLE || mInputRestarted) {
             post(() -> updateFocusedView(mAttachedWindow));
         }
@@ -1411,9 +1435,22 @@ public class KeyboardWidget extends UIWidget implements CustomKeyboardView.OnKey
 
     @Override
     public void onGlobalFocusChanged(View oldFocus, View newFocus) {
-        updateFocusedView(newFocus);
+        updateFocusedView(instanceOfContentView(newFocus) ? mAttachedWindow : newFocus);
     }
 
+    private boolean instanceOfContentView(View view) {
+        boolean result = false;
+        if(view != null){
+            try {
+                String className = "org.chromium.components.embedder_support.view.ContentView";
+                Class<?> clazz = Class.forName(className);
+                result = clazz.isAssignableFrom(view.getClass());
+            } catch (ClassNotFoundException e) {
+                //e.printStackTrace();
+            }
+        }
+        return result;
+    }
 
     // VoiceSearch Delegate
     @Override
@@ -1498,9 +1535,4 @@ public class KeyboardWidget extends UIWidget implements CustomKeyboardView.OnKey
         aOldSession.removeTextInputListener(this);
         aSession.addTextInputListener(this);
     }
-
-    public void simulateVoiceButtonClick() {
-        mKeyboardVoiceButton.performClick();
-    }
-
 }

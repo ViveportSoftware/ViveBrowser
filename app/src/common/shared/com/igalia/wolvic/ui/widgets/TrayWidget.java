@@ -228,24 +228,24 @@ public class TrayWidget extends UIWidget implements WidgetManagerDelegate.Update
             view.requestFocusFromTouch();
         });
 
-        mBinding.wifi.setOnHoverListener((view, motionEvent) -> {
-            if (motionEvent.getAction() == MotionEvent.ACTION_HOVER_ENTER) {
-                NotificationManager.Notification notification = new NotificationManager.Builder(TrayWidget.this)
-                        .withView(mBinding.wifi)
-                        .withDensity(R.dimen.tray_tooltip_density)
-                        .withLayout(R.layout.tooltip)
-                        .withString(mWifiSSID)
-                        .withAutoHide(false)
-                        .withMargin(-15.0f)
-                        .withPosition(NotificationManager.Notification.TOP).build();
-                NotificationManager.show(WIFI_NOTIFICATION_ID, notification);
-
-            } else if (motionEvent.getAction() == MotionEvent.ACTION_HOVER_EXIT) {
-                NotificationManager.hide(WIFI_NOTIFICATION_ID);
-            }
-
-            return false;
-        });
+        // 取消掉hover显示 @see V3D-976
+//        mBinding.wifi.setOnHoverListener((view, motionEvent) -> {
+//            if (motionEvent.getAction() == MotionEvent.ACTION_HOVER_ENTER) {
+//                NotificationManager.Notification notification = new NotificationManager.Builder(TrayWidget.this)
+//                        .withView(mBinding.wifi)
+//                        .withDensity(R.dimen.tray_tooltip_density)
+//                        .withLayout(R.layout.tooltip)
+//                        .withString(mWifiSSID)
+//                        .withAutoHide(false)
+//                        .withMargin(-15.0f)
+//                        .withPosition(NotificationManager.Notification.TOP).build();
+//                NotificationManager.show(WIFI_NOTIFICATION_ID, notification);
+//            } else if (motionEvent.getAction() == MotionEvent.ACTION_HOVER_EXIT) {
+//                NotificationManager.hide(WIFI_NOTIFICATION_ID);
+//            }
+//
+//            return false;
+//        });
 
         mBinding.leftController.setOnHoverListener((view, motionEvent) -> {
             if (motionEvent.getAction() == MotionEvent.ACTION_HOVER_ENTER) {
@@ -308,7 +308,7 @@ public class TrayWidget extends UIWidget implements WidgetManagerDelegate.Update
                         .withDensity(R.dimen.tray_tooltip_density)
                         .withLayout(R.layout.tooltip)
                         .withString(getContext().getString(
-                                DeviceType.isTetheredDevice() ? R.string.tray_status_phone : R.string.tray_status_headset,
+                                R.string.tray_status_headset,
                                 String.format(
                                         LocaleUtils.getDisplayLanguage(
                                                 getContext()).getLocale(),
@@ -366,11 +366,7 @@ public class TrayWidget extends UIWidget implements WidgetManagerDelegate.Update
                 }
             };
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            context.registerReceiver(mBroadcastReceiver, new IntentFilter(Intent.ACTION_TIME_TICK), Context.RECEIVER_NOT_EXPORTED);
-        } else {
-            context.registerReceiver(mBroadcastReceiver, new IntentFilter(Intent.ACTION_TIME_TICK));
-        }
+        context.registerReceiver(mBroadcastReceiver, new IntentFilter(Intent.ACTION_TIME_TICK));
     }
 
     public void stop(Context context) {
@@ -863,7 +859,7 @@ public class TrayWidget extends UIWidget implements WidgetManagerDelegate.Update
                 // Getting the SSID, even if it's just to show it to the user, is considered
                 // "recollection of personal information" by Huawei store in Mainland China so avoid
                 // getting it.
-                if (DeviceType.isHVRBuild() && DeviceType.getStoreType() == DeviceType.StoreType.MAINLAND_CHINA) {
+                if (BuildConfig.FLAVOR_store.toLowerCase().contains("mainlandchina") && DeviceType.isHVRBuild()) {
                     mWifiSSID = getContext().getString(R.string.tray_wifi_unavailable_ssid);
                 } else {
                     WifiInfo currentWifi = wifiManager.getConnectionInfo();

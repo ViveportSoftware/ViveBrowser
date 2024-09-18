@@ -13,6 +13,7 @@ import androidx.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.StyleSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.TextView;
 
@@ -20,6 +21,7 @@ import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 
 import com.igalia.wolvic.R;
+import com.igalia.wolvic.browser.PermissionDelegate;
 import com.igalia.wolvic.browser.SettingsStore;
 import com.igalia.wolvic.databinding.OptionsLanguageBinding;
 import com.igalia.wolvic.speech.SpeechServices;
@@ -27,6 +29,7 @@ import com.igalia.wolvic.ui.adapters.Language;
 import com.igalia.wolvic.ui.widgets.WidgetManagerDelegate;
 import com.igalia.wolvic.ui.widgets.WidgetPlacement;
 import com.igalia.wolvic.utils.LocaleUtils;
+import com.igalia.wolvic.utils.SystemUtils;
 
 import java.util.List;
 
@@ -37,6 +40,8 @@ class LanguageOptionsView extends SettingsView {
     private SettingsView mContentLanguage;
     private SettingsView mVoiceLanguage;
     private SettingsView mDisplayLanguage;
+
+    protected final String LOGTAG = SystemUtils.createLogtag(this.getClass());
 
     public LanguageOptionsView(Context aContext, WidgetManagerDelegate aWidgetManager) {
         super(aContext, aWidgetManager);
@@ -51,6 +56,8 @@ class LanguageOptionsView extends SettingsView {
         mDisplayLanguage = new DisplayLanguageOptionsView(getContext(), mWidgetManager);
 
         mPrefs = PreferenceManager.getDefaultSharedPreferences(aContext);
+        if(mPrefs==null)
+            Log.e(LOGTAG, "Null pointer, LanguageOptionsView.initialize: mPrefs");
     }
 
     @Override
@@ -121,11 +128,13 @@ class LanguageOptionsView extends SettingsView {
         if (preferredLanguages.size() > 0) {
             text = preferredLanguages.get(0).getDisplayName();
         }
-        mBinding.contentLanguageDescription.setText(getSpannedLanguageText(text));
+        if (mBinding != null)
+            mBinding.contentLanguageDescription.setText(getSpannedLanguageText(text));
     }
 
     private void setDisplayLanguage() {
-        mBinding.displayLanguageDescription.setText(getSpannedLanguageText(LocaleUtils.getDisplayLanguage(getContext()).getDisplayName()));
+        if (mBinding != null)
+            mBinding.displayLanguageDescription.setText(getSpannedLanguageText(LocaleUtils.getDisplayLanguage(getContext()).getDisplayName()));
     }
 
     private int getLanguageIndex(@NonNull String text) {
@@ -149,13 +158,25 @@ class LanguageOptionsView extends SettingsView {
         return spanned;
     }
 
-    private OnClickListener mContentListener = v -> mDelegate.showView(SettingViewType.LANGUAGE_CONTENT);
+    private OnClickListener mContentListener = v -> {
+        if (mDelegate != null)
+            mDelegate.showView(SettingViewType.LANGUAGE_CONTENT);
+    };
 
-    private OnClickListener mVoiceSearchServiceListener = v -> mDelegate.showView(SettingViewType.LANGUAGE_VOICE_SERVICE);
+    private OnClickListener mVoiceSearchServiceListener = v -> {
+        if (mDelegate != null)
+            mDelegate.showView(SettingViewType.LANGUAGE_VOICE_SERVICE);
+    };
 
-    private OnClickListener mVoiceSearchListener = v -> mDelegate.showView(SettingViewType.LANGUAGE_VOICE);
+    private OnClickListener mVoiceSearchListener = v -> {
+        if (mDelegate != null)
+            mDelegate.showView(SettingViewType.LANGUAGE_VOICE);
+    };
 
-    private OnClickListener mDisplayListener = v -> mDelegate.showView(SettingViewType.LANGUAGE_DISPLAY);
+    private OnClickListener mDisplayListener = v -> {
+        if (mDelegate != null)
+            mDelegate.showView(SettingViewType.LANGUAGE_DISPLAY);
+    };
 
     private SharedPreferences.OnSharedPreferenceChangeListener mPreferencesListener = (sharedPreferences, key) -> {
         if (key.equals(getContext().getString(R.string.settings_key_content_languages))) {

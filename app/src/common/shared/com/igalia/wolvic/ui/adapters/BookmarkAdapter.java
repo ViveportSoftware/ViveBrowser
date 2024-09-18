@@ -1,7 +1,9 @@
 package com.igalia.wolvic.ui.adapters;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -47,6 +49,8 @@ public class BookmarkAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private int mMaxPadding;
     private boolean mIsNarrowLayout;
 
+    private Context mContext;
+
     @Nullable
     private final BookmarkItemCallback mBookmarkItemCallback;
 
@@ -57,6 +61,8 @@ public class BookmarkAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         mMaxPadding = WidgetPlacement.pixelDimension(aContext, R.dimen.library_icon_padding_max);
 
         mIsNarrowLayout = false;
+
+        mContext = aContext;
 
         setHasStableIds(false);
     }

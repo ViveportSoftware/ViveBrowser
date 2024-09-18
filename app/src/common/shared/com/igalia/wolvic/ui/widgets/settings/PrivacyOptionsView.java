@@ -11,6 +11,7 @@ import android.app.Application;
 import android.content.Context;
 import android.graphics.Point;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +31,7 @@ import com.igalia.wolvic.ui.widgets.WidgetManagerDelegate;
 import com.igalia.wolvic.ui.widgets.WidgetPlacement;
 import com.igalia.wolvic.ui.widgets.WindowWidget;
 import com.igalia.wolvic.utils.DeviceType;
+import com.igalia.wolvic.utils.SystemUtils;
 
 import java.util.ArrayList;
 
@@ -37,6 +39,7 @@ class PrivacyOptionsView extends SettingsView {
 
     private OptionsPrivacyBinding mBinding;
     private ArrayList<Pair<SwitchSetting, String>> mPermissionButtons;
+    protected final String LOGTAG = SystemUtils.createLogtag(this.getClass());
 
     public PrivacyOptionsView(Context aContext, WidgetManagerDelegate aWidgetManager) {
         super(aContext, aWidgetManager);
@@ -57,7 +60,11 @@ class PrivacyOptionsView extends SettingsView {
 
         // Inflate this data binding layout
         mBinding = DataBindingUtil.inflate(inflater, R.layout.options_privacy, this, true);
-
+        if(mBinding==null)
+        {
+            Log.e(LOGTAG, "Null pointer, PrivacyOptionsView.updateUI: mBinding");
+            return;
+        }
         mScrollbar = mBinding.scrollbar;
 
         // Header
@@ -70,6 +77,8 @@ class PrivacyOptionsView extends SettingsView {
         mBinding.showTermsButton.setOnClickListener(v -> mDelegate.showView(SettingViewType.TERMS_OF_SERVICE));
 
         mBinding.showPrivacyButton.setOnClickListener(v -> mDelegate.showView(SettingViewType.PRIVACY_POLICY));
+
+        mBinding.showLicensButton.setOnClickListener(v -> mDelegate.showView(SettingViewType.LEGAL_LICENSE));
 
         mBinding.clearCookiesSite.setOnClickListener(v -> {
             SessionStore.get().clearCache(
@@ -181,7 +190,7 @@ class PrivacyOptionsView extends SettingsView {
             aButton.setChecked(true);
 
         } else {
-            mWidgetManager.requestPermission("", aPermission, WidgetManagerDelegate.OriginatorType.APPLICATION, new WSession.PermissionDelegate.Callback() {
+            mWidgetManager.requestPermission("", aPermission, new WSession.PermissionDelegate.Callback() {
                 @Override
                 public void grant() {
                     aButton.setChecked(true);

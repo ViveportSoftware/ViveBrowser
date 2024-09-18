@@ -84,14 +84,16 @@ public class PromptDelegate implements
         mViewModel.getAll(SitePermission.SITE_PERMISSION_POPUP).observeForever(mPopUpSiteObserver);
         mViewModel.getAll(SitePermission.SITE_PERMISSION_AUTOFILL).observeForever(mSavedLoginExceptionsObserver);
 
-        if (getSession() != null) {
-            setUpSession(getSession());
+        final Session session = getSession();
+        if (session != null) {
+            setUpSession(session);
         }
     }
 
     public void detachFromWindow() {
-        if (getSession() != null) {
-            cleanSession(getSession());
+        final Session session = getSession();
+        if (session != null) {
+            cleanSession(session);
         }
 
         if (mAttachedWindow != null) {

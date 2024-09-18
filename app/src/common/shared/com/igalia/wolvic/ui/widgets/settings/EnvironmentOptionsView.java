@@ -28,6 +28,7 @@ import com.igalia.wolvic.utils.EnvironmentUtils;
 import com.igalia.wolvic.utils.EnvironmentsManager;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Arrays;
 
@@ -59,15 +60,15 @@ class EnvironmentOptionsView extends SettingsView implements EnvironmentsManager
 
         mScrollbar = mBinding.scrollbar;
 
+        mEnvironmentsRadio = findViewById(R.id.environmentRadio);
+        mEnvironmentsRadio.setOnCheckedChangeListener(mEnvsListener);
+        updateEnvironments();
+
         // Header
         mBinding.headerLayout.setBackClickListener(view -> onDismiss());
 
         // Footer
         mBinding.footerLayout.setFooterButtonClickListener(mResetListener);
-
-        mEnvironmentsRadio = findViewById(R.id.environmentRadio);
-        mEnvironmentsRadio.setOnCheckedChangeListener(mEnvsListener);
-        updateEnvironments();
 
         mBinding.envOverrideSwitch.setOnCheckedChangeListener(mEnvOverrideListener);
         setEnvOverride(SettingsStore.getInstance(getContext()).isEnvironmentOverrideEnabled());
@@ -124,13 +125,18 @@ class EnvironmentOptionsView extends SettingsView implements EnvironmentsManager
     private ImageRadioGroupSetting.OnCheckedChangeListener mEnvsListener = this::setEnv;
 
     private void setEnv(int checkedId, boolean doApply) {
+        if (mEnvironmentsRadio == null) {
+            return;
+        }
         mEnvironmentsRadio.setOnCheckedChangeListener(null);
         mEnvironmentsRadio.setChecked(checkedId, doApply);
         mEnvironmentsRadio.setOnCheckedChangeListener(mEnvsListener);
 
         String value = (String) mEnvironmentsRadio.getValueForId(checkedId);
 
-        mEnvironmentsManager.setOrDownloadEnvironment(value);
+        if (mEnvironmentsManager != null) {
+            mEnvironmentsManager.setOrDownloadEnvironment(value);
+        }
     }
 
     @Override
@@ -158,16 +164,17 @@ class EnvironmentOptionsView extends SettingsView implements EnvironmentsManager
                         ((VRBrowserApplication) getContext().getApplicationContext()).getExecutors().backgroundThread().post(() -> {
                             try {
                                 URL url = new URL(environment.getThumbnail());
-                                Bitmap thumbnail = BitmapFactory.decodeStream(url.openStream());
-                                ((VRBrowserApplication) getContext().getApplicationContext()).getExecutors().mainThread().execute(() -> {
-                                    mEnvironmentsRadio.updateOption(
-                                            environment.getValue(),
-                                            environment.getTitle(),
-                                            new BitmapDrawable(getContext().getResources(), thumbnail)
-                                    );
-                                    BitmapCache.getInstance(getContext()).addBitmap(environment.getThumbnail(), thumbnail);
-                                });
-
+                                try(InputStream inputStream = url.openStream()) {
+                                    Bitmap thumbnail = BitmapFactory.decodeStream(inputStream);
+                                    ((VRBrowserApplication) getContext().getApplicationContext()).getExecutors().mainThread().execute(() -> {
+                                        mEnvironmentsRadio.updateOption(
+                                                environment.getValue(),
+                                                environment.getTitle(),
+                                                new BitmapDrawable(getContext().getResources(), thumbnail)
+                                        );
+                                        BitmapCache.getInstance(getContext()).addBitmap(environment.getThumbnail(), thumbnail);
+                                    });
+                                }
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }

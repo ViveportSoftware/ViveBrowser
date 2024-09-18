@@ -99,9 +99,7 @@ public:
   virtual void DeleteLayer(const VRLayerPtr& aLayer) {};
   virtual bool IsControllerLightEnabled() const { return true; }
   virtual vrb::LoadTask GetControllerModelTask(int32_t index) { return nullptr; } ;
-  virtual void OnControllersCreated(std::function<void()> callback) { callback(); }
-  typedef std::function<bool()> ControllersReadyCallback;
-  virtual void OnControllersReady(const ControllersReadyCallback& callback) {
+  virtual void OnControllersReady(const std::function<void()>& callback) {
     callback();
   }
   class ReorientClient {
@@ -117,12 +115,6 @@ public:
   virtual void UpdateHandMesh(const uint32_t aControllerIndex, const std::vector<vrb::Matrix>& handJointTransforms,
                               const vrb::GroupPtr& aRoot, const bool aEnabled, const bool leftHanded) {};
   virtual void DrawHandMesh(const uint32_t aControllerIndex, const vrb::Camera&) {};
-  virtual void SetHitDistance(const float) {};
-  enum class PointerMode {
-    TRACKED_POINTER,
-    TRACKED_EYE
-  };
-  virtual void SetPointerMode(const PointerMode) {};
 
 protected:
   DeviceDelegate() {}

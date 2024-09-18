@@ -17,8 +17,6 @@
 #include "vrb/RenderContext.h"
 #include "vrb/Vector.h"
 #include "JNIUtil.h"
-#include "DeviceUtils.h"
-#include "OneEuroFilter.h"
 
 #include <vector>
 #include <cassert>
@@ -36,41 +34,34 @@ jmethodID sSetRenderMode;
 
 namespace crow {
 
-static const float kDiagonalFOV = 41.0f;
-const vrb::Vector kAverageHeight(0.0f, 1.6f, 0.0f);
 static const int32_t kControllerIndex = 0;
+static const vrb::Vector& GetHomePosition() {
+  static vrb::Vector homePosition(0.0f, 1.55f, 3.0f);
+  return homePosition;
+}
 
 struct DeviceDelegateVisionGlass::State {
   vrb::RenderContextWeak context;
   device::RenderMode renderMode;
-  ImmersiveDisplayPtr immersiveDisplay;
+  ImmersiveDisplayPtr display;
   ControllerDelegatePtr controller;
   vrb::CameraEyePtr cameras[2];
   vrb::Color clearColor;
-  vrb::Quaternion controllerOrientation;
+  vrb::Matrix headingMatrix;
+  vrb::Vector position;
   bool clicked;
   GLsizei glWidth, glHeight;
   float near, far;
-  vrb::Matrix reorientMatrix;
-  crow::ElbowModelPtr elbow;
-  std::unique_ptr<OneEuroFilterQuaternion> orientationFilter;
-  vrb::Quaternion headOrientation;
-  vrb::Quaternion controllerCalibration;
   State()
       : renderMode(device::RenderMode::StandAlone)
+      , headingMatrix(vrb::Matrix::Identity())
+      , position(GetHomePosition())
       , clicked(false)
       , glWidth(0)
       , glHeight(0)
       , near(0.1f)
       , far(1000.0f)
-      , reorientMatrix(vrb::Matrix::Identity())
-      , elbow(ElbowModel::Create())
   {
-      SetupOrientationFilter();
-  }
-
-  void SetupOrientationFilter() {
-      orientationFilter = std::make_unique<OneEuroFilterQuaternion>(0.25, 2, 1.0);
   }
 
   void Initialize() {
@@ -87,34 +78,21 @@ struct DeviceDelegateVisionGlass::State {
   }
 
   void UpdateDisplay() {
-    if (!immersiveDisplay)
+    if (!display)
       return;
 
-    if (glHeight == 0 || glWidth == 0)
-      return;
-
-    // Compute horizontal and vertical FOV from diagonal FOV and aspect ratio.
-    // https://medium.com/insights-on-virtual-reality/converting-diagonal-field-of-view-and-aspect-ratio-to-horizontal-and-vertical-field-of-view-13bcc1d8600c
-    auto degToRad = [](float deg) { return deg * M_PI / 180.0; };
-    auto radToDeg = [](float rad) { return rad * 180.0 / M_PI; };
-    auto width = (float) glWidth / 2; // glWidth is sum of the width of both displays
-    auto diagonalSize = sqrt(pow(glWidth / 2, 2) + pow(glHeight, 2));
-    auto horizontalFOV = atan(tan(degToRad(kDiagonalFOV / 2)) * (width / diagonalSize)) * 2;
-    horizontalFOV = radToDeg(horizontalFOV);
-    auto verticalFOV = (horizontalFOV * glHeight) / width;
-
-    float halfHorizontalFOV = horizontalFOV / 2;
-    float halfVerticalFOV = verticalFOV / 2;
-    vrb::Matrix fov = vrb::Matrix::PerspectiveMatrix(degToRad(halfHorizontalFOV), degToRad(halfHorizontalFOV),
-                                                     degToRad(halfVerticalFOV), degToRad(halfVerticalFOV), near, far);
+    vrb::Matrix fov = vrb::Matrix::PerspectiveMatrixWithResolutionDegrees(glWidth, glHeight,
+                                                                          60.0f, -1.0f,
+                                                                          near, far);
+    float left(0.0f), right(0.0f), top(0.0f), bottom(0.0f), n2(0.0f), f2(0.0f);
+    fov.DecomposePerspectiveDegrees(left, right, top, bottom, n2, f2);
 
     cameras[0]->SetPerspective(fov);
     cameras[1]->SetPerspective(fov);
-    immersiveDisplay->SetEyeResolution((int32_t)(glWidth / 2), glHeight);
-    immersiveDisplay->SetFieldOfView(device::Eye::Left, halfHorizontalFOV, halfHorizontalFOV, halfVerticalFOV, halfVerticalFOV);
-    immersiveDisplay->SetFieldOfView(device::Eye::Right, halfHorizontalFOV, halfHorizontalFOV, halfVerticalFOV, halfVerticalFOV);
+    display->SetFieldOfView(device::Eye::Left, left, right, top, bottom);
+    display->SetFieldOfView(device::Eye::Right, left, right, top, bottom);
 
-    immersiveDisplay->SetCapabilityFlags(device::PositionEmulated | device::Orientation | device::Present | device::InlineSession | device::ImmersiveVRSession);
+    display->SetCapabilityFlags(device::Position | device::Orientation | device::Present | device::InlineSession | device::ImmersiveVRSession);
   }
 };
 
@@ -141,6 +119,12 @@ DeviceDelegateVisionGlass::SetRenderMode(const device::RenderMode aMode) {
     sEnv->CallVoidMethod(sActivity, sSetRenderMode, (aMode == device::RenderMode::Immersive ? 1 : 0));
     CheckJNIException(sEnv, __FUNCTION__);
   }
+  if (aMode != device::RenderMode::StandAlone) {
+    m.position = vrb::Vector();
+  } else {
+    // recenter when leaving immersive mode.
+    RecenterView();
+  }
 }
 
 device::RenderMode
@@ -150,11 +134,11 @@ DeviceDelegateVisionGlass::GetRenderMode() {
 
 void
 DeviceDelegateVisionGlass::RegisterImmersiveDisplay(ImmersiveDisplayPtr aDisplay) {
-  m.immersiveDisplay = aDisplay;
-  if (m.immersiveDisplay) {
-    m.immersiveDisplay->SetDeviceName("Vision Glass");
+  m.display = aDisplay;
+  if (m.display) {
+    m.display->SetDeviceName("Vision Glass");
     m.UpdateDisplay();
-    m.immersiveDisplay->CompleteEnumeration();
+    m.display->CompleteEnumeration();
   }
 }
 
@@ -174,18 +158,18 @@ DeviceDelegateVisionGlass::GetHeadTransform() const {
 
 const vrb::Matrix&
 DeviceDelegateVisionGlass::GetReorientTransform() const {
-  return m.reorientMatrix;
+  static vrb::Matrix identity(vrb::Matrix::Identity());
+  return identity;
 }
 
 void
 DeviceDelegateVisionGlass::SetReorientTransform(const vrb::Matrix& aMatrix) {
-  m.reorientMatrix = aMatrix;
+  // Ignore reorient transform
 }
 
 void
 DeviceDelegateVisionGlass::Reorient() {
-    vrb::Matrix head = GetHeadTransform();
-    m.reorientMatrix = DeviceUtils::CalculateReorientationMatrixOnHeadLock(head, kAverageHeight);
+  // Ignore reorient
 }
 
 void
@@ -203,16 +187,13 @@ DeviceDelegateVisionGlass::SetClipPlanes(const float aNear, const float aFar) {
 void
 DeviceDelegateVisionGlass::SetControllerDelegate(ControllerDelegatePtr& aController) {
   m.controller = aController;
-  m.controller->CreateController(kControllerIndex, kControllerIndex, "Vision Glass Controller");
+  m.controller->CreateController(kControllerIndex, -1, "Oculus Touch (Right)"); // "Wolvic Virtual Controller");
   m.controller->SetEnabled(kControllerIndex, true);
+  m.controller->SetCapabilityFlags(kControllerIndex, device::Orientation | device::Position);
+  m.controller->SetButtonCount(kControllerIndex, 5);
   m.controller->SetTargetRayMode(kControllerIndex, device::TargetRayMode::TrackedPointer);
-  m.controller->SetControllerType(kControllerIndex, device::VisionGlass);
-  m.controller->SetMode(kControllerIndex, ControllerMode::Device);
-  m.controller->SetAimEnabled(kControllerIndex, true);
-  m.controller->SetCapabilityFlags(kControllerIndex, device::Orientation | device::PositionEmulated);
-
-  m.controller->SetButtonCount(kControllerIndex, 1);
-  m.controller->SetButtonState(kControllerIndex, ControllerDelegate::BUTTON_TRIGGER, device::kImmersiveButtonTrigger, false, false);
+  static const float data[2] = {0.0f, 0.0f};
+  m.controller->SetAxes(kControllerIndex, data, 2);
 }
 
 void
@@ -222,66 +203,47 @@ DeviceDelegateVisionGlass::ReleaseControllerDelegate() {
 
 int32_t
 DeviceDelegateVisionGlass::GetControllerModelCount() const {
-  return 1;
-}
-
-bool DeviceDelegateVisionGlass::IsControllerLightEnabled() const {
-  return false;
+  return 0;
 }
 
 const std::string
 DeviceDelegateVisionGlass::GetControllerModelName(const int32_t) const {
-  return "Vision Glass";
-}
-
-void
-DeviceDelegateVisionGlass::SetHitDistance(const float distance) {
-  // Scale the beam so it reaches all the way to the pointer.
-  auto beamTransform = vrb::Matrix::Identity();
-  beamTransform.ScaleInPlace(vrb::Vector(1.0, 1.0, distance));
-  m.controller->SetBeamTransform(kControllerIndex, beamTransform);
+  static const std::string name;
+  return name;
 }
 
 void
 DeviceDelegateVisionGlass::ProcessEvents() {}
 
-vrb::Quaternion
-DeviceDelegateVisionGlass::CorrectedHeadOrientation() const {
-    return { m.headOrientation.x(), m.headOrientation.y(), -m.headOrientation.z(), -m.headOrientation.w() };
-}
-
 void
 DeviceDelegateVisionGlass::StartFrame(const FramePrediction aPrediction) {
   VRB_GL_CHECK(glClearColor(m.clearColor.Red(), m.clearColor.Green(), m.clearColor.Blue(), m.clearColor.Alpha()));
+  VRB_GL_CHECK(glEnable(GL_DEPTH_TEST));
+  VRB_GL_CHECK(glEnable(GL_CULL_FACE));
+  VRB_GL_CHECK(glEnable(GL_BLEND));
   VRB_GL_CHECK(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
   mShouldRender = true;
+  if (m.controller) {
+    vrb::RenderContextPtr context = m.context.lock();
+    if (context) {
+      float level = 100.0 - std::fmod(context->GetTimestamp(), 100.0);
+      m.controller->SetBatteryLevel(kControllerIndex, (int32_t)level);
+    }
+  }
 
-  // We need to flip the Z axis coming from the SDK to get the proper rotation.
-  auto headingMatrix = vrb::Matrix::Rotation(CorrectedHeadOrientation());
-  auto headTransform = headingMatrix.Translate(kAverageHeight);
+  const float IPD = 0;
+  m.cameras[0]->SetEyeTransform(vrb::Matrix::Translation(vrb::Vector(-IPD * 0.5f, 0.f, 0.f)));
+  m.cameras[1]->SetEyeTransform(vrb::Matrix::Translation(vrb::Vector(IPD * 0.5f, 0.f, 0.f)));
+  auto headTransform = m.headingMatrix.Translate(m.position);
   m.cameras[0]->SetHeadTransform(headTransform);
   m.cameras[1]->SetHeadTransform(headTransform);
-  m.immersiveDisplay->SetEyeTransform(device::Eye::Left, m.cameras[0]->GetEyeTransform());
-  m.immersiveDisplay->SetEyeTransform(device::Eye::Right, m.cameras[1]->GetEyeTransform());
-
-  // Update controller
-  if (!m.controller)
-    return;
-
-  float timestamp;
-  {
-      timestamp = m.context.lock()->GetTimestamp() * 1e9;
-  }
-  float* filteredOrientation = m.orientationFilter->filter(timestamp, m.controllerOrientation.Data());
-  auto calibratedControllerOrientation = m.controllerCalibration * vrb::Quaternion(filteredOrientation);
-  vrb::Matrix transformMatrix = vrb::Matrix::Rotation(calibratedControllerOrientation.Conjugate());
-  auto pointerTransform = m.elbow->GetTransform(ElbowModel::HandEnum::None, headTransform, transformMatrix);
-  m.controller->SetTransform(kControllerIndex, pointerTransform);
+  m.display->SetEyeOffset(device::Eye::Left, -IPD * 0.5f, 0.f, 0.f);
+  m.display->SetEyeOffset(device::Eye::Right, IPD * 0.5f, 0.f, 0.f);
 }
 
 void
 DeviceDelegateVisionGlass::BindEye(const device::Eye aEye) {
-  VRB_GL_CHECK(glViewport(aEye == device::Eye::Left ? 0 : m.glWidth / 2, 0, m.glWidth / 2, m.glHeight));
+  // noop
 }
 
 void
@@ -339,6 +301,12 @@ DeviceDelegateVisionGlass::Resume() {
 
 }
 
+void
+DeviceDelegateVisionGlass::RecenterView() {
+  m.position = m.renderMode == device::RenderMode::Immersive ? m.position = vrb::Vector() : GetHomePosition();
+  m.headingMatrix = vrb::Matrix::Identity();
+}
+
 static float
 Clamp(const float aValue) {
   if (aValue < -1.0f) {
@@ -347,6 +315,48 @@ Clamp(const float aValue) {
     return 1.0f;
   }
   return aValue;
+}
+
+void
+DeviceDelegateVisionGlass::TouchEvent(const bool aDown, const float aX, const float aY) {
+  static const vrb::Vector sForward(0.0f, 0.0f, -1.0f);
+  if (!m.controller) {
+    return;
+  }
+  if (m.renderMode == device::RenderMode::Immersive) {
+    m.controller->SetButtonState(kControllerIndex, ControllerDelegate::BUTTON_TOUCHPAD, 0, false, false);
+    m.clicked = false;
+  } else if (aDown != m.clicked) {
+    m.controller->SetButtonState(kControllerIndex, ControllerDelegate::BUTTON_TOUCHPAD, 0, aDown, aDown);
+    m.clicked = aDown;
+  }
+
+  const float viewportWidth = m.glWidth;
+  const float viewportHeight = m.glHeight;
+  if ((viewportWidth <= 0.0f) || (viewportHeight <= 0.0f)) {
+    return;
+  }
+  const float xModifier = (m.renderMode == device::RenderMode::Immersive ? viewportWidth / 2.0f : 0.0f);
+  const float width = Clamp((((aX - xModifier) / viewportWidth) * 2.0f) - 1.0f);
+  const float height = (((viewportHeight - aY) / viewportHeight) * 2.0f) - 1.0f;
+
+  vrb::Vector start(width, height, -1.0f);
+  vrb::Vector end(width, height, 1.0f);
+  vrb::Matrix inversePerspective = m.cameras[0]->GetPerspective().Inverse();
+  start = inversePerspective.MultiplyPosition(start);
+  end = inversePerspective.MultiplyPosition(end);
+  vrb::Matrix view = m.cameras[0]->GetTransform();
+  start = view.MultiplyPosition(start);
+  end = view.MultiplyPosition(end);
+  const vrb::Vector direction = (end - start).Normalize();
+  const vrb::Vector up = sForward.Cross(direction);
+  const float angle = acosf(sForward.Dot(direction));
+  vrb::Matrix transform = vrb::Matrix::Rotation(up, angle);
+  if (m.renderMode == device::RenderMode::Immersive) {
+    start += direction * 0.3f;
+  }
+  transform.TranslateInPlace(start);
+  m.controller->SetTransform(kControllerIndex, transform);
 }
 
 void
@@ -366,23 +376,8 @@ DeviceDelegateVisionGlass::ControllerButtonPressed(const bool aDown) {
 
 void
 DeviceDelegateVisionGlass::setHead(const float aX, const float aY, const float aZ, const float aW) {
-  m.headOrientation = vrb::Quaternion(aX, aY, aZ, aW);
-}
-
-void
-DeviceDelegateVisionGlass::setControllerOrientation(const float aX, const float aY, const float aZ, const float aW) {
-    m.controllerOrientation = vrb::Quaternion(aX, aY, aZ, aW);
-}
-
-void
-DeviceDelegateVisionGlass::CalibrateController() {
-  // When the controller is calibrated we reset the phone IMU. This means that the controller
-  // orientation is the identity quaternion ATM. So we store the current head position, and then we
-  // just need to revert this rotation (conjugate) to get controller orientation that points to the
-  // same direction as the head.
-  // Last but not least, we directly store the conjugate here to avoid computing it on each frame.
-  m.controllerCalibration = CorrectedHeadOrientation().Conjugate();
-  m.SetupOrientationFilter();
+  // We need to flip the Z axis comming from the SDK to get the proper rotation.
+  m.headingMatrix = vrb::Matrix::Rotation({aX,aY,-aZ,-aW});
 }
 
 DeviceDelegateVisionGlass::DeviceDelegateVisionGlass(State& aState) : m(aState) {}

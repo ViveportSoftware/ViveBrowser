@@ -41,8 +41,6 @@ public:
   void StartFrame(const FramePrediction aPrediction) override;
   void BindEye(const device::Eye) override;
   void EndFrame(const FrameEndMode aMode) override;
-  bool IsControllerLightEnabled() const override;
-  void SetHitDistance(const float) override;
   // DeviceDelegateVisionGlass interface
   void InitializeJava(JNIEnv* aEnv, jobject aActivity);
   void ShutdownJava();
@@ -52,15 +50,13 @@ public:
   void TouchEvent(const bool aDown, const float aX, const float aY);
   void ControllerButtonPressed(const bool aDown);
   void setHead(const float aX, const float aY, const float aZ, const float aW);
-  void setControllerOrientation(const float aX, const float aY, const float aZ, const float aW);
-  void CalibrateController();
 protected:
   struct State;
   DeviceDelegateVisionGlass(State& aState);
   virtual ~DeviceDelegateVisionGlass();
 private:
+  void RecenterView();
   State& m;
-  vrb::Quaternion CorrectedHeadOrientation() const;
   VRB_NO_DEFAULTS(DeviceDelegateVisionGlass)
 };
 

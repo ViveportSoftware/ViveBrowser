@@ -197,42 +197,62 @@ struct Cylinder::State {
 CylinderPtr
 Cylinder::Create(vrb::CreationContextPtr aContext, const float aRadius, const float aHeight, const VRLayerCylinderPtr& aLayer) {
   CylinderPtr result = std::make_shared<vrb::ConcreteClass<Cylinder, Cylinder::State> >(aContext);
-  result->m.radius = aRadius;
-  result->m.height = aHeight;
-  result->m.layer = aLayer;
-  result->m.Initialize();
+    if(result){
+        result->m.radius = aRadius;
+        result->m.height = aHeight;
+        result->m.layer = aLayer;
+        result->m.Initialize();
+    }
+    else{
+        VRB_ERROR("Null pointer, file: %s, function: %s, line: %d",__FILE__, __FUNCTION__, __LINE__);
+    }
   return result;
 }
 
 CylinderPtr
 Cylinder::Create(vrb::CreationContextPtr aContext, const float aRadius, const float aHeight, const vrb::Color& aSolidColor, const float aBorder, const vrb::Color& aBorderColor) {
   CylinderPtr result = std::make_shared<vrb::ConcreteClass<Cylinder, Cylinder::State> >(aContext);
-  result->m.radius = aRadius;
-  result->m.height = aHeight;
-  result->m.solidColor = aSolidColor;
-  result->m.border = aBorder;
-  result->m.borderColor = aBorderColor;
-  result->m.Initialize();
+    if(result){
+        result->m.radius = aRadius;
+        result->m.height = aHeight;
+        result->m.solidColor = aSolidColor;
+        result->m.border = aBorder;
+        result->m.borderColor = aBorderColor;
+        result->m.Initialize();
+    }
+    else{
+        VRB_ERROR("Null pointer, file: %s, function: %s, line: %d",__FILE__, __FUNCTION__, __LINE__);
+    }
   return result;
 }
 
 CylinderPtr
 Cylinder::Create(vrb::CreationContextPtr aContext, const Cylinder& aCylinder) {
   CylinderPtr result = std::make_shared<vrb::ConcreteClass<Cylinder, Cylinder::State> >(aContext);
-  result->m.radius = aCylinder.m.radius;
-  result->m.height = aCylinder.m.height;
-  result->m.solidColor = aCylinder.m.solidColor;
-  result->m.border = aCylinder.m.border;;
-  result->m.borderColor = aCylinder.m.borderColor;
-  result->m.Initialize();
+    if(result){
+        result->m.radius = aCylinder.m.radius;
+        result->m.height = aCylinder.m.height;
+        result->m.solidColor = aCylinder.m.solidColor;
+        result->m.border = aCylinder.m.border;;
+        result->m.borderColor = aCylinder.m.borderColor;
+        result->m.Initialize();
+    }
+    else{
+        VRB_ERROR("Null pointer, file: %s, function: %s, line: %d",__FILE__, __FUNCTION__, __LINE__);
+    }
   return result;
 }
 
 CylinderPtr
 Cylinder::Create(vrb::CreationContextPtr aContext, const VRLayerCylinderPtr& aLayer) {
   CylinderPtr result = std::make_shared<vrb::ConcreteClass<Cylinder, Cylinder::State> >(aContext);
-  result->m.layer = aLayer;
-  result->m.Initialize();
+    if(result){
+        result->m.layer = aLayer;
+        result->m.Initialize();
+    }
+    else{
+        VRB_ERROR("Null pointer, file: %s, function: %s, line: %d",__FILE__, __FUNCTION__, __LINE__);
+    }
   return result;
 }
 

@@ -20,7 +20,6 @@ import android.widget.TextView;
 
 import androidx.annotation.Keep;
 
-import com.igalia.wolvic.ui.widgets.WidgetManagerDelegate;
 import com.igalia.wolvic.utils.SystemUtils;
 
 import java.util.ArrayList;
@@ -50,8 +49,6 @@ public class PlatformActivity extends ComponentActivity {
         // Dummy implementation.
         return null;
     }
-
-    protected String getEyeTrackingPermissionString() { return null; }
 
     private GLSurfaceView mView;
     private TextView mFrameRate;
@@ -165,8 +162,6 @@ public class PlatformActivity extends ComponentActivity {
         queueRunnable(() -> touchEvent(false, xx, yy));
         return true;
     }
-
-    public final PlatformActivityPlugin createPlatformPlugin(WidgetManagerDelegate delegate) { return null; }
 
     @Override
     protected void onPause() {

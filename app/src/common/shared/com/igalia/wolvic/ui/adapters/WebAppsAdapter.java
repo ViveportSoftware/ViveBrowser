@@ -1,6 +1,7 @@
 package com.igalia.wolvic.ui.adapters;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -30,11 +31,15 @@ public class WebAppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private List<WebApp> mWebAppsList;
     private boolean mIsNarrowLayout;
 
+    private Context mContext;
+
     @Nullable
     private final WebAppItemCallback mWebAppItemCallback;
 
     public WebAppsAdapter(@Nullable WebAppItemCallback clickCallback, Context aContext) {
         mWebAppItemCallback = clickCallback;
+
+        mContext = aContext;
 
         setHasStableIds(true);
     }

@@ -57,13 +57,6 @@ class ControllerOptionsView extends SettingsView {
 
         mBinding.hapticFeedbackSwitch.setOnCheckedChangeListener(mHapticFeedbackListener);
         setHapticFeedbackEnabled(SettingsStore.getInstance(getContext()).isHapticFeedbackEnabled(), false);
-
-        if (mWidgetManager.isEyeTrackingSupported()) {
-            mBinding.pointerModeRadio.setOnCheckedChangeListener(mPointerModeListener);
-            setPointerMode(SettingsStore.getInstance(getContext()).getPointerMode(), false);
-        } else {
-            mBinding.pointerModeRadio.setVisibility(GONE);
-        }
     }
 
     private void resetOptions() {
@@ -74,7 +67,6 @@ class ControllerOptionsView extends SettingsView {
             setScrollDirection(mBinding.scrollDirectionRadio.getIdForValue(SettingsStore.SCROLL_DIRECTION_DEFAULT), true);
         }
         setHapticFeedbackEnabled(SettingsStore.HAPTIC_FEEDBACK_ENABLED, true);
-        setPointerMode(SettingsStore.POINTER_MODE_DEFAULT, true);
     }
 
     private void setPointerColor(int checkedId, boolean doApply) {
@@ -108,17 +100,6 @@ class ControllerOptionsView extends SettingsView {
         }
     }
 
-    private void setPointerMode(@WidgetManagerDelegate.PointerMode int value, boolean doApply) {
-        mBinding.pointerModeRadio.setOnCheckedChangeListener(null);
-        mBinding.pointerModeRadio.setChecked(value, false);
-        mBinding.pointerModeRadio.setOnCheckedChangeListener(mPointerModeListener);
-
-        if (doApply) {
-            SettingsStore.getInstance(getContext()).setPointerMode(value);
-            mWidgetManager.setPointerMode(value);
-        }
-    }
-
     private RadioGroupSetting.OnCheckedChangeListener mPointerColorListener = (radioGroup, checkedId, doApply) -> {
         setPointerColor(checkedId, doApply);
     };
@@ -129,22 +110,6 @@ class ControllerOptionsView extends SettingsView {
 
     private SwitchSetting.OnCheckedChangeListener mHapticFeedbackListener = (compoundButton, enabled, apply) ->
     setHapticFeedbackEnabled(enabled, true);
-
-    private RadioGroupSetting.OnCheckedChangeListener mPointerModeListener = (compoundButton, checkedId, doApply) -> {
-        if (checkedId == WidgetManagerDelegate.TRACKED_POINTER) {
-            setPointerMode(checkedId, doApply);
-            return;
-        }
-        assert checkedId == WidgetManagerDelegate.TRACKED_EYE;
-        mWidgetManager.checkEyeTrackingPermissions((aPermissionGranted) -> {
-            if (aPermissionGranted) {
-                setPointerMode(checkedId, doApply);
-            } else {
-                // Revert to pointer mode if permission is not granted
-                setPointerMode(WidgetManagerDelegate.TRACKED_POINTER, false);
-            }
-        });
-    };
 
     @Override
     protected SettingViewType getType() {

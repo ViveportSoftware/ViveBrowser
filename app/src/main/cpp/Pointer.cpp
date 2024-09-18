@@ -217,7 +217,12 @@ Pointer::GetHitWidget() const {
 PointerPtr
 Pointer::Create(vrb::CreationContextPtr aContext) {
   PointerPtr result = std::make_shared<vrb::ConcreteClass<Pointer, Pointer::State> >(aContext);
-  result->m.Initialize();
+    if(result){
+        result->m.Initialize();
+    }
+    else{
+        VRB_ERROR("Null pointer, file: %s, function: %s, line: %d",__FILE__, __FUNCTION__, __LINE__);
+    }
   return result;
 }
 

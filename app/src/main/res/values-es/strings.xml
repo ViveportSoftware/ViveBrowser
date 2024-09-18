@@ -3,6 +3,10 @@
     <!-- IMPORTANT NOTE: If this file is updated anyhow, the STRs wiki must be updated accordingly:
     https://github.com/Igalia/wolvic/wiki/Localization -->
 
+    <!-- This string labels the button in the privacy option panel that enables/disables the use of
+ system root CA for certificate. -->
+    <string name="security_options_use_system_root_ca">Utilice Certificados Raíz de Confianza</string>
+
     <!-- This string is used on the virtual keyboard to label the 'Enter' key (stylized in uppercase letters as 'ENTER'). -->
     <string name="keyboard_enter_label">ENTER</string>
 
@@ -656,7 +660,7 @@
 
     <!-- This string is used to in the FxA account manage panel as the description of the Sync button while syncon.
          The sync button will start syncing when pressed-->
-    <string name="fxa_account_options_syncing">Sincronizando...</string>
+    <string name="fxa_account_options_syncing">Sincronizando…</string>
 
     <!-- This string is used in the FxA account manager panel as a header for the sync options for syncing
          history, bookmarks, passwords, etc. -->
@@ -853,7 +857,7 @@
 
     <!-- This string is displayed in the voice-search dialog box that is shown to the user when they press the
          button used to initiate Voice Search. -->
-    <string name="voice_search_example">Ejemplo: Diga: \&quot;vídeos de 360, clima, noticias...\&quot;</string>
+    <string name="voice_search_example">Ejemplo: Diga: \&quot;vídeos de 360, clima, noticias…\&quot;</string>
 
     <!-- This string is displayed in a dialog box show to the user while the Voice Search is being
          performed. It indicates that the search query is running and they should wait for the result. -->
@@ -894,7 +898,7 @@
 
     <!-- This string explains why Mozilla would like the user to allow the crash data to be uploaded.
          '%1$s' will be replaced at runtime with the app's domain name. -->
-    <string name="crash_dialog_message"><![CDATA[Ayude a Mozilla a mejorar %1$s enviando los datos de su fallo.]]></string>
+    <string name="crash_dialog_message"><![CDATA[Ayude a VIVEPORT a mejorar %1$s enviando los datos de su fallo.]]></string>
 
     <!-- This string labels a checkbox in the crash dialog box. When checked, the user will no longer
          be prompted for permission to upload crash data after an application crash. -->
@@ -1329,6 +1333,9 @@
          the more button is pressed in a downloads item. It deletes the selected item from the downloads list
          and also from disk. -->
     <string name="download_context_delete">Eliminar</string>
+
+    <!-- This string is used to label the experimental features. -->
+    <string name="experimental_features">Funcionalidades experimentales</string>
 
     <!-- This string labels an On/Off switch in the 'Display Options' dialog
          and is used to customize if we use passthrough mode when the app starts. -->
@@ -1931,7 +1938,7 @@ the Select` button. When clicked it closes all the previously selected tabs -->
     <string name="send_tab_dialog_no_devices">No hay dispositivos conectados.</string>
 
     <!-- This string is displayed instead of the devices list if the devices list is being synced. -->
-    <string name="send_tab_dialog_syncing">Sincronizando...</string>
+    <string name="send_tab_dialog_syncing">Sincronizando…</string>
 
     <!-- This string is displayed in the button of the Send Tab to device dialog. When clicked the current tab is sent to the selected device -->
     <string name="send_tab_dialog_button">Enviar</string>

@@ -7,6 +7,7 @@ package com.igalia.wolvic.ui.widgets.settings;
 
 import android.content.Context;
 import android.graphics.Point;
+import android.util.Log;
 import android.view.LayoutInflater;
 
 import androidx.databinding.DataBindingUtil;
@@ -20,16 +21,19 @@ import com.igalia.wolvic.ui.views.settings.RadioGroupSetting;
 import com.igalia.wolvic.ui.widgets.WidgetManagerDelegate;
 import com.igalia.wolvic.ui.widgets.WidgetPlacement;
 import com.igalia.wolvic.utils.LocaleUtils;
+import com.igalia.wolvic.utils.SystemUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Logger;
 
 class VoiceSearchServiceOptionsView extends SettingsView {
 
     private OptionsLanguageVoiceBinding mBinding;
     private final List<String> mSpeechServices = Arrays.asList(BuildConfig.SPEECH_SERVICES);
+    protected final String LOGTAG = SystemUtils.createLogtag(this.getClass());
 
     public VoiceSearchServiceOptionsView(Context aContext, WidgetManagerDelegate aWidgetManager) {
         super(aContext, aWidgetManager);
@@ -48,11 +52,16 @@ class VoiceSearchServiceOptionsView extends SettingsView {
 
         // Inflate this data binding layout
         mBinding = DataBindingUtil.inflate(inflater, R.layout.options_language_voice, this, true);
-
+        if(mBinding==null)
+        {
+            Log.e(LOGTAG, "Null pointer, VoiceSearchServiceOptionsView::updateUI: mBinding");
+            return;
+        }
         mScrollbar = mBinding.scrollbar;
 
         // Header
         mBinding.headerLayout.setBackClickListener(view -> {
+            if(mDelegate!=null)
             mDelegate.showView(SettingViewType.LANGUAGE);
         });
 

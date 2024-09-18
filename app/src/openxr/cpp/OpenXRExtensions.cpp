@@ -21,11 +21,6 @@ PFN_xrCreatePassthroughLayerFB OpenXRExtensions::sXrCreatePassthroughLayerFB = n
 PFN_xrDestroyPassthroughLayerFB OpenXRExtensions::sXrDestroyPassthroughLayerFB = nullptr;
 PFN_xrCreateHandMeshSpaceMSFT OpenXRExtensions::sXrCreateHandMeshSpaceMSFT = nullptr;
 PFN_xrUpdateHandMeshMSFT OpenXRExtensions::sXrUpdateHandMeshMSFT = nullptr;
-PFN_xrCreateKeyboardSpaceFB OpenXRExtensions::xrCreateKeyboardSpaceFB = nullptr;
-PFN_xrQuerySystemTrackedKeyboardFB OpenXRExtensions::xrQuerySystemTrackedKeyboardFB = nullptr;
-PFN_xrEnumerateRenderModelPathsFB OpenXRExtensions::sXrEnumerateRenderModelPathsFB = nullptr;
-PFN_xrGetRenderModelPropertiesFB OpenXRExtensions::sXrGetRenderModelPropertiesFB = nullptr;
-PFN_xrLoadRenderModelFB OpenXRExtensions::sXrLoadRenderModelFB = nullptr;
 
 void OpenXRExtensions::Initialize() {
     // Extensions.
@@ -38,7 +33,6 @@ void OpenXRExtensions::Initialize() {
 
     for (auto& extension: extensions) {
         sSupportedExtensions.insert(extension.extensionName);
-        VRB_LOG("OpenXR: supported extension: %s", extension.extensionName)
     }
 #ifdef LYNX
     // Lynx incorrectly advertises these extensions as supported but in reality they don't work.
@@ -47,9 +41,6 @@ void OpenXRExtensions::Initialize() {
 #elif PICOXR
     // Pico incorrectly advertises this extension as supported but it makes Wolvic not work.
     sSupportedExtensions.erase(XR_EXTX_OVERLAY_EXTENSION_NAME);
-#elif SPACES
-    // Spaces incorrectly advertises this extension as supported but it does not really work.
-    sSupportedExtensions.erase(XR_EXT_HAND_INTERACTION_EXTENSION_NAME);
 #endif
 
     // Adding this check here is ugly but required to have a working build for VRX. With the current
@@ -116,22 +107,6 @@ void OpenXRExtensions::LoadExtensions(XrInstance instance) {
                                           reinterpret_cast<PFN_xrVoidFunction *>(&sXrCreatePassthroughLayerFB)));
         CHECK_XRCMD(xrGetInstanceProcAddr(instance, "xrDestroyPassthroughLayerFB",
                                           reinterpret_cast<PFN_xrVoidFunction *>(&sXrDestroyPassthroughLayerFB)));
-    }
-
-    if (IsExtensionSupported(XR_FB_KEYBOARD_TRACKING_EXTENSION_NAME)) {
-        CHECK_XRCMD(xrGetInstanceProcAddr(instance, "xrCreateKeyboardSpaceFB",
-                                        reinterpret_cast<PFN_xrVoidFunction *>(&xrCreateKeyboardSpaceFB)));
-        CHECK_XRCMD(xrGetInstanceProcAddr(instance,"xrQuerySystemTrackedKeyboardFB",
-                                        reinterpret_cast<PFN_xrVoidFunction *>(&xrQuerySystemTrackedKeyboardFB)));
-    }
-
-    if (IsExtensionSupported(XR_FB_RENDER_MODEL_EXTENSION_NAME)) {
-        CHECK_XRCMD(xrGetInstanceProcAddr(instance, "xrEnumerateRenderModelPathsFB",
-                                          reinterpret_cast<PFN_xrVoidFunction *>(&sXrEnumerateRenderModelPathsFB)));
-        CHECK_XRCMD(xrGetInstanceProcAddr(instance, "xrGetRenderModelPropertiesFB",
-                                          reinterpret_cast<PFN_xrVoidFunction *>(&sXrGetRenderModelPropertiesFB)));
-        CHECK_XRCMD(xrGetInstanceProcAddr(instance, "xrLoadRenderModelFB",
-                                          reinterpret_cast<PFN_xrVoidFunction *>(&sXrLoadRenderModelFB)));
     }
 }
 

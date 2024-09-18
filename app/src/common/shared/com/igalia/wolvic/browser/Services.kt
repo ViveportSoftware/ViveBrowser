@@ -25,6 +25,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import mozilla.appservices.Megazord
 import mozilla.appservices.fxaclient.FxaServer
+import mozilla.appservices.rustlog.LogAdapterCannotEnable
 import mozilla.components.concept.sync.*
 import mozilla.components.service.fxa.*
 import mozilla.components.service.fxa.manager.FxaAccountManager
@@ -55,7 +56,7 @@ class Services(val context: Context, places: Places): WSession.NavigationDelegat
         Megazord.init()
         try {
             RustLog.enable()
-        } catch (e: UnsatisfiedLinkError) {
+        } catch (e: LogAdapterCannotEnable) {
             android.util.Log.w(LOGTAG, "RustLog has been enabled.")
         }
         RustHttpConfig.setClient(lazy { EngineProvider.createClient(context) })

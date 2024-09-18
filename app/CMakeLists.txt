@@ -28,7 +28,6 @@ add_library( # Sets the name of the library.
              src/main/cpp/DeviceUtils.cpp
              src/main/cpp/ElbowModel.cpp
              src/main/cpp/FadeAnimation.cpp
-             src/main/cpp/HandMeshRenderer.cpp
              src/main/cpp/Quad.cpp
              src/main/cpp/EngineSurfaceTexture.cpp
              src/main/cpp/ExternalBlitter.cpp
@@ -56,6 +55,22 @@ target_sources(
     PUBLIC
     ${CMAKE_SOURCE_DIR}/src/wavevr/cpp/native-lib.cpp
     ${CMAKE_SOURCE_DIR}/src/wavevr/cpp/DeviceDelegateWaveVR.cpp
+    ${CMAKE_SOURCE_DIR}/src/wavevr/cpp/Context.cpp
+    ${CMAKE_SOURCE_DIR}/src/wavevr/cpp/ControllerManager.cpp
+    ${CMAKE_SOURCE_DIR}/src/wavevr/cpp/HandManager.cpp
+    ${CMAKE_SOURCE_DIR}/src/wavevr/cpp/HandModel.cpp
+    ${CMAKE_SOURCE_DIR}/src/wavevr/cpp/HandObj.cpp
+    ${CMAKE_SOURCE_DIR}/src/wavevr/cpp/HandsShaders.cpp
+    ${CMAKE_SOURCE_DIR}/src/wavevr/cpp/object/FrameBufferObject.cpp
+    ${CMAKE_SOURCE_DIR}/src/wavevr/cpp/object/Mesh.cpp
+    ${CMAKE_SOURCE_DIR}/src/wavevr/cpp/object/Object.cpp
+    ${CMAKE_SOURCE_DIR}/src/wavevr/cpp/object/Shader.cpp
+    ${CMAKE_SOURCE_DIR}/src/wavevr/cpp/object/Texture.cpp
+    ${CMAKE_SOURCE_DIR}/src/wavevr/cpp/object/VertexArrayObject.cpp
+    ${CMAKE_SOURCE_DIR}/src/wavevr/cpp/shared/Matrices.cpp
+    ${CMAKE_SOURCE_DIR}/src/wavevr/cpp/shared/matrix.c
+    ${CMAKE_SOURCE_DIR}/src/wavevr/cpp/shared/quat.c
+    ${CMAKE_SOURCE_DIR}/src/wavevr/cpp/shared/vector.c
     )
 elseif(NOAPI)
 target_sources(
@@ -137,6 +152,25 @@ if(OPENXR)
             ${CMAKE_SOURCE_DIR}/src/openxr/cpp/OpenXRExtensions.cpp
             ${CMAKE_SOURCE_DIR}/src/openxr/cpp/OpenXRPassthroughStrategy.cpp
     )
+
+elseif(OCULUSVR)
+include_directories(
+        ${CMAKE_SOURCE_DIR}/../third_party/ovr_mobile/VrApi/Include
+        ${CMAKE_SOURCE_DIR}/../third_party/OVRPlatformSDK/Include
+        ${CMAKE_SOURCE_DIR}/../app/src/oculusvr/cpp
+)
+target_sources(
+    native-lib
+    PUBLIC
+    ${CMAKE_SOURCE_DIR}/src/oculusvr/cpp/DeviceDelegateOculusVR.cpp
+    ${CMAKE_SOURCE_DIR}/src/oculusvr/cpp/OculusSwapChain.cpp
+    ${CMAKE_SOURCE_DIR}/src/oculusvr/cpp/OculusVRLayers.cpp
+    )
+add_custom_command(TARGET native-lib POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_SOURCE_DIR}/../third_party/ovr_mobile/VrApi/Libs/Android/${ANDROID_ABI}/Release/libvrapi.so
+        ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libvrapi.so
+        )
 endif()
 
 if(OCULUSVR)
@@ -162,8 +196,14 @@ find_library( # Sets the name of the path variable.
               android )
 
 add_library(oculusvr-lib SHARED IMPORTED)
+if(OPENXR)
 set_target_properties(oculusvr-lib PROPERTIES IMPORTED_LOCATION
                       ${CMAKE_SOURCE_DIR}/../third_party/ovr_openxr_mobile_sdk/OpenXR/Libs/Android/${ANDROID_ABI}/Release/libopenxr_loader.so )
+else()
+set_target_properties(oculusvr-lib PROPERTIES IMPORTED_LOCATION
+                      ${CMAKE_SOURCE_DIR}/../third_party/ovr_mobile/VrApi/Libs/Android/${ANDROID_ABI}/Release/libvrapi.so )
+endif()
+
 
 add_library(ovrplatform-lib SHARED IMPORTED)
 set_target_properties(ovrplatform-lib PROPERTIES IMPORTED_LOCATION
@@ -198,15 +238,6 @@ if (AOSP)
     target_link_libraries(native-lib openxr_loader)
 endif()
 
-# Add dependency on tinygltf library, which is used to load hand models
-# from .glb assets. Since it is only a single C++ source and header,
-# we include them as native-lib's own build sources.
-add_definitions(-DTINYGLTF_ANDROID_LOAD_FROM_ASSETS)
-target_sources(native-lib PUBLIC
-    ${CMAKE_SOURCE_DIR}/../app/src/main/cpp/tinygltf/tiny_gltf.cc)
-include_directories(
-    ${CMAKE_SOURCE_DIR}/../app/src/main/cpp/tinygltf)
-
 # Specifies libraries CMake should link to your target library. You
 # can link multiple libraries, such as libraries you define in this
 # build script, prebuilt third-party libraries, or system libraries.
@@ -223,6 +254,7 @@ target_link_libraries( # Specifies the target library.
                        # included in the NDK.
                        ${log-lib}
                        ${android-lib}
+                       jnigraphics
                        EGL
                        GLESv3
                       )

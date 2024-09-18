@@ -38,7 +38,8 @@ public abstract class SettingsView extends FrameLayout {
         LOGIN_EDIT,
         SEARCH_ENGINE,
         TERMS_OF_SERVICE,
-        PRIVACY_POLICY
+        PRIVACY_POLICY,
+        LEGAL_LICENSE
     }
 
     protected Delegate mDelegate;

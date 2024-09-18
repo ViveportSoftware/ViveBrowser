@@ -6,6 +6,7 @@
 package com.igalia.wolvic;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
 import android.content.res.Configuration;
@@ -27,11 +28,14 @@ import com.igalia.wolvic.speech.SpeechServices;
 import com.igalia.wolvic.telemetry.TelemetryService;
 import com.igalia.wolvic.ui.adapters.Language;
 import com.igalia.wolvic.ui.widgets.AppServicesProvider;
+import com.igalia.wolvic.ui.views.home.HomePage;
 import com.igalia.wolvic.utils.BitmapCache;
 import com.igalia.wolvic.utils.ConnectivityReceiver;
 import com.igalia.wolvic.utils.EnvironmentsManager;
 import com.igalia.wolvic.utils.DictionariesManager;
 import com.igalia.wolvic.utils.LocaleUtils;
+
+import java.util.List;
 
 public class VRBrowserApplication extends Application implements AppServicesProvider {
 
@@ -49,6 +53,34 @@ public class VRBrowserApplication extends Application implements AppServicesProv
     private Addons mAddons;
     private ConnectivityReceiver mConnectivityManager;
     private Activity mCurrentActivity;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        if (isMainProcess(this)) {
+            // restore shortcuts from database
+            HomePage.restoreShortcuts(this);
+        }
+    }
+
+    private static boolean isMainProcess(Context context) {
+        String packageName = context.getPackageName();
+        int pid = android.os.Process.myPid();
+        ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningAppProcessInfo> runningAppProcesses;
+        try {
+            runningAppProcesses = activityManager.getRunningAppProcesses();
+            for (ActivityManager.RunningAppProcessInfo appProcess : runningAppProcesses) {
+                if (appProcess.pid == pid && appProcess.processName.equals(packageName)) {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 
     protected void onActivityCreate(@NonNull Context activityContext) {
         onConfigurationChanged(activityContext.getResources().getConfiguration());
@@ -71,6 +103,13 @@ public class VRBrowserApplication extends Application implements AppServicesProv
         mDictionariesManager = new DictionariesManager(activityContext);
         mDictionariesManager.init();
         mAddons = new Addons(activityContext, mSessionStore);
+
+        try {
+            String speechService = SettingsStore.getInstance(activityContext).getVoiceSearchService();
+            setSpeechRecognizer(SpeechServices.getInstance(activityContext, speechService));
+        } catch (ReflectiveOperationException e) {
+            e.printStackTrace();
+        }
     }
 
     protected void onActivityDestroy() {

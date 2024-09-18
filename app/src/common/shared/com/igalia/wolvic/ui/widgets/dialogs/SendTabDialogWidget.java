@@ -93,7 +93,7 @@ public class SendTabDialogWidget extends SettingDialogWidget implements
         mBinding.footerLayout.setFooterButtonText(R.string.send_tab_dialog_button);
         mBinding.footerLayout.setFooterButtonClickListener(this::sendTabButtonClick);
 
-        if (isVisible()) {
+        if (isVisible() && mAccounts!=null) {
             mAccounts.refreshDevicesAsync();
         }
     }
@@ -107,6 +107,9 @@ public class SendTabDialogWidget extends SettingDialogWidget implements
 
     @Override
     public void show(int aShowFlags) {
+        if (mAccounts == null) {
+            return;
+        }
         mAccounts.addAccountListener(this);
         mAccounts.addDeviceConstellationListener(this);
 
@@ -126,8 +129,10 @@ public class SendTabDialogWidget extends SettingDialogWidget implements
     public void hide(int aHideFlags) {
         super.hide(aHideFlags);
 
-        mAccounts.removeAccountListener(this);
-        mAccounts.removeDeviceConstellationListener(this);
+        if (mAccounts != null) {
+            mAccounts.removeAccountListener(this);
+            mAccounts.removeDeviceConstellationListener(this);
+        }
     }
 
     public void setSessionId(@Nullable String sessionId) {
@@ -141,8 +146,10 @@ public class SendTabDialogWidget extends SettingDialogWidget implements
             session = SessionStore.get().getSession(mSessionId);
         }
 
-        // At some point we will support sending to multiple devices or to all of them
-        mAccounts.sendTabs(Collections.singletonList(device), session.getCurrentUri(), session.getCurrentTitle());
+        if (mAccounts != null) {
+            // At some point we will support sending to multiple devices or to all of them
+            mAccounts.sendTabs(Collections.singletonList(device), session.getCurrentUri(), session.getCurrentTitle());
+        }
 
         // Show the tab sent notifications
         mWidgetManager.getWindows().showTabSentNotification();

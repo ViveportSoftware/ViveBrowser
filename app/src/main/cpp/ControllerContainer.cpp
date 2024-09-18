@@ -8,7 +8,6 @@
 #include "Pointer.h"
 #include "Quad.h"
 #include "DeviceUtils.h"
-#include "tiny_gltf.h"
 
 #include "vrb/ConcreteClass.h"
 #include "vrb/Color.h"
@@ -222,6 +221,10 @@ void ControllerContainer::SetHandJointLocations(const int32_t aControllerIndex, 
 
         TextureGLPtr texture = create->LoadTexture(controller.leftHanded ? "menu.png" : "exit.png") ;
         assert(texture);
+        if (texture == nullptr) {
+            VRB_ERROR("Null pointer, file: %s, function: %s, line: %d",__FILE__, __FUNCTION__, __LINE__);
+            return;
+        }
         texture->SetTextureParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         texture->SetTextureParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
@@ -229,6 +232,10 @@ void ControllerContainer::SetHandJointLocations(const int32_t aControllerIndex, 
         const float aspect = (float)texture->GetWidth() / (float)texture->GetHeight();
 
         QuadPtr icon = Quad::Create(create, iconWidth, iconWidth / aspect, nullptr);
+        if (icon == nullptr) {
+            VRB_ERROR("Null pointer, file: %s, function: %s, line: %d",__FILE__, __FUNCTION__, __LINE__);
+            return;
+        }
         icon->SetTexture(texture, texture->GetWidth(), texture->GetHeight());
         icon->UpdateProgram("");
 
@@ -418,6 +425,15 @@ ControllerContainer::SetEnabled(const int32_t aControllerIndex, const bool aEnab
 }
 
 void
+ControllerContainer::SetModelVisible(const int32_t aControllerIndex, const bool aVisible) {
+    if (!m.Contains(aControllerIndex))
+        return;
+
+    if (m.list[aControllerIndex].modelToggle)
+        m.list[aControllerIndex].modelToggle->ToggleAll(aVisible);
+}
+
+void
 ControllerContainer::SetControllerType(const int32_t aControllerIndex, device::DeviceType aType) {
   if (!m.Contains(aControllerIndex)) {
     return;
@@ -445,15 +461,6 @@ ControllerContainer::SetTransform(const int32_t aControllerIndex, const vrb::Mat
   if (controller.transform) {
     controller.transform->SetTransform(aTransform);
   }
-}
-
-void
-ControllerContainer::TranslateTransform(const int32_t aControllerIndex, const vrb::Vector &aTranslation) {
-    if (!m.Contains(aControllerIndex)) {
-        return;
-    }
-    Controller& controller = m.list[aControllerIndex];
-    SetTransform(aControllerIndex, controller.transformMatrix.Translate(aTranslation));
 }
 
 void
@@ -630,6 +637,8 @@ ControllerContainer::EndTouch(const int32_t aControllerIndex) {
     return;
   }
   m.list[aControllerIndex].touched = false;
+  m.list[aControllerIndex].touchX = 0;
+  m.list[aControllerIndex].touchY = 0;
 }
 
 void
@@ -682,6 +691,25 @@ ControllerContainer::SetVisible(const bool aVisible) {
 void
 ControllerContainer::SetGazeModeIndex(const int32_t aControllerIndex) {
   m.gazeIndex = aControllerIndex;
+}
+
+void ControllerContainer::SetJointsMatrices(const int32_t aControllerIndex, const std::string name, const float *matrices) {
+  GroupPtr model = m.models[aControllerIndex];
+
+    if (model == nullptr) {
+        VRB_ERROR("Null pointer, file: %s, function: %s, line: %d", __FILE__, __FUNCTION__, __LINE__);
+        return;
+    }
+
+  for(int i = 0; i < model->GetNodeCount(); i++) {
+    if(name == model->GetNode(i)->GetName()){
+      GeometryPtr geometry = std::dynamic_pointer_cast<vrb::Geometry>(model->GetNode(i));
+      if (geometry) {
+        geometry->GetRenderState()->SetJointsMatrices(matrices);
+      }
+      break;
+    }
+  }
 }
 
 void

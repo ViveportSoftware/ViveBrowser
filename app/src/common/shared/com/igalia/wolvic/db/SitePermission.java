@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey;
 
 @Entity
 public class SitePermission {
-    @IntDef(value = { SITE_PERMISSION_NONE, SITE_PERMISSION_POPUP, SITE_PERMISSION_WEBXR, SITE_PERMISSION_TRACKING, SITE_PERMISSION_DRM, SITE_PERMISSION_AUTOFILL, SITE_PERMISSION_LOCATION})
+    @IntDef(value = { SITE_PERMISSION_NONE, SITE_PERMISSION_POPUP, SITE_PERMISSION_WEBXR, SITE_PERMISSION_TRACKING, SITE_PERMISSION_DRM, SITE_PERMISSION_AUTOFILL, SITE_PERMISSION_LOCATION, SITE_PERMISSION_MICROPHONE})
     public @interface Category {}
     public static final int SITE_PERMISSION_NONE = -1;
     public static final int SITE_PERMISSION_POPUP = 0;
@@ -17,6 +17,8 @@ public class SitePermission {
     public static final int SITE_PERMISSION_DRM = 3;
     public static final int SITE_PERMISSION_AUTOFILL = 4;
     public static final int SITE_PERMISSION_LOCATION = 5;
+    public static final int SITE_PERMISSION_MICROPHONE = 6;
+
 
     public SitePermission(@NonNull String url, @NonNull String principal, @Category int category) {
         this.url = url;

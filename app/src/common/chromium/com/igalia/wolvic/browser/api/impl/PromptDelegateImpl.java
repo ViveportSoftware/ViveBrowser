@@ -115,9 +115,15 @@ class PromptDelegateImpl implements UserDialogManagerBridge.Delegate {
     }
 
     public WResult<PromptResponseImpl> onRepostConfirmWarningDialog() {
-        if (mDelegate == null)
-            return WResult.fromValue(null);;
-        return mDelegate.onRepostConfirmPrompt(mSession, new RepostConfirmPrompt()).then(result -> WResult.fromValue((PromptResponseImpl) result));
+        if (mDelegate == null) {
+            return WResult.fromValue(null);
+        }
+        WResult<WSession.PromptDelegate.PromptResponse> response = mDelegate.onRepostConfirmPrompt(mSession, new RepostConfirmPrompt());
+        if (response == null) {
+            return WResult.fromValue(null);
+        } else {
+            return response.then(result -> WResult.fromValue((PromptResponseImpl) result));
+        }
     }
 
     public static class BasePromptImpl implements WSession.PromptDelegate.BasePrompt {

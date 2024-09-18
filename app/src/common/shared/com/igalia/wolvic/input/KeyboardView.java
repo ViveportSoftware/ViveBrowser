@@ -300,7 +300,9 @@ public class KeyboardView extends View implements View.OnClickListener {
         mPaint.setAlpha(255);
         mPadding = new Rect(0, 0, 0, 0);
         mMiniKeyboardCache = new HashMap<Key,View>();
-        mKeyBackground.getPadding(mPadding);
+        if (mKeyBackground != null) {
+            mKeyBackground.getPadding(mPadding);
+        }
         mSwipeThreshold = (int) (500 * getResources().getDisplayMetrics().density);
         mDisambiguateSwipe = getResources().getBoolean(
                 R.bool.config_swipeDisambiguation);

@@ -27,6 +27,7 @@ import com.igalia.wolvic.utils.BitmapCache;
 import com.igalia.wolvic.utils.ViewUtils;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 
 public class PromptDialogWidget extends UIDialog {
@@ -133,13 +134,14 @@ public class PromptDialogWidget extends UIDialog {
                 ((VRBrowserApplication) getContext().getApplicationContext()).getExecutors().backgroundThread().post(() -> {
                     try {
                         URL url = new URL(iconUrl);
-                        Bitmap icon = BitmapFactory.decodeStream(url.openStream());
-                        ((VRBrowserApplication) getContext().getApplicationContext()).getExecutors().mainThread().execute(() -> {
-                            BitmapDrawable iconDrawable = new BitmapDrawable(getContext().getResources(), icon);
-                            BitmapCache.getInstance(getContext()).addBitmap(iconUrl, icon);
-                            mBinding.icon.setImageDrawable(iconDrawable);
-                        });
-
+                        try (InputStream inputStream = url.openStream()) {
+                            Bitmap icon = BitmapFactory.decodeStream(inputStream);
+                            ((VRBrowserApplication) getContext().getApplicationContext()).getExecutors().mainThread().execute(() -> {
+                                BitmapDrawable iconDrawable = new BitmapDrawable(getContext().getResources(), icon);
+                                BitmapCache.getInstance(getContext()).addBitmap(iconUrl, icon);
+                                mBinding.icon.setImageDrawable(iconDrawable);
+                            });
+                        }
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

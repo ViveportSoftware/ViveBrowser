@@ -535,6 +535,9 @@
          for the virtual displays Dots Per Inch (DPI). -->
     <string name="developer_options_display_dpi">Display DPI:</string>
 
+    <!-- This string is used to label the experimental features. -->
+    <string name="experimental_features">Experimental Features</string>
+
     <!-- This string is used to label radio buttons for setting Multi-Sample Anti-Aliasing (MSAA) in
          VR Immersive Mode. -->
     <string name="developer_options_msaa">MSAA</string>
@@ -694,7 +697,7 @@
 
     <!-- This string is used to in the FxA account manage panel as the description of the Sync button while syncon.
          The sync button will start syncing when pressed-->
-    <string name="fxa_account_options_syncing">Synchronising...</string>
+    <string name="fxa_account_options_syncing">Synchronising…</string>
 
     <!-- This string is used in the FxA account manager panel as a header for the sync options for syncing
          history, bookmarks, passwords, etc. -->
@@ -929,7 +932,7 @@
 
     <!-- This string explains why Mozilla would like the user to allow the crash data to be uploaded.
          '%1$s' will be replaced at runtime with the app's domain name. -->
-    <string name="crash_dialog_message"><![CDATA[Please help Mozilla improve %1$s by sending your crash data. <a href="more">Learn More</a>]]></string>
+    <string name="crash_dialog_message"><![CDATA[Please help VIVEPORT improve %1$s by sending your crash data. <a href="more">Learn More</a>]]></string>
 
     <!-- This string labels a checkbox in the crash dialog box. When checked, the user will no longer
          be prompted for permission to upload crash data after an application crash. -->
@@ -1270,7 +1273,7 @@
 
     <!-- This string is displayed in the Addon download error dialog ok button text.
     This dialog is displayed after the addon downloading dialog if there was an error during the addon install. -->
-    <string name="addons_download_error_dialog_ok">Ok</string>
+    <string name="addons_download_error_dialog_ok">OK</string>
 
     <!-- This string is displayed in the remove Addon error dialog title text.
     This dialog is displayed if the user clicks on the remove button from the Addon Details panel and the addon is successfully uninstalled.
@@ -1280,7 +1283,7 @@
     <!-- This string is displayed in the remove Addon dialog button text.
     This dialog is displayed if the user clicks on the remove button from the Addon Details panel and the addon is successfully uninstalled.
     If the button is clicked, the dialog is dismissed. -->
-    <string name="addons_remove_success_dialog_ok">Ok</string>
+    <string name="addons_remove_success_dialog_ok">OK</string>
 
     <!-- This string is displayed in the remove Addon error dialog title text.
     This dialog is displayed if the user clicks on the remove button from the Addon Details panel and the addon uninstall fails.
@@ -1290,7 +1293,7 @@
     <!-- This string is displayed in the remove Addon dialog button text.
     This dialog is displayed if the user clicks on the remove button from the Addon Details panel and the addon uninstall fails.
     If the button is clicked, the dialog is dismissed. -->
-    <string name="addons_remove_error_dialog_ok">Ok</string>
+    <string name="addons_remove_error_dialog_ok">OK</string>
 
     <!-- This string is displayed at the bottom of the addon permissions list view. When clicked it will open a new tab with the addons permissions SUMO page -->
     <string name="addons_permissions_learn_more">Learn more about permissions</string>
@@ -1948,7 +1951,7 @@ the Select` button. When clicked it closes all the previously selected tabs -->
     <string name="send_tab_dialog_no_devices">No devices connected.</string>
 
     <!-- This string is displayed instead of the devices list if the devices list is being synced. -->
-    <string name="send_tab_dialog_syncing">Synchronising...</string>
+    <string name="send_tab_dialog_syncing">Synchronising…</string>
 
     <!-- This string is displayed in the button of the Send Tab to device dialog. When clicked the current tab is sent to the selected device -->
     <string name="send_tab_dialog_button">Send</string>
@@ -2135,7 +2138,7 @@ the Select` button. When clicked it closes all the previously selected tabs -->
     <string name="download_error_body">An error occurred while downloading %1$s. Please try again.</string>
 
     <!-- This string is displayed in the button to dismiss the download error dialog. -->
-    <string name="download_error_ok">Ok</string>
+    <string name="download_error_ok">OK</string>
 
     <!-- This string is displayed in the downloads panel, in the download status when the download has failed. -->
     <string name="download_status_failed">Failed</string>

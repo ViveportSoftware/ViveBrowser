@@ -12,7 +12,6 @@ import androidx.annotation.NonNull;
 import com.igalia.wolvic.browser.Addons;
 import com.igalia.wolvic.utils.SystemUtils;
 
-import mozilla.components.concept.engine.webextension.InstallationMethod;
 import mozilla.components.concept.engine.webextension.WebExtensionRuntime;
 
 /**
@@ -26,11 +25,11 @@ public class LocalExtension {
      * Installs the web extension through the WebExtensionRuntime install method
      */
     public static void install(@NonNull WebExtensionRuntime runtime, @NonNull String extensionId, @NonNull String extensionUrl, Addons addons) {
-        runtime.installWebExtension(extensionUrl, InstallationMethod.FROM_FILE, webExtension -> {
+        runtime.installWebExtension(extensionId, extensionUrl, webExtension -> {
             Log.i(LOGTAG, extensionId + " from " + extensionUrl + " Web Extension successfully installed");
             addons.notifyListeners();
             return null;
-        }, (throwable) -> {
+        }, (s, throwable) -> {
             Log.e(LOGTAG, "Error installing the " + extensionId + " from " + extensionUrl + " Web Extension: " + throwable.getLocalizedMessage());
             return null;
         });

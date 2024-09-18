@@ -6,6 +6,7 @@
 package com.igalia.wolvic.utils;
 
 import android.content.Context;
+import android.net.Uri;
 import android.util.Base64;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
@@ -15,7 +16,6 @@ import androidx.annotation.Nullable;
 
 import com.igalia.wolvic.R;
 import com.igalia.wolvic.browser.SettingsStore;
-import com.igalia.wolvic.browser.api.WSession;
 import com.igalia.wolvic.search.SearchEngineWrapper;
 import com.igalia.wolvic.telemetry.TelemetryService;
 
@@ -24,15 +24,17 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Pattern;
 
 // This class refers from mozilla-mobile/focus-android
 public class UrlUtils {
 
+    private static List<String> ENGINE_SUPPORTED_SCHEMES = Arrays.asList(null, "about", "data", "file", "ftp", "http", "https", "moz-extension", "moz-safe-about", "resource", "view-source", "ws", "wss", "blob");
+
     public static String UNKNOWN_MIME_TYPE = "application/octet-stream";
     public static String EXTENSION_MIME_TYPE = "application/x-xpinstall";
-    public static boolean isUnderTest = false;
-    public static String TEST_SEARCH_URL = "http://testsearchengine.com/search?q=";
 
     public static String stripCommonSubdomains(@Nullable String host) {
         if (host == null) {
@@ -250,39 +252,31 @@ public class UrlUtils {
         }
     }
 
-    private static String searchURLForText(@NonNull Context context, @NonNull String text) {
-        return !isUnderTest ? SearchEngineWrapper.get(context).getSearchURL(text) : TEST_SEARCH_URL + text;
-    }
-
-    public static String urlForText(@NonNull Context context, @NonNull String text, @NonNull WSession.UrlUtilsVisitor visitor) {
+    public static String urlForText(@NonNull Context context, @NonNull String text) {
         String url = text.trim();
-        URI uri;
-        try {
-            uri = parseUri(url);
-            if (!uri.isAbsolute()) {
-                if (!isDomain(url) && !isIPUri(url))
-                    return searchURLForText(context, url);
-                uri = parseUri("http://" + url);
-            }
-            // This catches the special case of passing an URL with an invalid IP address
-            if (uri.getHost() == null && uri.getAuthority() != null)
-                return searchURLForText(context, url);
-        } catch (URISyntaxException e) {
-            return searchURLForText(context, url);
-        }
+        if ((UrlUtils.isDomain(text) || UrlUtils.isIPUri(text)) && !text.contains(" ")) {
+            url = text;
+            TelemetryService.urlBarEvent(true);
+        } else if (text.startsWith("about:") || text.startsWith("resource://") || UrlUtils.isFileUri(text)) {
+            url = text;
+        } else {
+            url = SearchEngineWrapper.get(context).getSearchURL(text);
 
-        if (!isEngineSupportedScheme(uri, visitor)) {
+            // Doing search in the URL bar, so sending "aIsURL: false" to telemetry.
             TelemetryService.urlBarEvent(false);
-            return searchURLForText(context, url);
         }
 
-        TelemetryService.urlBarEvent(true);
-        return uri.toString();
+        try {
+            URI uri = parseUri(url);
+            if (uri.getScheme() == null)
+                return "http://" + uri.toString();
+        } catch (URISyntaxException e) {
+        }
+        return url;
     }
 
     // TODO Ideally we should use something like org.mozilla.fenix.components.AppLinksInterceptor for this
-    public static boolean isEngineSupportedScheme(@NonNull URI uri, @NonNull WSession.UrlUtilsVisitor visitor) {
-        String scheme = uri.getScheme();
-        return scheme != null && visitor.isSupportedScheme(scheme);
+    public static boolean isEngineSupportedScheme(@NonNull String url) {
+        return ENGINE_SUPPORTED_SCHEMES.contains(Uri.parse(url).getScheme());
     }
 }

@@ -45,8 +45,8 @@ import com.igalia.wolvic.ui.widgets.WindowWidget;
 import com.igalia.wolvic.ui.widgets.dialogs.ClearUserDataDialogWidget;
 import com.igalia.wolvic.ui.widgets.dialogs.RestartDialogWidget;
 import com.igalia.wolvic.ui.widgets.dialogs.UIDialog;
-import com.igalia.wolvic.utils.DeviceType;
 import com.igalia.wolvic.utils.RemoteProperties;
+import com.igalia.wolvic.utils.StringUtils;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -74,7 +74,6 @@ public class SettingsWidget extends UIDialog implements SettingsView.Delegate {
     private Executor mUIThreadExecutor;
     private SettingsView.SettingViewType mOpenDialog;
     private SettingsViewModel mSettingsViewModel;
-    private boolean mAreMozillaAccountsDisabled;
 
     class VersionGestureListener extends GestureDetector.SimpleOnGestureListener {
 
@@ -109,8 +108,6 @@ public class SettingsWidget extends UIDialog implements SettingsView.Delegate {
 
     @SuppressLint("ClickableViewAccessibility")
     private void initialize() {
-        mAreMozillaAccountsDisabled = BuildConfig.FLAVOR_backend.equals("chromium");
-
         mSettingsViewModel = new ViewModelProvider(
                 (VRBrowserActivity)getContext(),
                 ViewModelProvider.AndroidViewModelFactory.getInstance(((VRBrowserActivity) getContext()).getApplication()))
@@ -120,10 +117,9 @@ public class SettingsWidget extends UIDialog implements SettingsView.Delegate {
 
         mOpenDialog = SettingsView.SettingViewType.MAIN;
 
-        if (!mAreMozillaAccountsDisabled) {
-            mAccounts = ((VRBrowserApplication) getContext().getApplicationContext()).getAccounts();
+        mAccounts = ((VRBrowserApplication)getContext().getApplicationContext()).getAccounts();
+        if(mAccounts!=null)
             mAccounts.addAccountListener(mAccountObserver);
-        }
 
         mUIThreadExecutor = ((VRBrowserApplication)getContext().getApplicationContext()).getExecutors().mainThread();
 
@@ -207,23 +203,14 @@ public class SettingsWidget extends UIDialog implements SettingsView.Delegate {
             return view.performClick();
         });
 
-        if (DeviceType.getStoreType() == DeviceType.StoreType.MAINLAND_CHINA) {
-            mBinding.chinaLicenseNumber.setOnClickListener(v -> {
-                if (mAudio != null) {
-                    mAudio.playSound(AudioEngine.Sound.CLICK);
-                }
-                mWidgetManager.openNewTabForeground(getResources().getString(R.string.rCN_license_link));
-                exitWholeSettings();
-            });
-        } else {
-            mBinding.surveyLink.setOnClickListener(v -> {
-                if (mAudio != null) {
-                    mAudio.playSound(AudioEngine.Sound.CLICK);
-                }
-                mWidgetManager.openNewTabForeground(getResources().getString(R.string.survey_link));
-                exitWholeSettings();
-            });
-        }
+        mBinding.surveyLink.setOnClickListener(v -> {
+            if (mAudio != null) {
+                mAudio.playSound(AudioEngine.Sound.CLICK);
+            }
+
+            mWidgetManager.openNewTabForeground(getResources().getString(R.string.survey_link));
+            exitWholeSettings();
+        });
 
         mBinding.helpButton.setOnClickListener(view -> {
             if (mAudio != null) {
@@ -282,8 +269,7 @@ public class SettingsWidget extends UIDialog implements SettingsView.Delegate {
 
     @Override
     public void releaseWidget() {
-        if (!mAreMozillaAccountsDisabled)
-            mAccounts.removeAccountListener(mAccountObserver);
+        mAccounts.removeAccountListener(mAccountObserver);
 
         super.releaseWidget();
     }
@@ -318,7 +304,6 @@ public class SettingsWidget extends UIDialog implements SettingsView.Delegate {
     }
 
     private void manageAccount() {
-        assert !mAreMozillaAccountsDisabled;
         switch(mAccounts.getAccountStatus()) {
             case SIGNED_OUT:
             case NEEDS_RECONNECT:
@@ -411,7 +396,6 @@ public class SettingsWidget extends UIDialog implements SettingsView.Delegate {
     };
 
     private void updateProfile(Profile profile) {
-        assert !mAreMozillaAccountsDisabled;
         BitmapDrawable profilePicture = mAccounts.getProfilePicture();
         if (profile != null && profilePicture != null) {
             mBinding.fxaButton.setImageDrawable(profilePicture);
@@ -509,6 +493,9 @@ public class SettingsWidget extends UIDialog implements SettingsView.Delegate {
             case PRIVACY_POLICY:
                 showView(new LegalDocumentView(getContext(), mWidgetManager, LegalDocumentView.LegalDocument.PRIVACY_POLICY));
                 break;
+            case LEGAL_LICENSE:
+                showView(new LegalDocumentView(getContext(), mWidgetManager, LegalDocumentView.LegalDocument.LEGAL_LICENSE));
+                break;
         }
     }
 
@@ -537,8 +524,7 @@ public class SettingsWidget extends UIDialog implements SettingsView.Delegate {
         } else {
             updateUI();
             mBinding.optionsLayout.setVisibility(View.VISIBLE);
-            if (!mAreMozillaAccountsDisabled)
-                updateCurrentAccountState();
+            updateCurrentAccountState();
         }
     }
 
@@ -554,8 +540,7 @@ public class SettingsWidget extends UIDialog implements SettingsView.Delegate {
     public void show(@ShowFlags int aShowFlags) {
         super.show(aShowFlags);
 
-        if (!mAreMozillaAccountsDisabled)
-            updateCurrentAccountState();
+        updateCurrentAccountState();
     }
 
     // SettingsView.Delegate

@@ -87,6 +87,10 @@ SplashAnimation::Load(vrb::RenderContextPtr& aContext, const DeviceDelegatePtr& 
   VRB_GL_CHECK(glDisable(GL_FRAMEBUFFER_SRGB_EXT));
 #endif
   vrb::TextureGLPtr texture = create->LoadTexture("logo.png");
+    if(texture == nullptr){
+        VRB_ERROR("Null pointer, file: %s, function: %s, line: %d",__FILE__, __FUNCTION__, __LINE__);
+        return;
+    }
   texture->SetTextureParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   texture->SetTextureParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   const float w = 0.75f;

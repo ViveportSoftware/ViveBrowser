@@ -2,6 +2,11 @@
 <resources>
     <!-- IMPORTANT NOTE: If this file is updated anyhow, the STRs wiki must be updated accordingly:
     https://github.com/Igalia/wolvic/wiki/Localization -->
+
+    <!-- This string labels the button in the privacy option panel that enables/disables the use of
+system root CA for certificate. -->
+    <string name="security_options_use_system_root_ca">신뢰할 수 있는 루트 인증서 사용</string>
+
     <!-- This string is used on the virtual keyboard to label the 'Enter' key (stylized in uppercase letters as 'ENTER'). -->
     <string name="keyboard_enter_label">입력</string>
     <!-- This string is used on the virtual keyboard to label the 'Enter' key with a "Go" IME action.
@@ -102,7 +107,7 @@
      when there are no exceptions. -->
     <string name="settings_privacy_policy_webxr_empty_description">WebXR을 사용하는 웹 사이트를 열면, 해당 사이트에서 WebXR을 차단할 수 있는 대화 상자를 열 수 있습니다.</string>
     <!-- This string labels the Reset button that removes all the sites not allowed to access WebXR -->
-    <string name="settings_privacy_policy_webxr_reset">VR 기기가 허용되지 않은 사이트들을 초기화합니다.</string>
+    <string name="settings_privacy_policy_webxr_reset">가상 현실 기기에 접근이 허용 안 된 사이트들 초기화</string>
     <!-- This string is used as the title of the Tracking dialog used to do not allow websites to bypass tracking protection. -->
     <string name="settings_privacy_policy_tracking_title">향상된 추적 방지 기능에 대한 예외</string>
     <!-- This string is displayed under the title the  Tracking dialog used to do not allow websites to bypass tracking protection. -->
@@ -111,7 +116,7 @@
      when there are no exceptions. -->
     <string name="settings_privacy_policy_tracking_empty_description">웹 사이트가 사용자의 활동을 추적하도록 허용하면, 여기에 나타납니다.</string>
     <!-- This string labels the Reset button that removes all the sites not allowed to access WebXR -->
-    <string name="settings_privacy_policy_tracking_reset">향상된 추적 방지 기능에 대한 예외를 초기화합니다.</string>
+    <string name="settings_privacy_policy_tracking_reset">향상된 추적 방지 기능에 대한 예외 초기화</string>
     <!-- This string is used as the title of the Tracking dialog used to do not allow websites to bypass tracking protection. -->
     <string name="settings_privacy_policy_login_exceptions_title">로그인 예외</string>
     <!-- This string is displayed under the title the  Tracking dialog used to do not allow websites to bypass tracking protection. -->
@@ -376,7 +381,7 @@
     <string name="developer_options_clear_cache">데이터 지우기</string>
     <!-- This string is used to label a numerical-entry field where the user may set a new value to
          use for the display density. -->
-    <string name="developer_options_display_density">디스플레이 밀도:</string>
+    <string name="developer_options_display_density">디스플레이 밀도</string>
     <!-- This string is used to label buttons to enable editing of text fields in the
          'Developer Options' dialog. Pressing this button switches the text to
          editable-text fields so their values may be changed. -->
@@ -437,7 +442,7 @@
      https://developer.oculus.com/blog/optimizing-oculus-go-for-performance/-->
     <string name="developer_options_foveated_app">Foveation Level (앱)</string>
     <!-- This string is used to label radio buttons for setting foveated level for WebVR immersive experiences -->
-    <string name="developer_options_foveated_webvr">포비에이션 레벨 (WebVR)</string>
+    <string name="developer_options_foveated_webvr">Foveation Level (WebVR)</string>
     <!-- This string is used to label the Foveated radio button that disables fixed-foveated-rendering in immersive mode. -->
     <string name="developer_options_foveated_disabled">비활성화됨</string>
     <!-- This string is used to label the Foveated radio button that enables low-level fixed-foveated-rendering. -->
@@ -504,7 +509,7 @@
     <string name="fxa_account_options_sync_now">지금 동기화</string>
     <!-- This string is used to in the FxA account manage panel as the description of the Sync button while syncon.
          The sync button will start syncing when pressed-->
-    <string name="fxa_account_options_syncing">동기화하는 중...</string>
+    <string name="fxa_account_options_syncing">동기화하는 중…</string>
     <!-- This string is used in the FxA account manager panel as a header for the sync options for syncing
          history, bookmarks, passwords, etc. -->
     <string name="fxa_account_options_sync_description">Firefox를 사용하여 기기에서 동기화 할 대상 선택</string>
@@ -623,7 +628,8 @@
     <!-- This string labels an Allow/Don't Allow switch in the Privacy and Security settings dialog
      and is used to enable or disable permission to collect telemetry data.
      '%1$s' Will be replaced at runtime with the app name. -->
-    <string name="security_options_telemetry_send_data">%1$s이(가) 기술 및 상호 작용 데이터를 Huawei로 전송하도록 허용</string>
+    <string name="security_options_telemetry_send_data">%1$s이(가) 기술 및 상호 작용 데이터를 Mozilla에 보내도록 허용
+ </string>
     <!-- This string labels an Allow/Don't Allow switch in the Privacy and Security settings dialog
      and is used to enable or disable permission to send crash reports.
      '%1$s' Will be replaced at runtime with the app name. -->
@@ -674,7 +680,7 @@
     <string name="crash_dialog_heading">문제가 발생하여 충돌했습니다</string>
     <!-- This string explains why Mozilla would like the user to allow the crash data to be uploaded.
          '%1$s' will be replaced at runtime with the app's domain name. -->
-    <string name="crash_dialog_message"><![CDATA[충돌 데이터를 보내서 Mozilla가 %1$s을(를) 개선하도록 도와주세요. <a href="more">더 알아보기</a>]]></string>
+    <string name="crash_dialog_message"><![CDATA[충돌 데이터를 보내서 VIVEPORT가 %1$s을(를) 개선하도록 도와주세요. <a href="more">더 알아보기</a>]]></string>
     <!-- This string labels a checkbox in the crash dialog box. When checked, the user will no longer
          be prompted for permission to upload crash data after an application crash. -->
     <string name="crash_dialog_send_data">항상 묻지 않고 전송하기</string>
@@ -1018,7 +1024,7 @@
     <string name="privacy_options_saved_login_delete">삭제</string>
     <!-- This string is used to label radio buttons for setting ETP in.
          '%1$' Will be replaced at runtime with the Learn More url for ETP. -->
-    <string name="privacy_options_tracking">향상된 추적 방지 기능. (&lt;a href=%1$s&gt;더 알아보기&lt;/a&gt;)</string>
+    <string name="privacy_options_tracking"><![CDATA[향상된 추적 방지 기능. (<a href="%1$s">더 알아보기</a>)]]></string>
     <!-- This string labels the button in the privacy option panel that opens the dialog to add/remove
          Tracking protection exceptions. -->
     <string name="privacy_options_tracking_exceptions_v1">고급</string>
@@ -1109,7 +1115,7 @@
     <string name="drm_disabled_tooltip">DRM 허용 안 됨</string>
     <!-- This string is for the tooltip that when clicking the 'Info' (ⓘ) icon visible next to the current website's
          URL in the URL bar. The button it labels, when pressed, shows information about the site. -->
-    <string name="site_info_tooltip">사이트 정보 보기.</string>
+    <string name="site_info_tooltip">사이트 정보 보기</string>
     <!-- This string is for the tooltip that appears upon hovering the 'Servo' button in the browser's navigation bar.
          'Servo' refers to the Servo engine. -->
     <string name="servo_tooltip">Servo 엔진 사용</string>
@@ -1408,7 +1414,7 @@ the Select` button. When clicked it closes all the previously selected tabs -->
     <!-- This string is displayed instead of the devices list if there are no available devices. -->
     <string name="send_tab_dialog_no_devices">연결된 기기 없음.</string>
     <!-- This string is displayed instead of the devices list if the devices list is being synced. -->
-    <string name="send_tab_dialog_syncing">동기화 중...</string>
+    <string name="send_tab_dialog_syncing">동기화 중…</string>
     <!-- This string is displayed in the button of the Send Tab to device dialog. When clicked the current tab is sent to the selected device -->
     <string name="send_tab_dialog_button">보내기</string>
     <!-- This string is displayed in the header of the what's new dialog that is displayed if the user has updated
@@ -1604,23 +1610,23 @@ the Select` button. When clicked it closes all the previously selected tabs -->
     '%1$s' Will be replaced at runtime with headset battery level. -->
     <string name="tray_status_headset">헤드셋: %1$s</string>
     <string name="settings_terms_service">서비스 약관</string>
-    <string name="settings_privacy_choose_search_engine_description">선호하는 검색 엔진을 선택하세요.</string>
+    <string name="settings_privacy_choose_search_engine_description">원하는 검색 엔진을 선택하세요.</string>
     <string name="settings_privacy_choose_search_engine_reset">검색 엔진 설정 초기화</string>
     <string name="external_open_uri_error_title">외부 앱 열기 실패</string>
     <string name="terms_service_subtitle_2">Wolvic 웹 기반 정보 서비스</string>
     <string name="privacy_policy_subtitle_1">기본 정보</string>
     <string name="settings_privacy_search_engine_title">검색 엔진</string>
-    <string name="hvr_enter_vr">VR 모드 진입</string>
+    <string name="hvr_enter_vr">VR모드 진입</string>
     <string name="privacy_policy_subtitle_2">데이터 보호</string>
     <string name="privacy_dialog_disagree">Wolvic 종료</string>
     <string name="privacy_policy_title">일반적인 개인정보 보호 정책</string>
-    <string name="voice_search_unsupported">사용하시는 언어는 음성 검색이 지원되지 않습니다.</string>
+    <string name="voice_search_unsupported">사용자의 언어에서 음성 검색이 지원되지 않습니다.</string>
     <string name="privacy_dialog_title">개인정보 보호</string>
     <string name="terms_service_section_1">Wolvic은 전 세계 수천 명의 커뮤니티에 의해 개발된 프리 소프트웨어이자 오픈 소스 소프트웨어입니다. 이와 관련해 귀하가 몇 가지 알아두어야 할 사항이 있습니다:
 \n
 \n\t• Wolvic은 Mozilla Public License 약관에 따라 제공됩니다. 이는 귀하가 Wolvic을 사용, 복제 및 배포가 가능하다는 의미입니다. 또한 귀하는 필요에 따라 Wolvic의 코드를 언제든지 수정할 수 있으며, Mozilla Public License에 의해 수정된 버전을 배포할 수 있는 권한이 있습니다.
 \n
-\n\t• 귀하는 Igalia 및 당사의 상표와 관련하여 상표권이나 라이센스를 취득할 수 없습니다. 이는 Wolvic의 상표명 및 로고 등 을 포함하되 이에 국한되지 않는다.
+\n\t• 귀하는 Igalia 및 당사의 상표(Wolvic의 상표명 및 로고를 포함)와 관련하여 상표권이나 라이센스를 취득하지 않습니다.
 \n
 \n\t• 귀하는 고유 재량에 따라 Crash Reporter와 같은 Wolvic의 특정 기능을 통해 Igalia에 피드백을 제출할 수 있습니다. 귀하가 피드백을 제출하는 경우, 해당 피드백을 사용하여 제품을 개선하고 Wolvic의 웹사이트에 익명화된 피드백을 게시, 배포할 수 있는 권한이 Igalia에 부여됩니다.
 \n
@@ -1637,10 +1643,10 @@ the Select` button. When clicked it closes all the previously selected tabs -->
     <string name="privacy_dialog_agree">동의</string>
     <string name="external_open_uri_error_security_exception_body">%1$s에 대한 인텐트 실행 중 SecurityException 발생</string>
     <string name="external_open_uri_error_bad_uri_body">유효하지 않은 URI %1$s</string>
-    <string name="external_open_uri_error_no_activity_body">%1$s을(를) 처리할 응용 프로그램을 찾을 수 없습니다</string>
+    <string name="external_open_uri_error_no_activity_body">%1$s를 처리할 응용 프로그램을 찾을 수 없습니다</string>
     <string name="terms_service_title">서비스 약관</string>
-    <string name="privacy_dialog_message">Wolvic은 귀하의 개인정보를 중요하게 여깁니다. 브라우저를 실행하기 위한 서비스 약관과 개인정보 보호 정책에 동의해 주시기 바랍니다. Wolvic을 이용해주셔서 감사합니다!</string>
-    <string name="hvr_connect_glass_message">이 앱을 사용하려면 화웨이 VR 글래스를 연결하세요</string>
+    <string name="privacy_dialog_message">Wolvic은 귀하의 개인정보를 중요하게 여깁니다. 브라우저를 실행하기 전, 서비스 약관과 개인정보 보호 정책에 동의해 주시기 바랍니다. Wolvic을 이용해주셔서 감사합니다!</string>
+    <string name="hvr_connect_glass_message">이 앱을 사용하기 위한 HUAWEI VR글래스를 연결하세요</string>
     <string name="terms_service_section_2">Wolvic의 제공하는 일부 기능들은 웹 기반 정보 서비스(이하 \"서비스\")를 아래 설명된 조건에 따라 바이너리 형태의 Wolvic과 함께 사용합니다.
 \n
 \n\t• Igalia와 컨트리뷰터, 라이센서 및 파트너는 가장 정확하고 최신의 서비스를 제공하기 위해 노력하고 있습니다. 하지만 우리는 이 정보가 완전하며 오류가 없다고 보장할 수 없습니다. 예를 들어, 세이프 브라우징 서비스는 일부 위험한 사이트를 식별하지 못할 수 있으며 일부 안전한 사이트를 잘못 식별할 수 있습니다. 또 다른 예로, 위치 인식 서비스의 경우 서비스 제공 업체에서 반환하는 모든 위치는 추정치일 뿐이며, 우리 혹은 서비스 제공 업체 모두 제공된 위치의 정확성을 보장하지 않습니다.
@@ -1693,6 +1699,7 @@ the Select` button. When clicked it closes all the previously selected tabs -->
     <string name="privacy_policy_subtitle_3">준거법 및 원어</string>
     <string name="privacy_policy_section_3">이 개인 정보 정책은 스페인 법률의 적용을 받습니다. 이 응용 프로그램의 개인 정보 정책 언어는 스페인어 입니다. 이러한 이유로, 스페인어로 된 원본 버전과 다른 언어로 번역된 버전 간에 발생하는 차이는 https://wolvic.com/es/legal/privacy/ 에서 찾을 수 있는 스페인어 버전이 우선적인 것으로 고려됩니다.</string>
     <string name="privacy_policy_section_2">IGALIA는 개인 데이터 보호에 관한 법률 조항: 2016년 4월 27일 유럽 의회 및 이사회의 규정(EU) 2016/679 - 자연인의 개인 데이터 처리 및 해당 데이터의 자유로운 이동에 관한 보호와 95/46/EC(일반 데이터 보호 규정)의 폐지와 데이터 보호와 디지털 권리 보장에 관한 12월 5일자 유기법 3/2018 (LOPDGDD)을 준수하기 위해 최선을 다하고 있습니다.
+\n
 \nIGALIA는 사용자를 식별할 수 있는 방식으로 개인 데이터를 수집하지 않습니다. 그러므로 직간접적으로 IGALIA에 신원을 공개하거나 개인 데이터를 제공하지 않고도 이 응용 프로그램을 사용하고 가상 현실 환경을 참조하고 탐색할 수 있습니다. 따라서 IGALIA는 WOLVIC에 입력된 어떤 데이터에 관해서도 법률상의 책임을 지지 않습니다.
 \nIGALIA가 이 응용 프로그램의 사용을 위해 획득하는 유일한 데이터 및 정보는 사용자에게 개별적으로 연결되지 않으며 다음과 같습니다.
 \n
@@ -1729,7 +1736,7 @@ the Select` button. When clicked it closes all the previously selected tabs -->
     <string name="settings_language_choose_language_voice_search_service_title">음성 검색 서비스</string>
     <string name="language_service_options_reset">음성 검색 서비스 설정 초기화</string>
     <string name="voice_service_metkai">MeetKai</string>
-    <string name="voice_service_huawei_asr">화웨이 자동 음성 인식</string>
+    <string name="voice_service_huawei_asr">HUAWEI 자동 음성 인식</string>
     <string name="permissions_dialog_remember_choice">이 결정을 기억함</string>
     <string name="settings_language_galician">갈리시아어</string>
     <string name="settings_language_portuguese_br">포르투갈어 (브라질)</string>
@@ -1742,7 +1749,7 @@ the Select` button. When clicked it closes all the previously selected tabs -->
     <string name="download_addon_install_blocked">애드온 설치 실패</string>
     <string name="download_addon_install_blocked_body">계속 진행하려면 개발자 옵션에서 애드온 설치를 허용해야 합니다.</string>
     <string name="web_apps_title">웹 앱</string>
-    <string name="web_apps_description">웹 앱에 추가할 페이지에 있을 때 웹 앱 저장... 버튼을 클릭하세요.</string>
+    <string name="web_apps_description">웹 앱에 추가할 페이지에 있을 때 웹 앱 저장… 버튼을 클릭하세요.</string>
     <string name="web_apps_empty">웹 앱 목록이 비어 있습니다</string>
     <string name="hamburger_menu_save_web_app">웹 앱 저장…</string>
     <string name="upload_button">업로드</string>
@@ -1755,13 +1762,13 @@ the Select` button. When clicked it closes all the previously selected tabs -->
     <string name="web_apps_dialog_title_parameter">%1$s 설치</string>
     <string name="web_apps_dialog_install">설치</string>
     <string name="hamburger_menu_toggle_passthrough">패스스루</string>
-    <string name="deprecated_version_dialog_title">지원이 곧 종료됨</string>
+    <string name="deprecated_version_dialog_title">권장 업데이트</string>
     <string name="security_options_permission_fine_location_warning">울빅은 당신의 대략적인 위치만 알 수 있습니다. 이는 시스템 설정에서 변경할 수 있습니다.</string>
-    <string name="deprecated_version_dialog_body">이 울빅의 \"App Lab\" 버전은 2023년 10월 말에 삭제 될 예정입니다.
+    <string name="deprecated_version_dialog_body">현재 울빅의 개발 버전인 \"App Lab\"을 실행하고 있습니다.2023년 10월 말에 중단될 예정입니다.
 \n
-\n메타 퀘스트 스토어에서 가장 최신 버전의 울빅을 설치하세요.
+\n오큘러스 스토어에서 최신 버전의 울빅을 설치하세요.
 \n
-\n중요: 동기화를 사용하지 않는한, 새로운 울빅 앱은 당신의 북마크와 탭을 갖고 있지 않습니다.</string>
+\n중요: Mozilla 동기화를 사용하지 않는한, 새로운 울빅 앱은 당신의 북마크와 탭을 갖고 있지 않습니다.</string>
     <string name="upload_list_empty">업로드 할 수 있는 파일이 없습니다</string>
     <string name="deprecated_version_dialog_info_button">자세히 알아보기…</string>
     <string name="deprecated_version_dialog_store_button">설치…</string>
@@ -1788,33 +1795,4 @@ the Select` button. When clicked it closes all the previously selected tabs -->
     <string name="keyboardview_keycode_shift">Shift</string>
     <string name="keyboardview_keycode_alt">Alt</string>
     <string name="keyboardview_keycode_delete">삭제</string>
-    <string name="clear_user_data_dialog_title">%1$s 사용자 데이터 삭제</string>
-    <string name="display_options_start_with_passthrough">패스스루 모드로 시작</string>
-    <string name="developer_options_clear_user_data_description">모든 사용자 데이터</string>
-    <string name="voice_input_start">무엇을 입력하시겠습니까?</string>
-    <string name="tray_wifi_unavailable_ssid">사용할 수 없는 SSID</string>
-    <string name="video_mode_3d_top_bottom">3D 상하 화면</string>
-    <string name="clear_user_data_dialog_text">%1$s이 초기화 됩니다. 동기화하지 않은 경우, 저장된 로그인 정보, 방문 기록과 북마크를 포함한 모든 데이터가 완전히 삭제됩니다. %1$s은 초기화가 완료된 후 자동으로 종료됩니다. 계속하시겠습니까?</string>
-    <string name="security_options_use_system_root_ca">시스템에서 신뢰할 수 있는 루트 인증서 사용</string>
-    <string name="display_options_windows_can_move">드래그로 창 이동하기</string>
-    <string name="display_options_latin_auto_complete">라틴어 키보드 입력 시 자동 완성</string>
-    <string name="display_options_windows_distance">창 간 거리</string>
-    <string name="controller_options_haptic_feedback">햅틱 피드백</string>
-    <string name="move_tooltip">이동</string>
-    <string name="developer_options_center_windows">창 수직으로 정렬하기</string>
-    <string name="experimental_features">실험 기능</string>
-    <string name="display_options_head_lock">머리 고정(헤드락) 기능 활성화</string>
-    <string name="display_options_sound_effect">음향 효과 사용</string>
-    <string name="fxa_account_options_device_name">디바이스 이름</string>
-    <string name="device_name">%2$s 의 %1$s</string>
-    <string name="permission_rationale_title">추가 권한</string>
-    <string name="permission_camera_rationale">주변 세계의 이미지를 촬영하려면 카메라를 사용할 수 있는 권한이 필요합니다.</string>
-    <string name="permission_camera_and_microphone_rationale">화상 회의와 같은 서비스를 제공하려면 카메라와 마이크를 사용할 수 있는 권한이 필요합니다.</string>
-    <string name="permission_notification_rationale">뉴스 및 업데이트를 알려면 알림을 보낼 수 있는 권한이 필요합니다.</string>
-    <string name="permission_persistent_storage_rationale">장치에 파일을 저장하고 열려면 데이터를 영구 저장소에 저장할 수 있는 권한이 필요합니다.</string>
-    <string name="hamburger_menu_zoom">줌</string>
-    <string name="tray_status_phone">전화: %1$s</string>
-    <string name="permission_microphone_rationale">음성 검색 및 텍스트 입력을 수행하려면 마이크를 사용할 수 있는 권한이 필요합니다.</string>
-    <string name="permission_location_rationale">주변 뉴스와 콘텐츠를 제공하려면 귀하의 위치에 액세스할 수 있는 권한이 필요합니다.</string>
-    <string name="permission_read_external_storage_rationale">장치에서 파일을 열려면 외부 저장소를 읽을 수 있는 권한이 필요합니다.</string>
 </resources>

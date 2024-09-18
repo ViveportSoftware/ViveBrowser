@@ -3,6 +3,10 @@
     <!-- IMPORTANT NOTE: If this file is updated anyhow, the STRs wiki must be updated accordingly:
     https://github.com/Igalia/wolvic/wiki/Localization -->
 
+    <!-- This string labels the button in the privacy option panel that enables/disables the use of
+system root CA for certificate. -->
+    <string name="security_options_use_system_root_ca">Bruk pålitelige rotsertifikater</string>
+
     <!-- This string is used on the virtual keyboard to label the 'Enter' key (stylized in uppercase letters as 'ENTER'). -->
     <string name="keyboard_enter_label">ENTER</string>
 
@@ -879,7 +883,7 @@
 
     <!-- This string explains why Mozilla would like the user to allow the crash data to be uploaded.
          '%1$s' will be replaced at runtime with the app's domain name. -->
-    <string name="crash_dialog_message"><![CDATA[Hjelp Mozilla med å forbedre %1$s ved å sende inn dine krasjdata.]]></string>
+    <string name="crash_dialog_message"><![CDATA[Hjelp VIVEPORT med å forbedre %1$s ved å sende inn dine krasjdata.]]></string>
 
     <!-- This string labels a checkbox in the crash dialog box. When checked, the user will no longer
          be prompted for permission to upload crash data after an application crash. -->

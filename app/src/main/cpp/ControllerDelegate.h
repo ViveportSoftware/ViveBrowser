@@ -58,10 +58,10 @@ public:
   virtual uint32_t GetControllerCount() = 0;
   virtual void SetCapabilityFlags(const int32_t aControllerIndex, const device::CapabilityFlags aFlags) = 0;
   virtual void SetEnabled(const int32_t aControllerIndex, const bool aEnabled) = 0;
+  virtual void SetModelVisible(const int32_t aControllerIndex, const bool aVisible) = 0;
   virtual void SetControllerType(const int32_t aControllerIndex, device::DeviceType aType) = 0;
   virtual void SetTargetRayMode(const int32_t aControllerIndex, device::TargetRayMode aMode) = 0;
   virtual void SetTransform(const int32_t aControllerIndex, const vrb::Matrix& aTransform) = 0;
-  virtual void TranslateTransform(const int32_t aControllerIndex, const vrb::Vector& aTranslation) = 0;
   virtual void SetButtonCount(const int32_t aControllerIndex, const uint32_t aNumButtons) = 0;
   virtual void SetButtonState(const int32_t aControllerIndex, const Button aWhichButton, const int32_t aImmersiveIndex, const bool aPressed, const bool aTouched, const float aImmersiveTrigger = -1.0f) = 0;
   virtual void SetAxes(const int32_t aControllerIndex, const float* aData, const uint32_t aLength) = 0;
@@ -81,6 +81,7 @@ public:
   virtual bool IsVisible() const = 0;
   virtual void SetVisible(const bool aVisible) = 0;
   virtual void SetGazeModeIndex(const int32_t aControllerIndex) = 0;
+  virtual void SetJointsMatrices(const int32_t aControllerIndex, const std::string name, const float *matrices) = 0;
   virtual void SetHandJointLocations(const int32_t aControllerIndex, std::vector<vrb::Matrix> jointTransforms, std::vector<float> jointRadii) = 0;
   virtual void SetAimEnabled(const int32_t aControllerIndex, bool aEnabled = true) = 0;
   virtual void SetHandActionEnabled(const int32_t aControllerIndex, bool aEnabled = false) = 0;

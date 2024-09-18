@@ -97,7 +97,6 @@ class AddonsManagerAdapter(
         val context = parent.context
         val inflater = LayoutInflater.from(context)
         val view = inflater.inflate(R.layout.addons_item, parent, false)
-        val contentWrapperView = view.findViewById<View>(R.id.add_on_content_wrapper)
         val iconView = view.findViewById<ImageView>(R.id.add_on_icon)
         val titleView = view.findViewById<TextView>(R.id.add_on_name)
         val summaryView = view.findViewById<TextView>(R.id.add_on_description)
@@ -109,7 +108,6 @@ class AddonsManagerAdapter(
         val statusErrorView = view.findViewById<TextView>(R.id.add_on_status_error_message)
         return AddonViewHolder(
             view,
-            contentWrapperView,
             iconView,
             titleView,
             summaryView,
@@ -154,7 +152,7 @@ class AddonsManagerAdapter(
             val userCount = context.getString(R.string.mozac_feature_addons_user_rating_count_2)
             val ratingContentDescription =
                 String.format(
-                    context.getString(R.string.mozac_feature_addons_rating_content_description_2),
+                    context.getString(R.string.mozac_feature_addons_rating_content_description),
                     addon.rating!!.average
                 )
             holder.ratingView.contentDescription = ratingContentDescription

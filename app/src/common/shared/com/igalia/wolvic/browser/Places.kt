@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 import mozilla.components.browser.storage.sync.PlacesBookmarksStorage
 import mozilla.components.browser.storage.sync.PlacesHistoryStorage
 import mozilla.components.lib.dataprotect.SecureAbove22Preferences
+import mozilla.components.lib.dataprotect.generateEncryptionKey
 import mozilla.components.service.sync.logins.SyncableLoginsStorage
 import mozilla.components.support.base.log.logger.Logger
 
@@ -43,7 +44,18 @@ class Places(var context: Context) {
                     name = KEY_STORAGE_NAME
             )
 
-    private val passwordsEncryptionKey = lazy { getSecureAbove22Preferences() }
+    private val passwordsEncryptionKey by lazy {
+        getSecureAbove22Preferences().getString(PASSWORDS_KEY)
+                ?: generateEncryptionKey(KEY_STRENGTH).also {
+                    if (SettingsStore.getInstance(context).isPasswordsEncryptionKeyGenerated) {
+                        // We already had previously generated an encryption key, but we have lost it
+                        Log.d(LOGTAG,"Passwords encryption key for passwords storage was lost and we generated a new one")
+                    }
+                    SettingsStore.getInstance(context).recordPasswordsEncryptionKeyGenerated()
+                    getSecureAbove22Preferences().putString(PASSWORDS_KEY, it)
+                }
+        lazy { getSecureAbove22Preferences() }
+    }
 
     var bookmarks = PlacesBookmarksStorage(context)
     var history = PlacesHistoryStorage(context)

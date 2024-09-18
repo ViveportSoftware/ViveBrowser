@@ -85,16 +85,6 @@
          sdcard. '%1$s' will be replaced at runtime with the website's domain name. -->
     <string name="permission_persistent_storage">Will you allow %1$s to store data in persistent storage?</string>
 
-    <!-- Dialog providing a rationale about why a permission is required. -->
-    <string name="permission_rationale_title">Additional permissions</string>
-    <string name="permission_camera_rationale">Taking images of the world around you requires permission to use your camera.</string>
-    <string name="permission_microphone_rationale">Conducting voice searches and text input requires permission to use your microphone.</string>
-    <string name="permission_camera_and_microphone_rationale">Providing services like videoconferencing requires permission to use your camera and microphone.</string>
-    <string name="permission_location_rationale">Offering nearby news and content requires permission to access your location.</string>
-    <string name="permission_notification_rationale">Notifying you of news and updates requires permission to send notifications.</string>
-    <string name="permission_read_external_storage_rationale">Opening files on your device requires permission to read your external storage.</string>
-    <string name="permission_persistent_storage_rationale">Saving and opening files on your device requires permission to store data in persistent storage.</string>
-
     <!-- This string is displayed in the Settings dialog box and is used to label an
          On/Off switch which toggles whether an application crash is reported without first
          prompting the user. -->
@@ -122,6 +112,10 @@
     <!-- This string is used to label a button that, when pressed, loads a website that
        describes Terms of Service. -->
     <string name="settings_terms_service">Terms of Service</string>
+
+    <!-- This string is used to label a button that, when pressed, loads a website that
+       describes Legal Notice. -->
+    <string name="settings_legal_license">Legal Notice</string>
 
     <!-- This string is used as the description of the dialog used to pick a search engine. -->
     <string name="settings_privacy_search_engine_title">Search engine</string>
@@ -594,6 +588,9 @@
          for the virtual displays Dots Per Inch (DPI). -->
     <string name="developer_options_display_dpi">Display DPI:</string>
 
+    <!-- This string is used to label the experimental features. -->
+    <string name="experimental_features">Experimental Features</string>
+
     <!-- This string is used to label radio buttons for setting Multi-Sample Anti-Aliasing (MSAA) in
          VR Immersive Mode. -->
     <string name="developer_options_msaa">MSAA</string>
@@ -666,6 +663,9 @@
     <string name="developer_options_foveated_2">2</string>
     <!-- This string is used to label the Foveated radio button that enables high-level fixed-foveated-rendering. -->
     <string name="developer_options_foveated_3">3</string>
+
+    <string name="developer_options_env_vive">VIVE Browser</string>
+    <string name="developer_options_env_space">Space</string>
 
     <!-- This string is used to label a set of radio buttons that allow the user to change the
      scroll direction of the remote controller. -->
@@ -752,7 +752,7 @@
 
     <!-- This string is used to in the FxA account manage panel as the description of the Sync button while syncon.
          The sync button will start syncing when pressed-->
-    <string name="fxa_account_options_syncing">Syncing...</string>
+    <string name="fxa_account_options_syncing">Syncing…</string>
 
     <!-- This string is used in the FxA account manager panel as a header for the sync options for syncing
          history, bookmarks, passwords, etc. -->
@@ -917,7 +917,7 @@
     <!-- This string labels an Allow/Don't Allow switch in the Privacy and Security settings dialog
      and is used to enable or disable permission to collect telemetry data.
      '%1$s' Will be replaced at runtime with the app name. -->
-    <string name="security_options_telemetry_send_data">Allow %1$s to send technical and interaction data to Huawei
+    <string name="security_options_telemetry_send_data">Allow %1$s to send technical and interaction data to Mozilla
  </string>
 
     <!-- This string labels an Allow/Don't Allow switch in the Privacy and Security settings dialog
@@ -1004,7 +1004,7 @@
 
     <!-- This string explains why Mozilla would like the user to allow the crash data to be uploaded.
          '%1$s' will be replaced at runtime with the app's domain name. -->
-    <string name="crash_dialog_message"><![CDATA[Please help Mozilla improve %1$s by sending your crash data. <a href="more">Learn More</a>]]></string>
+    <string name="crash_dialog_message"><![CDATA[Please help VIVEPORT improve %1$s by sending your crash data. <a href="more">Learn More</a>]]></string>
 
     <!-- This string labels a checkbox in the crash dialog box. When checked, the user will no longer
          be prompted for permission to upload crash data after an application crash. -->
@@ -1632,6 +1632,8 @@
          'Home' refers to the browser's start page (e.g., the Wolvic Home Page). -->
     <string name="home_tooltip">Home</string>
 
+    <string name="vive_tooltip">VIVE Connect</string>
+
     <!-- This string is for the tooltip that appears upon hovering the 'Voice Search' (microphone) button in the
          browser's navigation bar. 'Voice Search' refers to the browser's system for searching the Web using
          speech-to-text recognition. -->
@@ -2068,10 +2070,6 @@ the Select` button. When clicked it closes all the previously selected tabs -->
     <!-- This string is displayed in the tooltip that is displayed when the user hovers the hamburger menu icon -->
     <string name="hamburger_menu_tooltip">Menu</string>
 
-    <!-- This string is displayed inside the Hamburger menu at the right of the navigation bar. When clicked
-         the plus & minus buttons, the web page's zoom factor is changed -->
-    <string name="hamburger_menu_zoom">Zoom</string>
-
     <!-- This string is displayed in the tooltip that is displayed when the user hovers the move icon -->
     <string name="move_tooltip">Move</string>
 
@@ -2088,7 +2086,7 @@ the Select` button. When clicked it closes all the previously selected tabs -->
     <string name="send_tab_dialog_no_devices">No devices connected.</string>
 
     <!-- This string is displayed instead of the devices list if the devices list is being synced. -->
-    <string name="send_tab_dialog_syncing">Syncing...</string>
+    <string name="send_tab_dialog_syncing">Syncing…</string>
 
     <!-- This string is displayed in the button of the Send Tab to device dialog. When clicked the current tab is sent to the selected device -->
     <string name="send_tab_dialog_button">Send</string>
@@ -2144,7 +2142,7 @@ the Select` button. When clicked it closes all the previously selected tabs -->
     <string name="popup_dialog_button_on">On</string>
 
     <!-- This string is displayed in the off button of the quick Popup blocking dialog when it's in disabled state. It's accessed from the Popup icon in the URL bar. -->
-    <string name="popup_dialog_button_off">Off</string>https://wolvic.com/support/firefox-sync/
+    <string name="popup_dialog_button_off">Off</string>
 
     <!-- This string is displayed in the title of the quick WebXR blocking dialog, accessed from the VR icon in the URL bar.
      '%1$s' will be replaced at runtime with the status of the setting.
@@ -2516,6 +2514,56 @@ the Select` button. When clicked it closes all the previously selected tabs -->
         This Privacy Policy is subject to Spanish law. The Privacy Policy language of this application is Spanish. For this reason, any possible divergence between the original version in Spanish and its translation into another language will be considered as predominant in the Spanish version that can be found here: https://wolvic.com/es/legal/privacy/ .
     </string>
 
+
+    <string name="legal_license_title">Legal Notice</string>
+    <string name="legal_license_section_1">
+        \tVIVE Browser
+        \n\t© 2024 HTC Corporation. All Rights Reserved.
+        \n\nThis document describes the contract between you and HTC Corporation (“HTC”) for the “Work” which refer to this software provided by HTC under the terms of this license. Please read it carefully before downloading or using this Work. If you do not agree to the terms of this license, please do not download or use this Work.
+        \n\nUnless otherwise provided herein, the information contained in the Work is the exclusive property of HTC.
+        \n\nHTC grants the users the rights to use, distribute and modify (if provided in a source code form) the Work within the scope of the legitimate development of software.
+        \nThe usage of the Work, with or without modification, is permitted provided that the following conditions are met:
+        \n\t\t\t\t* The Work is distributed in a source code form must retain the above copyright notice of the VIVE Browser, this list of conditions and the following disclaimer.
+        \n\t\t\t\t* The Work is distributed in binary form must reproduce the above copyright notice of the VIVE Browser, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distributions.
+        \n\t\t\t\t* Neither HTC nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+        \n\nTHE WORK IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE WORK OR THE USE OR OTHER DEALINGS IN THE WORK.
+        \n\nIN NO EVENT SHALL HTC OR ITS SUPPLIERS BE LIABLE FOR ANY SPECIAL, INCIDENTAL, INDIRECT, OR CONSEQUENTIAL DAMAGES WHATSOEVER (INCLUDING, WITHOUT LIMITATION, DAMAGES FOR LOSS OF BUSINESS PROFITS, BUSINESS INTERRUPTION, LOSS OF BUSINESS INFORMATION, OR ANY OTHER PECUNIARY LOSS) ARISING OUT OF THE USE OF INABILITY TO USE THE WORK, EVEN IF HTC HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+    </string>
+    <string name="legal_license_subtitle_2">Third-Party License</string>
+    <string name="legal_license_section_2">
+        <![CDATA[
+    This Work contains the materials provided by the following third parties, please refer to its copyright and license notice under each third-party license.
+    <br>1.&emsp;Commons-math 3:3.6.1
+    <br>&emsp;&emsp;Licensed under the Apache License, Version 2.0 (the “License”);
+    <br>&emsp;&emsp;you may not use this file except in compliance with the License.
+    <br>&emsp;&emsp;You may obtain a copy of the License at:
+    <br>&emsp;&emsp;<a href="https://www.apache.org/licenses/LICENSE-2.0">https://www.apache.org/licenses/LICENSE-2.0</a>
+    <br><br>2.&emsp;java-native-access 5.13.0
+    <br>&emsp;&emsp;Licensed under the Apache License, Version 2.0 (the “License”);
+    <br>&emsp;&emsp;you may not use this file except in compliance with the License.
+    <br>&emsp;&emsp;You may obtain a copy of the License at:
+    <br>&emsp;&emsp;<a href="https://www.apache.org/licenses/LICENSE-2.0">https://www.apache.org/licenses/LICENSE-2.0</a>
+    <br><br>3.&emsp;Chromium
+    <br>&emsp;&emsp;Copyright 2015 The Chromium Authors
+    <br>&emsp;&emsp;Licensed under the BSD-3-Clause License (the “License”); you may
+    <br>&emsp;&emsp;not use this file except in compliance with the License. You may
+    <br>&emsp;&emsp;obtain a copy of the License at:
+    <br>&emsp;&emsp;<a href="https://github.com/chromium/chromium?tab=BSD-3-Clause-1-ov-file">https://github.com/chromium/chromium?tab=BSD-3-Clause-1-ov</a>
+    <br>&emsp;&emsp;<a href="https://github.com/chromium/chromium?tab=BSD-3-Clause-1-ov-file">-file</a>
+    <br><br>4.&emsp;Wolvic Browser
+    <br>&emsp;&emsp;<a href="https://github.com/Igalia/wolvic">https://github.com/Igalia/wolvic</a>
+    <br>&emsp;&emsp;Licensed under Mozilla Public License, version 2 (the “License”).
+    <br>&emsp;&emsp; You may obtain a copy of the License at:
+    <br>&emsp;&emsp;<a href="https://www.mozilla.org/en-US/MPL/2.0/">https://www.mozilla.org/en-US/MPL/2.0/</a>
+    <br><br>5.&emsp;Fulldive
+    <br>&emsp;&emsp;<a href="https://github.com/fulldiveVR/xr-browser/tree/main">https://github.com/fulldiveVR/xr-browser/tree/main</a>
+    <br>&emsp;&emsp;Licensed under Mozilla Public License, version 2 (the “License”).
+    <br>&emsp;&emsp; You may obtain a copy of the License at:
+    <br>&emsp;&emsp;<a href="https://www.mozilla.org/en-US/MPL/2.0/">https://www.mozilla.org/en-US/MPL/2.0/</a>
+    <br><br><br><br>
+        ]]>
+    </string>
+
     <!-- Display names for the supported voice recognition services -->
     <string name="voice_service_metkai">MeetKai</string>
     <string name="voice_service_huawei_asr">Huawei Automatic Speech Recognition</string>
@@ -2542,27 +2590,5 @@ the Select` button. When clicked it closes all the previously selected tabs -->
 
     <!-- Shown in the tray wifi icon popup when SSID cannot be retrieved -->
     <string name="tray_wifi_unavailable_ssid">SSID unavailable</string>
-    <!-- Tooltip for the battery level when using a tethered device instead of a headset -->
-    <string name="tray_status_phone">Phone: %1$s</string>
-
-    <!-- Vision Glass: instructions on the touchpad on the phone UI -->
-    <string name="vision_glass_touchpad_instructions">Tap to click. Swipe to scroll</string>
-    <!-- Vision Glass: title of an alert dialog in the Phone UI -->
-    <string name="phone_ui_alert_dialog_title">Error</string>
-    <!-- Vision Glass: error message when it was not possible to switch to 3D mode -->
-    <string name="phone_ui_set3dmode_alert_dialog_description">Failed to switch to 3D mode. Try unplugging the glasses and plugging them back and restart Wolvic.</string>
-    <!-- Vision Glass: error message when it was not possible to get USO permissions -->
-    <string name="phone_ui_usb_alert_dialog_description">Failed to get USB permissions. Try unplugging the glasses and plugging them back and restart Wolvic.</string>
-    <!-- Vision Glass: instruct the user to connect the device to the phone -->
-    <string name="vision_glass_disconnected_message">Please connect Vision Glass</string>
-    <!-- Vision Glass: instruct the user to unplug the device and try again -->
-    <string name="vision_glass_error_message">An error happened.\nPlease try again.</string>
-    <!-- Vision Glass: instruct the user to point the phone straight ahead to re-align the controller. -->
-    <string name="vision_glass_realign_dialog_explanation">To set up the controller, please point your phone straight ahead and tap the button.</string>
-    <string name="controller_options_pointer_mode">Gaze Mode</string>
-    <string name="developer_options_pointer_mode_tracked_pointer">Pointer</string>
-    <string name="developer_options_pointer_mode_tracked_eye">Eye Tracking</string>
-    <string name="eye_tracking_permission_title">Eye Tracking Permissions</string>
-    <string name="eye_tracking_permission_message">Enabling eye tracking for browsing the web poses significant privacy risks. This technology captures where and how long a user looks at specific parts of a webpage, revealing intimate details about their interests and emotional reactions. Advertisers and third parties can exploit this data for intrusive marketing and profiling. Moreover, eye movement patterns could infer sensitive information such as medical conditions, cognitive states, or personal habits. Therefore, it is crucial to consider the privacy implications before granting access to eye tracking information to webpages.</string>
 
 </resources>

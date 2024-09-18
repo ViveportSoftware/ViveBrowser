@@ -349,13 +349,9 @@ class GeckoWebExtension(
                     developerUrl = it.creatorUrl,
                     homepageUrl = it.homepageUrl,
                     version = it.version,
-                    requiredPermissions = it.requiredPermissions.toList(),
+                    permissions = it.permissions.toList(),
                     // Origins is marked as @NonNull but may be null: https://bugzilla.mozilla.org/show_bug.cgi?id=1629957
-                    requiredOrigins = it.requiredOrigins.orEmpty().toList(),
-                    optionalPermissions = it.optionalPermissions.toList(),
-                    grantedOptionalPermissions = it.grantedOptionalPermissions.toList(),
-                    grantedOptionalOrigins = it.grantedOptionalOrigins.toList(),
-                    optionalOrigins = it.optionalOrigins.toList(),
+                    hostPermissions = it.origins.orEmpty().toList(),
                     disabledFlags = DisabledFlags.select(it.disabledFlags),
                     optionsPageUrl = it.optionsPageUrl,
                     openOptionsPageInTab = it.openOptionsPageInTab,
@@ -368,8 +364,7 @@ class GeckoWebExtension(
                     fullDescription = it.fullDescription,
                     reviewCount = it.reviewCount,
                     reviewUrl = it.reviewUrl,
-                    updateDate = it.updateDate,
-                    incognito = Incognito.fromString(it.incognito),
+                    updateDate = it.updateDate
             )
         }
     }

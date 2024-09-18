@@ -16,16 +16,24 @@ public class PanZoomControllerImpl implements WPanZoomController {
 
     @Override
     public void onTouchEvent(@NonNull MotionEvent event) {
-        getContentView().dispatchTouchEvent(event);
+        ViewGroup contentView = getContentView();
+        if (contentView != null) {
+            contentView.dispatchTouchEvent(event);
+        }
     }
 
     @Override
     public void onMotionEvent(@NonNull MotionEvent event) {
-        getContentView().dispatchGenericMotionEvent(event);
+        ViewGroup contentView = getContentView();
+        if (contentView != null) {
+            contentView.dispatchGenericMotionEvent(event);
+        }
     }
 
     private ViewGroup getContentView() {
-        assert mSession != null;
+        if (mSession == null) {
+            return null;
+        }
         return mSession.getContentView();
     }
 }

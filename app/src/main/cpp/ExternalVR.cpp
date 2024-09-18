@@ -231,7 +231,6 @@ mozilla::gfx::VRControllerType GetVRControllerTypeByDevice(device::DeviceType aT
           break;
     case device::HVR3DoF:
     case device::HVR6DoF:
-    case device::VisionGlass:
     case device::ViveFocus:
       result = mozilla::gfx::VRControllerType::HTCViveFocus;
       break;
@@ -250,9 +249,9 @@ mozilla::gfx::VRControllerType GetVRControllerTypeByDevice(device::DeviceType aT
       result = mozilla::gfx::VRControllerType::PicoG2;
       break;
     case device::PicoNeo3:
-      result = mozilla::gfx::VRControllerType::PicoNeo3;
+      result = mozilla::gfx::VRControllerType::PicoNeo2;
       break;
-    case device::Pico4x:
+    case device::PicoXR:
       result = mozilla::gfx::VRControllerType::Pico4;
       break;
     case device::MagicLeap2:
@@ -262,6 +261,9 @@ mozilla::gfx::VRControllerType GetVRControllerTypeByDevice(device::DeviceType aT
     case device::LynxR1:
       // FIXME: Gecko does not support LynxR1 device yet, so let's use a similar one for WebXR.
       result = mozilla::gfx::VRControllerType::OculusTouch3;
+      break;
+    case device::VisionGlass:
+      result = mozilla::gfx::VRControllerType::_empty;
       break;
     case device::UnknownType:
     default:
@@ -530,12 +532,19 @@ ExternalVR::PushFramePoses(const vrb::Matrix& aHeadTransform, const std::vector<
 
     if (flags & static_cast<uint16_t>(mozilla::gfx::ControllerCapabilityFlags::Cap_Orientation)) {
       immersiveController.isOrientationValid = true;
-
+#if CHROMIUM
+      vrb::Quaternion rotate(controller.immersiveBeamTransform.AfineInverse());
+#else
       vrb::Quaternion rotate(controller.transformMatrix.AfineInverse());
+#endif //CHROMIUM
       memcpy(&(immersiveController.targetRayPose.orientation), rotate.Data(), sizeof(immersiveController.targetRayPose.orientation));
 
       if (flags & static_cast<uint16_t>(mozilla::gfx::ControllerCapabilityFlags::Cap_Position) || flags & static_cast<uint16_t>(mozilla::gfx::ControllerCapabilityFlags::Cap_PositionEmulated)) {
+#if CHROMIUM
+        vrb::Vector position(controller.immersiveBeamTransform.GetTranslation());
+#else
         vrb::Vector position(controller.transformMatrix.GetTranslation());
+#endif //CHROMIUM
         memcpy(&(immersiveController.targetRayPose.position), position.Data(), sizeof(immersiveController.targetRayPose.position));
       }
     }
@@ -544,7 +553,11 @@ ExternalVR::PushFramePoses(const vrb::Matrix& aHeadTransform, const std::vector<
 #ifdef OPENXR
       auto immersiveBeamTransform = controller.immersiveBeamTransform;
 #else
+#if CHROMIUM
+      auto immersiveBeamTransform = controller.transformMatrix;
+#else
       auto immersiveBeamTransform = controller.transformMatrix.PostMultiply(controller.immersiveBeamTransform);
+#endif //CHROMIUM
 #endif
       vrb::Vector position(immersiveBeamTransform.GetTranslation());
       vrb::Quaternion rotate(immersiveBeamTransform.AfineInverse());
@@ -560,6 +573,7 @@ ExternalVR::PushFramePoses(const vrb::Matrix& aHeadTransform, const std::vector<
     immersiveController.selectActionStopFrameId = controller.selectActionStopFrameId;
     immersiveController.squeezeActionStartFrameId = controller.squeezeActionStartFrameId;
     immersiveController.squeezeActionStopFrameId = controller.squeezeActionStopFrameId;
+    //VRB_WARN("immersiveController.pose.position %f, %f, %f",  immersiveController.pose.position[0], immersiveController.pose.position[1], immersiveController.pose.position[2]);
 
 #if CHROMIUM
     // WebXR hand-tracking support

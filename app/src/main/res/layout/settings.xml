@@ -7,7 +7,6 @@
             name="settingsmodel"
             type="com.igalia.wolvic.ui.viewmodel.SettingsViewModel" />
         <import type="com.igalia.wolvic.BuildConfig"/>
-        <import type="com.igalia.wolvic.utils.DeviceType" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -83,23 +82,7 @@
                 android:textColor="@color/azure"
                 android:autoLink="all"
                 android:textStyle="bold"
-                android:textSize="@dimen/text_smaller_size"
-                app:visibleGone="@{DeviceType.getStoreType() != DeviceType.StoreType.MAINLAND_CHINA}" />
-
-            <TextView
-                android:id="@+id/chinaLicenseNumber"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:clickable="false"
-                android:fontFamily="sans-serif"
-                android:gravity="center"
-                android:text="@string/rCN_license_number"
-                android:textColor="@color/azure"
-                android:textColorHighlight="@android:color/transparent"
-                android:textColorLink="@color/azure"
-                android:textSize="@dimen/text_medium_size"
-                android:textStyle="bold"
-                app:visibleGone="@{DeviceType.getStoreType() == DeviceType.StoreType.MAINLAND_CHINA}" />
+                android:textSize="@dimen/text_smaller_size" />
 
             <TextView
                 android:id="@+id/buildText"
@@ -146,6 +129,7 @@
                         <com.igalia.wolvic.ui.views.HoneycombButton
                             android:id="@+id/languageButton"
                             style="?attr/honeycombButtonStyle"
+                            android:layout_marginStart="2dp"
                             app:honeycombButtonIcon="@drawable/ic_settings_language"
                             app:honeycombButtonText="@string/settings_language"
                             app:honeycombButtonTextSize="@dimen/settings_main_button_text_width" />
@@ -153,6 +137,7 @@
                         <com.igalia.wolvic.ui.views.HoneycombButton
                             android:id="@+id/displayButton"
                             style="?attr/honeycombButtonStyle"
+                            android:layout_marginStart="2dp"
                             app:honeycombButtonIcon="@drawable/ic_settings_display"
                             app:honeycombButtonText="@string/settings_display"
                             app:honeycombButtonTextSize="@dimen/settings_main_button_text_width" />
@@ -160,6 +145,7 @@
                         <com.igalia.wolvic.ui.views.HoneycombButton
                             android:id="@+id/privacyButton"
                             style="?attr/honeycombButtonStyle"
+                            android:layout_marginStart="2dp"
                             app:honeycombButtonIcon="@drawable/ic_settings_privacypolicy"
                             app:honeycombButtonText="@string/settings_privacy_security"
                             app:honeycombButtonTextSize="@dimen/settings_main_button_text_width" />
@@ -167,6 +153,7 @@
                         <com.igalia.wolvic.ui.views.HoneycombButton
                             android:id="@+id/developerOptionsButton"
                             style="?attr/honeycombButtonStyle"
+                            android:layout_marginStart="2dp"
                             app:honeycombButtonIcon="@drawable/ic_settings_developeroptions"
                             app:honeycombButtonText="@string/settings_developer_options"
                             app:honeycombButtonTextSize="@dimen/settings_main_button_text_width" />
@@ -174,11 +161,11 @@
                         <com.igalia.wolvic.ui.views.HoneycombButton
                             android:id="@+id/fxaButton"
                             style="?attr/honeycombButtonStyle"
+                            android:visibility="gone"
                             app:honeycombButtonIcon="@drawable/ic_icon_settings_account"
-                            app:honeycombButtonText="@string/settings_fxa_account_sign_in"
-                            app:honeycombButtonTextSize="@dimen/settings_main_button_text_width"
                             app:honeycombButtonIconHover="false"
-                            app:visibleGone="@{BuildConfig.FLAVOR_backend != &quot;chromium&quot;}"/>
+                            app:honeycombButtonText="@string/settings_fxa_account_sign_in"
+                            app:honeycombButtonTextSize="@dimen/settings_main_button_text_width" />
 
                     </LinearLayout>
 
@@ -188,12 +175,13 @@
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/first_row"
                         android:layout_marginStart="65dp"
-                        android:layout_marginTop="-28dp"
+                        android:layout_marginTop="-4dp"
                         android:orientation="horizontal">
 
                         <com.igalia.wolvic.ui.views.HoneycombButton
                             android:id="@+id/environmentButton"
                             style="?attr/honeycombButtonStyle"
+                            android:layout_marginStart="2dp"
                             app:honeycombButtonIcon="@drawable/ic_settings_environment"
                             app:honeycombButtonText="@string/developer_options_environments"
                             app:honeycombButtonTextSize="@dimen/settings_main_button_text_width" />
@@ -201,6 +189,7 @@
                         <com.igalia.wolvic.ui.views.HoneycombButton
                             android:id="@+id/controllerOptionsButton"
                             style="?attr/honeycombButtonStyle"
+                            android:layout_marginStart="2dp"
                             app:honeycombButtonIcon="@drawable/ic_settings_controlleroptions"
                             app:honeycombButtonIconOculus3dof="@drawable/ic_settings_controlleroptions_oculusvr_3dof"
                             app:honeycombButtonIconOculus6dof="@drawable/ic_settings_controlleroptions_oculusvr_6dof"
@@ -210,30 +199,34 @@
                         <com.igalia.wolvic.ui.views.HoneycombButton
                             android:id="@+id/helpButton"
                             style="?attr/honeycombButtonStyle"
+                            android:layout_marginStart="2dp"
                             app:honeycombButtonIcon="@drawable/ic_settings_help"
                             app:honeycombButtonText="@string/settings_help"
                             app:honeycombButtonTextSize="@dimen/settings_main_button_text_width" />
+                        <com.igalia.wolvic.ui.views.HoneycombButton
+                            android:id="@+id/whatsNewButton"
+                            style="?attr/honeycombButtonStyle"
+                            android:visibility="gone"
+                            app:honeycombButtonIcon="@drawable/ic_whats_new"
+                            app:honeycombButtonText="@string/settings_whats_new"
+                            app:honeycombButtonTextSize="@dimen/settings_main_button_text_width" />
 
-                        <RelativeLayout
-                            android:layout_width="136dp"
-                            android:layout_height="136dp"
-                            android:layout_marginEnd="-10dp">
-                            <com.igalia.wolvic.ui.views.HoneycombButton
-                                android:id="@+id/whatsNewButton"
-                                style="?attr/honeycombButtonStyle"
-                                app:honeycombButtonIcon="@drawable/ic_whats_new"
-                                app:honeycombButtonText="@string/settings_whats_new"
-                                app:honeycombButtonTextSize="@dimen/settings_main_button_text_width" />
-                            <com.google.android.material.textview.MaterialTextView
-                                android:layout_width="6dp"
-                                android:layout_height="6dp"
-                                android:layout_marginTop="48dp"
-                                android:layout_marginEnd="58dp"
-                                android:layout_alignParentTop="true"
-                                android:layout_alignParentEnd="true"
-                                android:background="@drawable/downloads_badge"
-                                app:visibleGone="@{settingsmodel.isWhatsNewVisible}"/>
-                        </RelativeLayout>
+                        <com.google.android.material.textview.MaterialTextView
+                            android:layout_width="6dp"
+                            android:layout_height="6dp"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginTop="48dp"
+                            android:layout_marginEnd="58dp"
+                            android:background="@drawable/downloads_badge"
+                            android:visibility="gone" />
+                        android:visibility="invisible"
+<!--                        <RelativeLayout-->
+<!--                            android:layout_width="136dp"-->
+<!--                            android:layout_height="136dp"-->
+<!--                            android:layout_marginEnd="-10dp">-->
+<!--                            -->
+<!--                        </RelativeLayout>-->
                     </LinearLayout>
                 </RelativeLayout>
             </HorizontalScrollView>

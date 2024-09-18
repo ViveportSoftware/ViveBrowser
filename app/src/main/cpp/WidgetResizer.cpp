@@ -516,9 +516,14 @@ struct WidgetResizer::State {
 WidgetResizerPtr
 WidgetResizer::Create(vrb::CreationContextPtr& aContext, Widget * aWidget) {
   WidgetResizerPtr result = std::make_shared<vrb::ConcreteClass<WidgetResizer, WidgetResizer::State> >(aContext);
-  aWidget->GetWidgetMinAndMax(result->m.min, result->m.max);
-  result->m.widget = aWidget;
-  result->m.Initialize();
+  if(result!= nullptr){
+      aWidget->GetWidgetMinAndMax(result->m.min, result->m.max);
+      result->m.widget = aWidget;
+      result->m.Initialize();
+  }
+   else{
+      VRB_ERROR("Null pointer, file: %s, function: %s, line: %d",__FILE__, __FUNCTION__, __LINE__);
+    }
   return result;
 }
 

@@ -27,7 +27,6 @@ import com.igalia.wolvic.browser.engine.EngineProvider;
 import com.igalia.wolvic.speech.SpeechServices;
 import com.igalia.wolvic.telemetry.TelemetryService;
 import com.igalia.wolvic.ui.viewmodel.SettingsViewModel;
-import com.igalia.wolvic.ui.widgets.WidgetManagerDelegate;
 import com.igalia.wolvic.ui.widgets.menus.library.SortingContextMenuWidget;
 import com.igalia.wolvic.utils.DeviceType;
 import com.igalia.wolvic.utils.RemoteProperties;
@@ -86,7 +85,7 @@ public class SettingsStore {
     public final static boolean NOTIFICATIONS_DEFAULT = true;
     public final static boolean SPEECH_DATA_COLLECTION_DEFAULT = false;
     public final static boolean SPEECH_DATA_COLLECTION_REVIEWED_DEFAULT = false;
-    public final static float WINDOW_DISTANCE_DEFAULT = BuildConfig.DEFAULT_WINDOW_DISTANCE;
+    public final static float WINDOW_DISTANCE_DEFAULT = 0.0f;
     public final static int UA_MODE_DEFAULT = WSessionSettings.USER_AGENT_MODE_VR;
     public final static int INPUT_MODE_DEFAULT = 1;
 
@@ -96,19 +95,22 @@ public class SettingsStore {
     // For a density of 1.0, the DPI is 128 and the texture matches the logical size of the webpage.
     // For a density of 1.5, the DPI of 192 and the resolution of the texture is twice the world size of the window.
     public final static int DISPLAY_DPI_BASE = 128;
-    public final static int DISPLAY_DPI_DEFAULT = (int) (DISPLAY_DENSITY_DEFAULT * DISPLAY_DPI_BASE);
+    // public final static int DISPLAY_DPI_DEFAULT = (int) (DISPLAY_DENSITY_DEFAULT * DISPLAY_DPI_BASE);
+
+    // Set DPI as 100 to make textureScale value as 1
+    public final static int DISPLAY_DPI_DEFAULT = 100;
     public final static int DISPLAY_DPI_MIN = 70;
-    public final static int DISPLAY_DPI_MAX = 300;
+    public final static int DISPLAY_DPI_MAX = 400;
     // World size: multiply by density to get the available resolution for the Web engine.
     public final static int WINDOW_WIDTH_DEFAULT = 800;
     public final static int WINDOW_HEIGHT_DEFAULT = 450;
     // The maximum size is computed so the resulting texture fits within 2560x2560.
     public final static int MAX_WINDOW_WIDTH_DEFAULT = 1200;
-    public final static int MAX_WINDOW_HEIGHT_DEFAULT = 800;
+    public final static int MAX_WINDOW_HEIGHT_DEFAULT = 675;
 
     public final static int POINTER_COLOR_DEFAULT_DEFAULT = Color.parseColor("#FFFFFF");
     public final static int SCROLL_DIRECTION_DEFAULT = 0;
-    public final static String ENV_DEFAULT = "cyberpunk";
+    public final static String ENV_DEFAULT = "vive";
     public final static int MSAA_DEFAULT_LEVEL = 1;
     public final static boolean AUDIO_ENABLED = BuildConfig.FLAVOR_backend == "chromium";
     public final static boolean LATIN_AUTO_COMPLETE_ENABLED = false;
@@ -141,7 +143,6 @@ public class SettingsStore {
     public final static boolean AUTOFILL_ENABLED = true;
     public final static boolean LOGIN_AUTOCOMPLETE_ENABLED = true;
     public final static String SEARCH_ENGINE_DEFAULT = "";
-    public final static @WidgetManagerDelegate.PointerMode int POINTER_MODE_DEFAULT = WidgetManagerDelegate.TRACKED_POINTER;
 
     // Enable telemetry by default (opt-out).
     public final static boolean CRASH_REPORTING_DEFAULT = false;
@@ -325,7 +326,7 @@ public class SettingsStore {
     }
 
     public static boolean shouldStartWithPassthrougEnabled() {
-        return DeviceType.getType() == DeviceType.LenovoA3 || DeviceType.getType() == DeviceType.VisionGlass;
+        return DeviceType.getType() == DeviceType.LenovoA3;
     }
 
     public boolean isStartWithPassthroughEnabled() {
@@ -352,7 +353,7 @@ public class SettingsStore {
 
     public boolean isHeadLockEnabled() {
         return mPrefs.getBoolean(
-                mContext.getString(R.string.settings_key_head_lock), HEAD_LOCK_DEFAULT);
+                mContext.getString(R.string.settings_key_head_lock), shouldStartWithPassthrougEnabled());
     }
 
     public void setHeadLockEnabled(boolean isEnabled) {
@@ -699,16 +700,6 @@ public class SettingsStore {
 
     public boolean isHapticFeedbackEnabled() {
         return mPrefs.getBoolean(mContext.getString(R.string.settings_key_haptic_feedback_enabled), HAPTIC_FEEDBACK_ENABLED);
-    }
-
-    public void setPointerMode(@WidgetManagerDelegate.PointerMode int pointerMode) {
-        SharedPreferences.Editor editor = mPrefs.edit();
-        editor.putInt(mContext.getString(R.string.settings_key_pointer_mode), pointerMode);
-        editor.commit();
-    }
-
-    public @WidgetManagerDelegate.PointerMode int getPointerMode() {
-        return mPrefs.getInt(mContext.getString(R.string.settings_key_pointer_mode), POINTER_MODE_DEFAULT);
     }
 
     public boolean isCenterWindows() {
@@ -1082,7 +1073,7 @@ public class SettingsStore {
     }
 
     public boolean isTermsServiceAccepted() {
-        return mPrefs.getBoolean(mContext.getString(R.string.settings_key_terms_service_accepted), false);
+        return true; //skip wolvic information per Bruce's request on 2023/4/20
     }
 
     public void setPrivacyPolicyAccepted(boolean isAccepted) {
@@ -1092,7 +1083,7 @@ public class SettingsStore {
     }
 
     public boolean isPrivacyPolicyAccepted() {
-        return mPrefs.getBoolean(mContext.getString(R.string.settings_key_privacy_policy_accepted), false);
+        return true; //skip wolvic information per Bruce's request on 2023/4/20
     }
 
     public void setWebAppsData(String aWebAppsData) {

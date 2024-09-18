@@ -10,6 +10,7 @@ import com.igalia.wolvic.browser.api.WWebRequestError;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import mozilla.components.browser.errorpages.ErrorType;
@@ -132,6 +133,7 @@ public class InternalPages {
 
         ErrorType errorType = fromSessionErrorToErrorType(sessionError);
         html = html
+                .replace("%pageTitle%", context.getString(errorType.getTitleRes()))
                 .replace("%button%", context.getString(errorType.getRefreshButtonRes()))
                 .replace("%messageShort%", context.getString(errorType.getTitleRes()))
                 .replace("%messageLong%", context.getString(errorType.getMessageRes(), uri))
@@ -143,7 +145,7 @@ public class InternalPages {
             html = html.replace("%url%", uri);
         }
 
-        return "data:text/html;base64," + Base64.encodeToString(html.getBytes(), Base64.NO_WRAP);
+        return html;
     }
 
     public static byte[] createAboutPage(Context context,
@@ -163,17 +165,16 @@ public class InternalPages {
 
     private static String readRawResourceString(Context context, int resource) {
         StringBuilder total = new StringBuilder();
-        try {
-            BufferedReader stream = new BufferedReader(new InputStreamReader(context.getResources().openRawResource(resource)));
+        try(BufferedReader stream = new BufferedReader(new InputStreamReader(context.getResources().openRawResource(resource)))) {
             String line;
             while ((line = stream.readLine()) != null) {
                 total.append(line).append('\n');
             }
-
         } catch (IOException e) {
             e.printStackTrace();
+        }catch (Exception e){
+            e.printStackTrace();
         }
-
         return total.toString();
     }
 }

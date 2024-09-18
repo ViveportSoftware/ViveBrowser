@@ -15,7 +15,6 @@ import com.igalia.wolvic.VRBrowserApplication;
 import com.igalia.wolvic.browser.Accounts;
 import com.igalia.wolvic.browser.Places;
 import com.igalia.wolvic.ui.widgets.UIWidget;
-import com.igalia.wolvic.utils.SystemUtils;
 
 import java.util.Objects;
 import java.util.concurrent.Executor;
@@ -25,33 +24,6 @@ public class SignOutDialogWidget extends PromptDialogWidget {
     private Accounts mAccounts;
     private Executor mUIThreadExecutor;
     private Places mPlaces;
-
-    private void showConfirmationDialog() {
-        mWidgetManager.getFocusedWindow().showConfirmPrompt(
-                getContext().getString(R.string.restart_dialog_restart),
-                getContext().getString(R.string.restart_dialog_text, getContext().getString(R.string.app_name)),
-                new String[]{
-                        getContext().getString(R.string.restart_now_dialog_button),
-                        getContext().getString(R.string.exit_confirm_dialog_button_cancel),
-                },
-                (index, isChecked) -> {
-                    if (index == PromptDialogWidget.NEGATIVE) {
-                        logout(() -> {
-                            // Clear History and Bookmarks
-                            mPlaces.clear();
-                            mWidgetManager.saveState();
-                            postDelayed(() -> SystemUtils.restart(getContext()), 500);
-                        });
-                    }
-                }
-        );
-    }
-
-    private void logout(Runnable callback) {
-        Objects.requireNonNull(mAccounts.logoutAsync()).thenAcceptAsync(unit -> {
-            callback.run();
-        }, mUIThreadExecutor);
-    }
 
     public SignOutDialogWidget(Context aContext) {
         super(aContext);
@@ -78,14 +50,16 @@ public class SignOutDialogWidget extends PromptDialogWidget {
         setButtonsDelegate((index, isChecked) -> {
             if (index == PromptDialogWidget.NEGATIVE) {
                 try {
-                    if (isChecked()) {
-                        showConfirmationDialog();
-                    } else {
-                        logout(() -> {
-                            hide(UIWidget.REMOVE_WIDGET);
-                            mWidgetManager.getTray().toggleSettingsDialog();
-                        });
-                    }
+                    Objects.requireNonNull(mAccounts.logoutAsync()).thenAcceptAsync(unit -> {
+                        if (isChecked()) {
+                            // Clear History and Bookmarks
+                            mPlaces.clear();
+                        }
+                        hide(UIWidget.REMOVE_WIDGET);
+                        mWidgetManager.getTray().toggleSettingsDialog();
+
+                    }, mUIThreadExecutor);
+
                 } catch(NullPointerException e) {
                     e.printStackTrace();
                 }

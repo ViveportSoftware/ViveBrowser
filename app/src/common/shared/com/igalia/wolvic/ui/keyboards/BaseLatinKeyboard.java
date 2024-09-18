@@ -3,6 +3,7 @@ package com.igalia.wolvic.ui.keyboards;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
@@ -41,10 +42,6 @@ public abstract class BaseLatinKeyboard extends BaseKeyboard {
         final boolean autocompose = ("" + lastChar).matches("[^\\p{L}]");
 
         aComposingText = aComposingText.replaceAll("\\s", "");
-        // We still need the space if we actually pressed space for auto compose
-        if (lastChar == ' ') {
-            aComposingText += ' ';
-        }
         if (aComposingText.isEmpty()) {
             return null;
         }
@@ -133,22 +130,20 @@ public abstract class BaseLatinKeyboard extends BaseKeyboard {
     }
 
     private void loadAutoCorrectTable(String aKey) {
-        SQLiteDatabase reader = SQLiteDatabase.openDatabase(mDB.getPath(), null, SQLiteDatabase.OPEN_READONLY);;
-        String[] sqliteArgs = new String[1];
-        sqliteArgs[0] = aKey.toLowerCase() + "%";
-        try (Cursor cursor = reader.rawQuery("SELECT word FROM autocorrect where LOWER(word) LIKE ? ORDER BY originalFreq DESC LIMIT 20", sqliteArgs)) {
-            if (!cursor.moveToFirst()) {
-                addToKeyMap(aKey, null);
-                return;
-            }
-            do {
-                String word = getString(cursor, 0);
-                if (word == null || word.isEmpty()) {
-                    Log.e(LOGTAG, "code is null for " + aKey);
-                    continue;
+        try (SQLiteDatabase reader = SQLiteDatabase.openDatabase(mDB.getPath(), null, SQLiteDatabase.OPEN_READONLY)) {
+            String[] sqliteArgs = new String[1];
+            sqliteArgs[0] = aKey.toLowerCase() + "%";
+            try (Cursor cursor = reader.rawQuery("SELECT word FROM autocorrect where LOWER(word) LIKE ? ORDER BY originalFreq DESC LIMIT 20", sqliteArgs)) {
+                if (!cursor.moveToFirst()) {
+                    return;
                 }
-                addToKeyMap(aKey, word);
-            } while (cursor.moveToNext());
+                do {
+                    String word = getString(cursor, 0);
+                    addToKeyMap(aKey, word);
+                } while (cursor.moveToNext());
+            }
+        } catch (SQLiteException e) {
+            e.printStackTrace();
         }
     }
 
@@ -157,11 +152,13 @@ public abstract class BaseLatinKeyboard extends BaseKeyboard {
             Log.e(LOGTAG, "key is null");
             return;
         }
+        if (aCode == null || aCode.isEmpty()) {
+            Log.e(LOGTAG, "code is null");
+            return;
+        }
         ArrayList<Words> keyMap = mKeymaps.computeIfAbsent(aKey, k -> new ArrayList<>());
 
-        if (aCode != null && !aCode.isEmpty()) {
-            keyMap.add(new Words(1, aKey, aCode + " "));
-        }
+        keyMap.add(new Words(1, aKey, aCode + " "));
     }
 
     private String getString(Cursor aCursor, int aIndex) {

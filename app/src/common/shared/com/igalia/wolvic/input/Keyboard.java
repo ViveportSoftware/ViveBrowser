@@ -767,7 +767,13 @@ public class Keyboard {
                         }
                    } else if (TAG_KEY.equals(tag)) {
                         inKey = true;
+                        if (currentRow == null) {
+                            continue;
+                        }
                         key = createKeyFromXml(res, currentRow, x, y, parser);
+                        if (key.codes == null || key.codes.length == 0) {
+                            continue;
+                        }
                         mKeys.add(key);
                         if (key.codes[0] == KEYCODE_SHIFT) {
                             // Find available shift key slot and put this shift key in it

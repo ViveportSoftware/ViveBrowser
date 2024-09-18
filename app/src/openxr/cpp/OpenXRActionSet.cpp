@@ -29,7 +29,7 @@ OpenXRActionSetPtr OpenXRActionSet::Create(XrInstance instance, XrSession sessio
 }
 
 XrResult OpenXRActionSet::Initialize() {
-  std::string actionSetName = "wolvic_action_set";
+  std::string actionSetName = "fxr_action_set";
   XrActionSetCreateInfo createInfo { XR_TYPE_ACTION_SET_CREATE_INFO };
   std::strncpy(createInfo.actionSetName, actionSetName.c_str(), XR_MAX_ACTION_SET_NAME_SIZE - 1);
   std::strncpy(createInfo.localizedActionSetName, actionSetName.c_str(), XR_MAX_ACTION_SET_NAME_SIZE - 1);
@@ -80,7 +80,7 @@ XrResult OpenXRActionSet::GetOrCreateAction(XrActionType actionType, const std::
 }
 
 XrResult OpenXRActionSet::GetOrCreateButtonActions(OpenXRButtonType type, OpenXRButtonFlags flags, OpenXRHandFlags hand, OpenXRButtonActions& actions) {
-  std::string key = mPrefix + "button_";
+  std::string key = mPrefix + "_button_";
   if (hand != OpenXRHandFlags::Both) {
     key += hand == OpenXRHandFlags::Left ? "left_" : "right_";
   }
@@ -101,9 +101,6 @@ XrResult OpenXRActionSet::GetOrCreateButtonActions(OpenXRButtonType type, OpenXR
   }
   if (flags  & OpenXRButtonFlags::Value) {
     RETURN_IF_XR_FAILED(CreateAction(XR_ACTION_TYPE_FLOAT_INPUT, key + "_value", hand, actions.value));
-  }
-  if (flags  & OpenXRButtonFlags::Ready) {
-    RETURN_IF_XR_FAILED(CreateAction(XR_ACTION_TYPE_BOOLEAN_INPUT, key + "_ready_ext", hand, actions.ready));
   }
 
   mButtonActions.emplace(key, actions);

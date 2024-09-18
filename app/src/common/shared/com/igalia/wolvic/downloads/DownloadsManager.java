@@ -45,7 +45,7 @@ public class DownloadsManager {
         default void onDownloadError(@NonNull String error, @NonNull String file) {}
     }
 
-    private Handler mMainHandler;
+    private static final Handler mMainHandler = new Handler(Looper.getMainLooper());
     private Context mContext;
     private List<DownloadsListener> mListeners;
     private DownloadManager mDownloadManager;
@@ -53,7 +53,6 @@ public class DownloadsManager {
     private ScheduledFuture<?> mFuture;
 
     public DownloadsManager(@NonNull Context context) {
-        mMainHandler = new Handler(Looper.getMainLooper());
         mContext = context;
         mListeners = new ArrayList<>();
         mDownloadManager = (DownloadManager) mContext.getSystemService(Context.DOWNLOAD_SERVICE);
@@ -61,12 +60,7 @@ public class DownloadsManager {
     }
 
     public void init() {
-        IntentFilter filter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            mContext.registerReceiver(mDownloadReceiver, filter, null, mMainHandler, Context.RECEIVER_NOT_EXPORTED);
-        } else {
-            mContext.registerReceiver(mDownloadReceiver, filter, null, mMainHandler);
-        }
+        mContext.registerReceiver(mDownloadReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
         List<Download> downloads = getDownloads();
         downloads.forEach(download -> {
             File downloadedFile = download.getOutputFile();
@@ -132,7 +126,7 @@ public class DownloadsManager {
 
         if (job.getOutputPath() == null) {
             try {
-                request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, job.getFilename());
+                request.setDestinationInExternalFilesDir(mContext,Environment.DIRECTORY_DOWNLOADS, job.getFilename());
             } catch (IllegalStateException e) {
                 e.printStackTrace();
                 notifyDownloadError(mContext.getString(R.string.download_error_output), job.getFilename());
@@ -200,17 +194,28 @@ public class DownloadsManager {
         long readBytes = 0L;
         byte[] buf = new byte[8192];
         int n;
+        InputStream in = null;
+        OutputStream out = null;
         try {
-            InputStream in = job.getInputStream();
-            OutputStream out = new FileOutputStream(file, false);
+            in = job.getInputStream();
+            out = new FileOutputStream(file, false);
             while ((n = in.read(buf)) > 0) {
                 out.write(buf, 0, n);
                 readBytes += n;
             }
-            out.close();
         } catch (IOException e) {
-            Log.e(LOGTAG, "Error when saving " + job.getUri() + " : " + e.getMessage());
             return;
+        } finally {
+            try {
+                if (in != null) {
+                    in.close();
+                }
+                if (out != null) {
+                    out.close();
+                }
+            } catch (IOException e) {
+                Log.e(LOGTAG, "Error when saving " + job.getUri() + " : " + e.getMessage());
+            }
         }
         Log.i(LOGTAG, "Saved " + job.getUri() + " to " + file.getName() + " (" + readBytes + " bytes)");
 

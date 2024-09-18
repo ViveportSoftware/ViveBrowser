@@ -22,7 +22,6 @@ import com.igalia.wolvic.browser.Media;
 import com.igalia.wolvic.browser.Services;
 import com.igalia.wolvic.browser.SettingsStore;
 import com.igalia.wolvic.browser.adapter.ComponentsAdapter;
-import com.igalia.wolvic.browser.api.WMediaSession;
 import com.igalia.wolvic.browser.api.WSession;
 import com.igalia.wolvic.browser.components.WolvicEngineSession;
 import com.igalia.wolvic.browser.engine.Session;
@@ -646,7 +645,9 @@ public class Windows implements TrayListener, TopBarWidget.Delegate, TitleBarWid
             }
 
         } else {
-            focusWindow(getWindowWithPlacement(mPrivateWindowPlacement));
+            WindowWidget window=getWindowWithPlacement(mPrivateWindowPlacement);
+            if(window!=null)
+                focusWindow(window);
         }
 
         mWidgetManager.pushWorldBrightness(this, WidgetManagerDelegate.DEFAULT_DIM_BRIGHTNESS);
@@ -789,7 +790,8 @@ public class Windows implements TrayListener, TopBarWidget.Delegate, TitleBarWid
         }
         if (getCurrentWindows().size() == 0) {
             WindowWidget window = addWindow();
-            focusWindow(window);
+            if(window!=null)
+                focusWindow(window);
         }
         updateMaxWindowScales();
         updateViews();
@@ -1179,7 +1181,13 @@ public class Windows implements TrayListener, TopBarWidget.Delegate, TitleBarWid
     @Override
     public void onTabsClicked() {
         if (mTabsWidget == null) {
-            mTabsWidget = new TabsWidget(mContext);
+            mTabsWidget = new TabsWidget(mContext) {
+                @Override
+                protected void onDismiss() {
+                    super.onDismiss();
+                    saveState();
+                }
+            };
             mTabsWidget.setTabDelegate(this);
         }
 
@@ -1277,6 +1285,7 @@ public class Windows implements TrayListener, TopBarWidget.Delegate, TitleBarWid
             return;
         }
         Media media = session.getFullScreenVideo();
+
         if (media != null && media.getWidth() > 0 && media.getHeight() > 0) {
             aspect = (float)media.getWidth() / (float)media.getHeight();
         }
@@ -1331,15 +1340,6 @@ public class Windows implements TrayListener, TopBarWidget.Delegate, TitleBarWid
         if (mDelegate != null) {
             mDelegate.onWindowVideoAvailabilityChanged(aWindow);
         }
-    }
-
-    @Override
-    public void onMediaFullScreen(@NonNull WMediaSession mediaSession, boolean aFullScreen) {
-        if (!aFullScreen)
-            return;
-
-        assert mFullscreenWindow != null;
-        setFullScreenSize(mFullscreenWindow);
     }
 
     @Override
@@ -1591,6 +1591,9 @@ public void selectTab(@NonNull Session aTab) {
         if (mTabsWidget != null && mTabsWidget.isVisible()) {
             mTabsWidget.refreshTabs();
         }
+    }
+    public void showDisconnectPrompt(boolean isConnect){
+        mConnectivityDelegate.OnConnectivityChanged(isConnect);
     }
 
     private ConnectivityReceiver.Delegate mConnectivityDelegate = connected -> {

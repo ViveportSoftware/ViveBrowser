@@ -6,9 +6,11 @@ You can find us in [wolvic.com](https://www.wolvic.com), Mastodon [@WolvicXR](ht
 
 Want to learn more about Wolvic? Read our [FAQ](https://wolvic.com/en/faq)!
 
-## Setup instructions
+## Locale support
 
-> For setup instructions using the development version of the Chromium backend check [this instructions out instead](CHROMIUM.md)
+For more info on localization, how it works in the Wolvic XR project, and how to correctly edit localizable text in the application, please see our [localization wiki page](https://github.com/Igalia/wolvic/wiki/Localization).
+
+## Setup instructions
 
 ### GeckoView local substitution
 
@@ -37,13 +39,13 @@ cd wolvic
 If you're developing for the Oculus, Huawei, Pico, or VIVE, you need to clone the repo with third-party SDK files.
 
 ```bash
-wolvic$ git clone git@github.com:Igalia/wolvic-third-parties.git third_party
+git clone https://github.com/Igalia/wolvic-third-parties.git third_party
 ```
 
 This repo is only available to Igalia members. If you have access to the relevant SDK but not this repo, you can manually place them here:
 
  - `third_party/ovr_mobile/` for Oculus (should contain a `VrApi` folder)
- - ~`third_party/OVRPlatformSDK/` for Oculus (should contain a `Android` and `include` folders)~ (deprecated)
+ - `third_party/OVRPlatformSDK/` for Oculus (should contain a `Android` and `include` folders)
  - `third_party/ovr_openxr_mobile_sdk/` for Oculus (should contain an `OpenXR` folder)
  - `third_party/hvr/` for Huawei (should contain  `arm64-v8a`, `armeabi-v7a` and `include` folders)
  - `third_party/wavesdk/` for Vive (should contain a `build` folder, among other things)
@@ -64,7 +66,7 @@ pushd third_party && git fetch && git checkout main && git rebase origin/main &&
 You may need to set up [two-factor authentication](https://blog.github.com/2013-09-03-two-factor-authentication/#how-does-it-work-for-command-line-git) for the command line.
 
 ```bash
-wolvic/third_party$ git submodule update --init --recursive
+git submodule update --init --recursive
 ```
 
 You can build for different devices:
@@ -81,7 +83,7 @@ For testing on a non-VR device:
 
 - **`noapi`**: Runs on standard Android phones without a headset
 
-Building for Huawei and WaveVR requires access to their respective SDKs which are not included in this repo.
+Building for Oculus Mobile, Huawei and WaveVR requires access to their respective SDKs which are not included in this repo.
 
 The command line version of `gradlew` requires JDK 11. If you see an error that Gradle doesn't understand your Java version, check which version of you're using by running `java -showversion` or `java -version`. You're probably using and older JDK, which won't work.
 
@@ -119,14 +121,6 @@ useDebugSigningOnRelease=true
 
 Note: the release APKs generated with a debug keystore can't be used for production.
 
-## Generate builds with a static version code
-
-By default, each build will be assigned an auto-generated version code, which is derived from the date when the build was created. This behavior interferes with Gradle's caching mechanism and unnecessarily re-runs tasks that depend on the version code, leading to longer build times. You can work around this by temporarily using a static version code that persists between builds. This can be done by setting this property in your `user.properties` file:
-
-```ini
-useStaticVersionCode=true
-```
-
 ## Compress assets
 
 ETC2 compression is used to improve performance and memory usage. Raw assets are placed in the `uncompressed_assets` folder. You can generate the compressed textures using the compressor utility in `tools/compressor`. You need to set up [etc2comp](https://github.com/google/etc2comp) and make it available on your PATH before running the script. Run this command to generate the compressed assets:
@@ -137,9 +131,12 @@ npm install
 npm run compress
 ```
 
-## Locale support
+## Enable OpenXR builds
+You can enable OpenXR API for Oculus by adding this property to your `user.properties` file:
 
-For more info on localization, how it works in the Wolvic XR project, and how to correctly edit localizable text in the application, please see our [localization wiki page](https://github.com/Igalia/wolvic/wiki/Localization).
+```ini
+openxr=true
+```
 
 ## Development troubleshooting
 

@@ -1,5 +1,6 @@
 package com.igalia.wolvic.ui.views;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.AttributeSet;
@@ -148,32 +149,46 @@ public class TabView extends RelativeLayout implements WSession.ContentDelegate,
         }
         setAddTabMode(false);
         mSession = aSession;
-        mSession.addContentListener(this);
-        mSession.addBitmapChangedListener(this);
+        String sessionId = null;
+        if (mSession != null) {
+            mSession.addContentListener(this);
+            mSession.addBitmapChangedListener(this);
+            sessionId = mSession.getId();
+        }
         mShowAddTab = false;
-        mBitmapFuture = aBitmapCache.getBitmap(mSession.getId());
         mPreview.setImageResource(R.drawable.ic_icon_tabs_placeholder);
         mUsingPlaceholder = true;
-        mBitmapFuture.thenAccept(bitmap -> {
-            mBitmapFuture = null;
-            if (bitmap != null) {
-                mPreview.setImageBitmap(bitmap);
-                mUsingPlaceholder = false;
-                updateState();
-            }
+        if (sessionId != null) {
+            mBitmapFuture = aBitmapCache.getBitmap(sessionId);
+            mBitmapFuture.thenAccept(bitmap -> {
+                mBitmapFuture = null;
+                if (bitmap != null) {
+                    mPreview.setImageBitmap(bitmap);
+                    mUsingPlaceholder = false;
+                    updateState();
+                }
 
-        }).exceptionally(throwable -> {
-            Log.d(LOGTAG, "Error getting the bitmap: " + throwable.getLocalizedMessage());
-            throwable.printStackTrace();
-            return null;
-        });
+            }).exceptionally(throwable -> {
+                Log.d(LOGTAG, "Error getting the bitmap: " + throwable.getLocalizedMessage());
+                //throwable.printStackTrace();
+                return null;
+            });
+        }
 
-        SessionStore.get().getBrowserIcons().loadIntoView(
-                mFavicon, aSession.getCurrentUri(), IconRequest.Size.DEFAULT);
-        mURL.setText(UrlUtils.stripProtocol(aSession.getCurrentUri()));
-        if (!mShowAddTab) {
+        if (aSession != null) {
+            SessionStore.get().getBrowserIcons().loadIntoView(
+                    mFavicon, aSession.getCurrentUri(), IconRequest.Size.DEFAULT);
+        }
+
+        if (mSession != null && mURL != null && aSession != null) {
+            String url = mSession.getCurrentUri().equals(mSession.getHomeUri())?
+                    getResources().getString(R.string.home_tooltip):UrlUtils.stripProtocol(aSession.getCurrentUri());
+            mURL.setText(url);
+        }
+        if (!mShowAddTab && mSession != null && aSession != null) {
             if (mSession.getCurrentUri().equals(mSession.getHomeUri())) {
-                mTitle.setText(getResources().getString(R.string.url_home_title, getResources().getString(R.string.app_name)));
+                //mTitle.setText(getResources().getString(R.string.url_home_title, getResources().getString(R.string.app_name)));
+                mTitle.setText(getResources().getString(R.string.home_tooltip));
             } else {
                 mTitle.setText(aSession.getCurrentTitle());
             }

@@ -3,6 +3,10 @@
     <!-- IMPORTANT NOTE: If this file is updated anyhow, the STRs wiki must be updated accordingly:
     https://github.com/Igalia/wolvic/wiki/Localization -->
 
+    <!-- This string labels the button in the privacy option panel that enables/disables the use of
+system root CA for certificate. -->
+    <string name="security_options_use_system_root_ca">Usa Certificati Radice Affidabili</string>
+
     <!-- This string is used on the virtual keyboard to label the 'Enter' key (stylized in uppercase letters as 'ENTER'). -->
     <string name="keyboard_enter_label">INVIO</string>
 
@@ -794,7 +798,7 @@
 
     <!-- This string labels the button in the privacy option panel that open the dialog to add/remove
          webxr blocked sites. -->
-    <string name="security_options_webxr_settings">Avanzate...</string>
+    <string name="security_options_webxr_settings">Avanzate…</string>
 
     <!-- This string is a label above the group of switches that indicates that the switches below
          relate to Wolvic data collection and use.
@@ -877,7 +881,7 @@
 
     <!-- This string explains why Mozilla would like the user to allow the crash data to be uploaded.
          '%1$s' will be replaced at runtime with the app's domain name. -->
-    <string name="crash_dialog_message"><![CDATA[Aiuta Mozilla a migliorare %1$s inviando i tuoi dati relativi agli arresti anomali.]]></string>
+    <string name="crash_dialog_message"><![CDATA[Aiuta VIVEPORT a migliorare %1$s inviando i tuoi dati relativi agli arresti anomali.]]></string>
 
     <!-- This string labels a checkbox in the crash dialog box. When checked, the user will no longer
          be prompted for permission to upload crash data after an application crash. -->
@@ -1362,7 +1366,7 @@
 
     <!-- This string labels the button in the privacy option panel that opens the dialog to add/remove
          Tracking protection exceptions. -->
-    <string name="privacy_options_tracking_exceptions_v1">Avanzate...</string>
+    <string name="privacy_options_tracking_exceptions_v1">Avanzate…</string>
 
     <!-- This string labels the description of the button in the privacy option panel that opens the dialog to manage the logins and passwords. -->
     <string name="privacy_options_logins">Credenziali e password</string>

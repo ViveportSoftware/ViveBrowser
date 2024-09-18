@@ -110,6 +110,16 @@ public interface WRuntime {
     @NonNull
     WResult<Void> clearData(final @StorageControllerClearFlags long flags);
 
+    @UiThread
+    @NonNull
+    default WResult<Void> clearData(final @StorageControllerClearFlags long flags, ClearDataCallBack callBack){
+        return null;
+    }
+
+
+    interface ClearDataCallBack{
+        void onBrowsingDataCleared();
+    }
 
     /**
      * Returns a WebExtensionController for this WRuntime.

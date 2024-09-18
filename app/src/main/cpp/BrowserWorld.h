@@ -47,7 +47,7 @@ public:
   void StartFrame();
   void Draw(device::Eye aEye);
   void EndFrame();
-  void TriggerHapticFeedback(const float aPulseDuration, const float aPulseIntensity, const int aControllerId);
+  void TriggerHapticFeedback(const float aPulseDuration, const float aPulseIntensity);
   void TogglePassthrough();
   void SetHeadLockEnabled(const bool isEnabled);
   void SetTemporaryFilePath(const std::string& aPath);
@@ -77,7 +77,6 @@ public:
   void SetWebXRInterstitalState(const WebXRInterstialState aState);
   void SetIsServo(const bool aIsServo);
   void SetCPULevel(const device::CPULevel aLevel);
-  void SetPointerMode(crow::DeviceDelegate::PointerMode);
   JNIEnv* GetJNIEnv() const;
   void OnReorient() override;
 #if HVR
@@ -101,7 +100,6 @@ private:
 #if defined(OCULUSVR) && defined(STORE_BUILD)
   void ProcessOVRPlatformEvents();
 #endif
-  void resetPassthroughLayerIfNeeded();
   State& m;
   BrowserWorld() = delete;
   VRB_NO_DEFAULTS(BrowserWorld)

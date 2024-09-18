@@ -18,7 +18,6 @@ namespace crow {
       XrAction click { XR_NULL_HANDLE };
       XrAction touch { XR_NULL_HANDLE };
       XrAction value { XR_NULL_HANDLE };
-      XrAction ready { XR_NULL_HANDLE };
     };
   private:
     OpenXRActionSet(XrInstance, XrSession);

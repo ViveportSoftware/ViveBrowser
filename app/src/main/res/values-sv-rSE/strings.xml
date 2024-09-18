@@ -2,6 +2,11 @@
 <resources>
     <!-- IMPORTANT NOTE: If this file is updated anyhow, the STRs wiki must be updated accordingly:
     https://github.com/Igalia/wolvic/wiki/Localization -->
+
+    <!-- This string labels the button in the privacy option panel that enables/disables the use of
+system root CA for certificate. -->
+    <string name="security_options_use_system_root_ca">Använd betrodda rotcertifikat</string>
+
     <!-- This string is used on the virtual keyboard to label the 'Enter' key (stylized in uppercase letters as 'ENTER'). -->
     <string name="keyboard_enter_label">ENTER</string>
     <!-- This string is used on the virtual keyboard to label the 'Enter' key with a "Go" IME action.
@@ -503,7 +508,7 @@
     <string name="fxa_account_options_sync_now">Synkronisera nu</string>
     <!-- This string is used to in the FxA account manage panel as the description of the Sync button while syncon.
          The sync button will start syncing when pressed-->
-    <string name="fxa_account_options_syncing">Synkroniserar...</string>
+    <string name="fxa_account_options_syncing">Synkroniserar…</string>
     <!-- This string is used in the FxA account manager panel as a header for the sync options for syncing
          history, bookmarks, passwords, etc. -->
     <string name="fxa_account_options_sync_description">Välj vad du vill synkronisera på dina enheter med Firefox</string>
@@ -673,7 +678,7 @@
     <string name="crash_dialog_heading">Vi hade problem och kraschade</string>
     <!-- This string explains why Mozilla would like the user to allow the crash data to be uploaded.
          '%1$s' will be replaced at runtime with the app's domain name. -->
-    <string name="crash_dialog_message"><![CDATA[Snälla hjälp Mozilla att förbättra %1$s genom att skicka dina kraschdata.]]></string>
+    <string name="crash_dialog_message"><![CDATA[Snälla hjälp VIVEPORT att förbättra %1$s genom att skicka dina kraschdata.]]></string>
     <!-- This string labels a checkbox in the crash dialog box. When checked, the user will no longer
          be prompted for permission to upload crash data after an application crash. -->
     <string name="crash_dialog_send_data">Skicka alltid in data utan att fråga</string>
@@ -1409,7 +1414,7 @@ the Select` button. When clicked it closes all the previously selected tabs -->
     <!-- This string is displayed instead of the devices list if there are no available devices. -->
     <string name="send_tab_dialog_no_devices">Inga enheter anslutna.</string>
     <!-- This string is displayed instead of the devices list if the devices list is being synced. -->
-    <string name="send_tab_dialog_syncing">Synkroniserar...</string>
+    <string name="send_tab_dialog_syncing">Synkroniserar…</string>
     <!-- This string is displayed in the button of the Send Tab to device dialog. When clicked the current tab is sent to the selected device -->
     <string name="send_tab_dialog_button">Skicka</string>
     <!-- This string is displayed in the header of the what's new dialog that is displayed if the user has updated
@@ -1645,7 +1650,7 @@ the Select` button. When clicked it closes all the previously selected tabs -->
     <string name="download_addon_install_blocked_body">Tillåt lokal tilläggsinstallation i utvecklaralternativ för att fortsätta.</string>
     <string name="addons_experimental_section_title">Experimentell</string>
     <string name="web_apps_title">Webbappar</string>
-    <string name="web_apps_description">Klicka på knappen Spara webbapp... när du är på en sida för att lägga till den i dina webbappar.</string>
+    <string name="web_apps_description">Klicka på knappen Spara webbapp… när du är på en sida för att lägga till den i dina webbappar.</string>
     <string name="web_apps_empty">Din webbappslista är tom</string>
     <string name="web_apps_loading">Laddar webbappar</string>
     <string name="web_apps_dialog_title">Installera Webbapp</string>
@@ -1658,15 +1663,15 @@ the Select` button. When clicked it closes all the previously selected tabs -->
     <string name="download_addon_install_blocked">Lokal tilläggsinstallation blockerad</string>
     <string name="security_options_permission_fine_location_warning">Wolvic kan bara få din ungefärliga plats. Detta kan ändras i systeminställningarna.</string>
     <string name="upload_list_empty">Inga filer tillgängliga för uppladdning</string>
-    <string name="deprecated_version_dialog_title">Stöd upphör snart</string>
+    <string name="deprecated_version_dialog_title">Rekommenderad uppdatering</string>
     <string name="deprecated_version_dialog_info_button">Läs mer…</string>
     <string name="deprecated_version_dialog_store_button">Installera…</string>
     <string name="settings_language_portuguese">Portugisiska</string>
-    <string name="deprecated_version_dialog_body">Denna \"App Lab\"-version av Wolvic kommer att tas bort i slutet av oktober 2023.
+    <string name="deprecated_version_dialog_body">Du kör för närvarande en \"App Lab\"-utvecklingsversion av Wolvic.
 \n
-\nVänligen installera den senaste versionen av Wolvic från Meta Quest Store.
+\nInstallera den senaste versionen av Wolvic från Oculus Store.
 \n
-\nVIKTIGT: om du inte använder Sync kommer den nya Wolvic-appen inte att ha dina bokmärken och flikar.</string>
+\nVIKTIGT: om du inte använder Mozilla Sync kommer den nya Wolvic-appen inte att ha dina bokmärken och flikar.</string>
     <string name="external_open_uri_error_security_exception_body">SecurityException vid start av intent för %1$s</string>
     <string name="user_feedback_tooltip">Dela idéer och feedback</string>
     <string name="hamburger_menu_toggle_passthrough">Passera genom</string>
@@ -1790,33 +1795,4 @@ the Select` button. When clicked it closes all the previously selected tabs -->
     <string name="keyboardview_keycode_enter">Enter</string>
     <string name="keyboardview_keycode_cancel">Avbryt</string>
     <string name="keyboardview_keycode_done">Klart</string>
-    <string name="developer_options_clear_user_data_description">All användardata</string>
-    <string name="clear_user_data_dialog_title">Rensa %1$s användardata</string>
-    <string name="clear_user_data_dialog_text">%1$s kommer att återställas. All data, inklusive sparade inloggningar, historik och bokmärken, kommer att raderas permanent om de inte har synkroniserats. %1$s stängs automatiskt efter att återställningen är klar. Vill du fortsätta\?</string>
-    <string name="tray_wifi_unavailable_ssid">SSID otillgängligt</string>
-    <string name="security_options_use_system_root_ca">Använd systembetrodda rotcertifikat</string>
-    <string name="video_mode_3d_top_bottom">3D Översta Nedersta</string>
-    <string name="display_options_start_with_passthrough">Starta med passera genom läge</string>
-    <string name="voice_input_start">Vad skulle du vilja mata in?</string>
-    <string name="device_name">%1$s på %2$s</string>
-    <string name="developer_options_center_windows">Centrera fönster vertikalt</string>
-    <string name="experimental_features">Experimentella funktioner</string>
-    <string name="controller_options_haptic_feedback">Haptisk feedback</string>
-    <string name="fxa_account_options_device_name">Enhetsnamn</string>
-    <string name="move_tooltip">Flytta</string>
-    <string name="display_options_windows_can_move">Dra för att flytta fönster</string>
-    <string name="display_options_sound_effect">Använd ljudeffekter</string>
-    <string name="display_options_windows_distance">Fönster distans</string>
-    <string name="display_options_latin_auto_complete">Latinsk tangentbordsinmatning Automatisk komplettering</string>
-    <string name="display_options_head_lock">Aktivera huvudlås</string>
-    <string name="hamburger_menu_zoom">Zoom</string>
-    <string name="tray_status_phone">Telefon: %1$s</string>
-    <string name="permission_rationale_title">Ytterligare behörigheter</string>
-    <string name="permission_camera_rationale">Att ta bilder av världen omkring dig kräver tillstånd för att använda din kamera.</string>
-    <string name="permission_microphone_rationale">Att utföra röstsökningar och textinmatning kräver tillstånd för att använda din mikrofon.</string>
-    <string name="permission_camera_and_microphone_rationale">Att tillhandahålla tjänster som videokonferenser kräver tillstånd för att använda din kamera och mikrofon.</string>
-    <string name="permission_location_rationale">Att erbjuda nyheter och innehåll i närheten kräver tillstånd för att komma åt din plats.</string>
-    <string name="permission_persistent_storage_rationale">Att spara och öppna filer på din enhet kräver tillstånd för att lagra data i beständig lagring.</string>
-    <string name="permission_notification_rationale">Att meddela dig om nyheter och uppdateringar kräver tillåtelse att skicka aviseringar.</string>
-    <string name="permission_read_external_storage_rationale">För att öppna filer på din enhet krävs behörighet att läsa din externa lagring.</string>
 </resources>

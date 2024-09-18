@@ -44,7 +44,7 @@ import org.chromium.wolvic.VRManager;
 public class RuntimeImpl implements WRuntime {
     static String LOGTAG = SystemUtils.createLogtag(RuntimeImpl.class);
     private Context mContext;
-    private WRuntimeSettings mRuntimeSettings;
+    private RuntimeSettingsImpl mRuntimeSettings;
     private WebExtensionControllerImpl mWebExtensionController;
 
     private final AutocompleteStorageProxy mAutocompleteStorageProxy;
@@ -60,7 +60,7 @@ public class RuntimeImpl implements WRuntime {
 
     public RuntimeImpl(@NonNull Context ctx, @NonNull WRuntimeSettings settings) {
         mContext = ctx;
-        mRuntimeSettings = settings;
+        mRuntimeSettings = new RuntimeSettingsImpl(settings);
         mWebExtensionController = new WebExtensionControllerImpl();
         mAutocompleteStorageProxy = new AutocompleteStorageProxy();
         mCallbacks = new ArrayList<>();
@@ -80,7 +80,14 @@ public class RuntimeImpl implements WRuntime {
     @NonNull
     @Override
     public WResult<Void> clearData(long flags) {
-        // TODO: Implement
+        mRuntimeSettings.clearBrowsingData(flags);
+        return WResult.fromValue(null);
+    }
+
+    @NonNull
+    @Override
+    public WResult<Void> clearData(long flags, ClearDataCallBack callBack) {
+        mRuntimeSettings.clearBrowsingData(flags, callBack);
         return WResult.fromValue(null);
     }
 
@@ -119,7 +126,10 @@ public class RuntimeImpl implements WRuntime {
 
     @Override
     public float getDensity() {
-        return mContext.getResources().getDisplayMetrics().density;
+        //return mContext.getResources().getDisplayMetrics().density;
+
+        // Set dpr as 1 to avoid scaling up texture size
+        return 1.0f;
     }
 
     @Override
@@ -189,14 +199,23 @@ public class RuntimeImpl implements WRuntime {
         PathUtils.setPrivateDataDirectorySuffix(PRIVATE_DATA_DIRECTORY_SUFFIX);
 
         CommandLine.init(new String[] {});
-        if (BuildConfig.DEBUG)
-            CommandLine.getInstance().appendSwitchWithValue("enable-logging", "stderr");
         if (BuildConfig.FLAVOR_abi == "x64")
             CommandLine.getInstance().appendSwitchWithValue("disable-features", "Vulkan");
+
+        if (mRuntimeSettings.isConsoleServiceToLogcat()) {
+            CommandLine.getInstance().appendSwitchWithValue("enable-logging", "stderr");
+            CommandLine.getInstance().appendSwitchWithValue("v", "1");
+        }
+
+        if (mRuntimeSettings.isMediaAutoplay())
+            CommandLine.getInstance().appendSwitchWithValue("autoplay-policy", "no-user-gesture-required");
 
         // Enable WebXR Hand Input, which is disabled by default in blink (experimental)
         CommandLine.getInstance().appendSwitchWithValue("enable-features", "WebXRHandInput");
 
+        // configure dpr value
+        String dpr = Float.toString(mRuntimeSettings.getDisplayDensityOverride());
+        CommandLine.getInstance().appendSwitchWithValue("force-device-scale-factor", dpr);
         setupWebGLMSAA();
         DeviceUtils.addDeviceSpecificUserAgentSwitch();
         LibraryLoader.getInstance().ensureInitialized();

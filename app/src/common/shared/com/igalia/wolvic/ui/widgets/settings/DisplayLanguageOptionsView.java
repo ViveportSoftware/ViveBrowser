@@ -45,11 +45,15 @@ class DisplayLanguageOptionsView extends SettingsView {
 
         // Header
         mBinding.headerLayout.setBackClickListener(view -> {
-            mDelegate.showView(SettingViewType.LANGUAGE);
+            if (mDelegate != null) {
+                mDelegate.showView(SettingViewType.LANGUAGE);
+            }
         });
         mBinding.headerLayout.setHelpClickListener(view -> {
             SessionStore.get().getActiveSession().loadUri(getResources().getString(R.string.sumo_language_display_url));
-            mDelegate.exitWholeSettings();
+            if (mDelegate != null) {
+                mDelegate.exitWholeSettings();
+            }
         });
 
         // Footer

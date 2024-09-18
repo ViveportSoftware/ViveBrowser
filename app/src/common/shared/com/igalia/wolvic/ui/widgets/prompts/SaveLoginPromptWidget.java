@@ -49,11 +49,15 @@ public class SaveLoginPromptWidget extends UIDialog {
         // Inflate this data binding layout
         mBinding = DataBindingUtil.inflate(inflater, R.layout.prompt_save_login, this, true);
         mBinding.neverButton.setOnClickListener(view -> {
-            mPromptDelegate.dismiss(mBinding.getLogin());
+            if (mPromptDelegate != null) {
+                mPromptDelegate.dismiss(mBinding.getLogin());
+            }
             hide(KEEP_WIDGET);
         });
         mBinding.saveButton.setOnClickListener(view -> {
-            mPromptDelegate.confirm(mBinding.getLogin());
+            if (mPromptDelegate != null) {
+                mPromptDelegate.confirm(mBinding.getLogin());
+            }
             hide(KEEP_WIDGET);
         });
         mBinding.passwordToggle.setOnCheckedChangeListener((compoundButton, checked) -> {

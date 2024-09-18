@@ -31,6 +31,7 @@ namespace crow {
     constexpr const char* kPathThumbstick { "input/thumbstick" };
     constexpr const char* kPathThumbrest { "input/thumbrest" };
     constexpr const char* kPathTrackpad { "input/trackpad" };
+    constexpr const char* kPathSelect { "/input/select" };
     constexpr const char* kPathMenu { "input/menu" };
     constexpr const char* kPathBack { "input/back" };
     constexpr const char* kPathHaptic { "output/haptic" };
@@ -38,13 +39,9 @@ namespace crow {
     constexpr const char* kPathButtonB { "input/b" };
     constexpr const char* kPathButtonX { "input/x" };
     constexpr const char* kPathButtonY { "input/y" };
-    constexpr const char* kPinchPose { "input/pinch_ext/pose" };
-    constexpr const char* kPokePose { "input/poke_ext/pose" };
     constexpr const char* kPathActionClick { "click" };
     constexpr const char* kPathActionTouch { "touch" };
     constexpr const char* kPathActionValue { "value" };
-    constexpr const char* kPathActionReady { "ready_ext" };
-    constexpr const char* kInteractionProfileHandInteraction { "/interaction_profiles/ext/hand_interaction_ext" };
 
     // OpenXR Button List
     enum class OpenXRButtonType {
@@ -76,11 +73,9 @@ namespace crow {
         Click = (1u << 0),
         Touch = (1u << 1),
         Value  = (1u << 2),
-        Ready = (1u << 3),
         ValueTouch = Touch | Value,
         ClickTouch = Click | Touch,
         ClickValue = Click | Value,
-        ReadyValue = Ready | Value,
         All  = Click | Touch | Value,
     };
 
@@ -248,12 +243,12 @@ namespace crow {
     };
 
     // Pico controller: this definition was created for the Pico 4, but the Neo 3 will likely also be compatible
-    const OpenXRInputMapping Pico4x {
+    const OpenXRInputMapping Pico4 {
             "/interaction_profiles/pico/neo3_controller",
             IS_6DOF,
             "vr_controller_pico4_left.obj",
             "vr_controller_pico4_right.obj",
-            device::Pico4x,
+            device::PicoXR,
             std::vector<OpenXRInputProfile> { "pico-4", "generic-trigger-squeeze-thumbstick" },
             std::vector<OpenXRButton> {
                     { OpenXRButtonType::Trigger, kPathTrigger, OpenXRButtonFlags::ValueTouch, OpenXRHandFlags::Both },
@@ -273,13 +268,13 @@ namespace crow {
             },
     };
 
-    const OpenXRInputMapping PicoNeo3 {
+    const OpenXRInputMapping Pico4E {
             "/interaction_profiles/pico/neo3_controller",
             IS_6DOF,
-            "vr_controller_piconeo3_left.obj",
-            "vr_controller_piconeo3_right.obj",
-            device::PicoNeo3,
-            std::vector<OpenXRInputProfile> { "pico-neo3", "generic-trigger-squeeze-thumbstick" },
+            "vr_controller_pico4_left.obj",
+            "vr_controller_pico4_right.obj",
+            device::PicoXR,
+            std::vector<OpenXRInputProfile> { "pico-4", "generic-trigger-squeeze-thumbstick" },
             std::vector<OpenXRButton> {
                     { OpenXRButtonType::Trigger, kPathTrigger, OpenXRButtonFlags::ValueTouch, OpenXRHandFlags::Both },
                     { OpenXRButtonType::Squeeze, kPathSqueeze, OpenXRButtonFlags::Value, OpenXRHandFlags::Both },
@@ -396,23 +391,25 @@ namespace crow {
             },
     };
 
-    const OpenXRInputMapping HandInteraction {
-        kInteractionProfileHandInteraction,
-        IS_6DOF,
-        "",
-        "",
-        device::UnknownType,
-        std::vector<OpenXRInputProfile> { "generic-hand-select-grasp", "generic-hand-select", "generic-hand" },
-        std::vector<OpenXRButton> {
-                { OpenXRButtonType::Trigger, "input/pinch_ext", OpenXRButtonFlags::ReadyValue, OpenXRHandFlags::Both },
-                /* Not adding aim_activate_ext nor grasp_ext as we don't need them yet */
-        },
-        {},
-        {}
+    // Default fallback: https://github.com/immersive-web/webxr-input-profiles/blob/master/packages/registry/profiles/generic/generic-button.json
+    const OpenXRInputMapping KHRSimple {
+            "/interaction_profiles/khr/simple_controller",
+            IS_3DOF,
+            "vr_controller_oculusgo.obj",
+            "vr_controller_oculusgo.obj",
+            device::UnknownType,
+            std::vector<OpenXRInputProfile> { "generic-button" },
+            std::vector<OpenXRButton> {
+                    { OpenXRButtonType::Trigger, kPathTrigger, OpenXRButtonFlags::Click, OpenXRHandFlags::Both },
+            },
+            {},
+            std::vector<OpenXRHaptic> {
+                    { kPathHaptic, OpenXRHandFlags::Both },
+            },
     };
 
     const std::array<OpenXRInputMapping, 11> OpenXRInputMappings {
-        OculusTouch, OculusTouch2, MetaQuestTouchPro, Pico4x, PicoNeo3, Hvr6DOF, Hvr3DOF, LenovoVRX, MagicLeap2, MetaTouchPlus, HandInteraction
+        OculusTouch, OculusTouch2, MetaQuestTouchPro, Pico4, Pico4E, Hvr6DOF, Hvr3DOF, LenovoVRX, MagicLeap2, MetaTouchPlus, KHRSimple
     };
 
 } // namespace crow

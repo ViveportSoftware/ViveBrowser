@@ -20,7 +20,6 @@ import com.igalia.wolvic.ui.views.UITextButton;
 import com.igalia.wolvic.ui.widgets.UIWidget;
 import com.igalia.wolvic.ui.widgets.WidgetManagerDelegate;
 import com.igalia.wolvic.ui.widgets.WidgetPlacement;
-import com.igalia.wolvic.ui.widgets.WindowWidget;
 import com.igalia.wolvic.utils.UrlUtils;
 import com.igalia.wolvic.utils.ViewUtils;
 
@@ -220,10 +219,9 @@ public class SelectionActionWidget extends UIWidget implements WidgetManagerDele
     private void handleAction(View sender) {
         String action = (String)sender.getTag();
         if (action.equals(ACTION_WEB_SEARCH) && mSelectionText != null) {
-            WindowWidget focusedWindow = mWidgetManager.getWindows().getFocusedWindow();
             mWidgetManager.getWindows().addTab(
-                    focusedWindow,
-                    UrlUtils.urlForText(getContext(), mSelectionText, focusedWindow.getSession().getWSession().getUrlUtilsVisitor()));
+                    mWidgetManager.getWindows().getFocusedWindow(),
+                    UrlUtils.urlForText(getContext(), mSelectionText));
         }
 
         if (mDelegate != null) {

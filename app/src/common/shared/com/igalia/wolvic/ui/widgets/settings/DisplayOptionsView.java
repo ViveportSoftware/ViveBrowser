@@ -85,16 +85,16 @@ class DisplayOptionsView extends SettingsView {
         }
 
         mBinding.soundEffectSwitch.setOnCheckedChangeListener(mSoundEffectListener);
-        setSoundEffect(SettingsStore.getInstance(getContext()).isAudioEnabled(), false);
+        setSoundEffect(SettingsStore.getInstance(getContext()).isAudioEnabled(), true);
 
         mBinding.latinAutoCompleteSwitch.setOnCheckedChangeListener(mLatinAutoCompleteListener);
         setLatinAutoComplete(SettingsStore.getInstance(getContext()).isLatinAutoCompleteEnabled(), false);
 
         mBinding.headLockSwitch.setOnCheckedChangeListener(mHeadLockListener);
-        setHeadLock(SettingsStore.getInstance(getContext()).isHeadLockEnabled(), false);
+        setHeadLock(SettingsStore.getInstance(getContext()).isHeadLockEnabled());
 
         mBinding.windowMovementSwitch.setOnCheckedChangeListener(mWindowMovementListener);
-        setWindowMovement(SettingsStore.getInstance(getContext()).isWindowMovementEnabled(), false);
+        setWindowMovement(SettingsStore.getInstance(getContext()).isWindowMovementEnabled());
 
         mDefaultHomepageUrl = getContext().getString(R.string.HOMEPAGE_URL);
 
@@ -182,11 +182,11 @@ class DisplayOptionsView extends SettingsView {
     };
 
     private SwitchSetting.OnCheckedChangeListener mHeadLockListener = (compoundButton, value, doApply) -> {
-        setHeadLock(value, true);
+        setHeadLock(value);
     };
 
     private SwitchSetting.OnCheckedChangeListener mWindowMovementListener = (compoundButton, enabled, apply) -> {
-        setWindowMovement(enabled, true);
+        setWindowMovement(enabled);
     };
 
     private OnClickListener mHomepageListener = (view) -> {
@@ -249,11 +249,11 @@ class DisplayOptionsView extends SettingsView {
         setHomepage(mDefaultHomepageUrl);
         setAutoplay(SettingsStore.AUTOPLAY_ENABLED, true);
         setCurvedDisplay(false, true);
-        setHeadLock(SettingsStore.HEAD_LOCK_DEFAULT, true);
+        setHeadLock(SettingsStore.HEAD_LOCK_DEFAULT);
         setSoundEffect(SettingsStore.AUDIO_ENABLED, true);
         setLatinAutoComplete(SettingsStore.LATIN_AUTO_COMPLETE_ENABLED, true);
         setCenterWindows(SettingsStore.CENTER_WINDOWS_DEFAULT, true);
-        setWindowMovement(SettingsStore.WINDOW_MOVEMENT_DEFAULT, true);
+        setWindowMovement(SettingsStore.WINDOW_MOVEMENT_DEFAULT);
         setWindowDistance(SettingsStore.WINDOW_DISTANCE_DEFAULT, true);
 
         if (mBinding.startWithPassthroughSwitch.isChecked() != SettingsStore.shouldStartWithPassthrougEnabled()) {
@@ -295,6 +295,7 @@ class DisplayOptionsView extends SettingsView {
 
         if (doApply) {
             SettingsStore.getInstance(getContext()).setAutoplayEnabled(value);
+            showRestartDialog();
         }
     }
 
@@ -316,20 +317,17 @@ class DisplayOptionsView extends SettingsView {
         }
     }
 
-    private void setHeadLock(boolean value, boolean doApply) {
+    private void setHeadLock(boolean value) {
         mBinding.headLockSwitch.setOnCheckedChangeListener(null);
         mBinding.headLockSwitch.setValue(value, false);
         mBinding.headLockSwitch.setOnCheckedChangeListener(mHeadLockListener);
 
-        SettingsStore settingsStore = SettingsStore.getInstance(getContext());
-        if (doApply) {
-            settingsStore.setHeadLockEnabled(value);
-        }
+        SettingsStore.getInstance(getContext()).setHeadLockEnabled(value);
 
-        if (value && settingsStore.isWindowMovementEnabled()) {
+        if (value) {
             // Disable window movement if head lock is enabled,
             // otherwise the windows might be moved out of the user's reach.
-            setWindowMovement(false, true);
+            setWindowMovement(false);
         }
     }
 
@@ -338,26 +336,24 @@ class DisplayOptionsView extends SettingsView {
         mBinding.soundEffectSwitch.setValue(value, false);
         mBinding.soundEffectSwitch.setOnCheckedChangeListener(mSoundEffectListener);
 
-        if (doApply) {
-            SettingsStore.getInstance(getContext()).setAudioEnabled(value);
-            AudioEngine.fromContext(getContext()).setEnabled(value);
+        Context context = getContext();
+        if (doApply && context != null) {
+            SettingsStore.getInstance(context).setAudioEnabled(value);
+            AudioEngine.fromContext(context).setEnabled(value);
         }
     }
 
-    private void setWindowMovement(boolean value, boolean doApply) {
+    private void setWindowMovement(boolean value) {
         mBinding.windowMovementSwitch.setOnCheckedChangeListener(null);
         mBinding.windowMovementSwitch.setValue(value, false);
         mBinding.windowMovementSwitch.setOnCheckedChangeListener(mWindowMovementListener);
 
-        SettingsStore settingsStore = SettingsStore.getInstance(getContext());
-        if (doApply) {
-            settingsStore.setWindowMovementEnabled(value);
-        }
+        SettingsStore.getInstance(getContext()).setWindowMovementEnabled(value);
 
-        if (value && settingsStore.isHeadLockEnabled()) {
+        if (value) {
             // Disable head lock if window movement is enabled,
             // otherwise the windows might be moved out of the user's reach.
-            setHeadLock(false, true);
+            setHeadLock(false);
         }
     }
 

@@ -96,7 +96,9 @@
             android:src="@drawable/baseline_contact_support_24"
             android:tooltipText="@string/user_feedback_tooltip"
             app:privateMode="@{viewmodel.isPrivateSession}"
-            app:visibleGone="@{!viewmodel.isKioskMode}" />
+            app:visibleGone="@{false}"
+            android:visibility="gone"
+            />
 
         <com.igalia.wolvic.ui.views.UIButton
             android:id="@+id/desktopModeButton"

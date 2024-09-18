@@ -13,7 +13,6 @@ import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.igalia.wolvic.BuildConfig;
 import com.igalia.wolvic.R;
 import com.igalia.wolvic.VRBrowserActivity;
 import com.igalia.wolvic.browser.SettingsStore;
@@ -52,9 +51,6 @@ public class HamburgerMenuWidget extends UIWidget implements
         void onSaveWebApp();
         void onPassthrough();
         boolean isPassthroughEnabled();
-        void onPageZoomIn();
-        void onPageZoomOut();
-        int getCurrentZoomLevel();
     }
 
     public static final int SWITCH_ITEM_ID = 0;
@@ -189,14 +185,15 @@ public class HamburgerMenuWidget extends UIWidget implements
 
         // In kiosk mode, only resize, find in page and passthrough are available.
         if (!mWidgetManager.getFocusedWindow().isKioskMode()) {
-            mItems.add(new HamburgerMenuAdapter.MenuItem.Builder(
-                    HamburgerMenuAdapter.MenuItem.TYPE_ADDONS_SETTINGS,
-                    (menuItem) -> {
-                        if (mDelegate != null) {
-                            mDelegate.onAddons();
-                        }
-                        return null;
-                    }).build());
+//            addon功能暫時隱藏
+//            mItems.add(new HamburgerMenuAdapter.MenuItem.Builder(
+//                    HamburgerMenuAdapter.MenuItem.TYPE_ADDONS_SETTINGS,
+//                    (menuItem) -> {
+//                        if (mDelegate != null) {
+//                            mDelegate.onAddons();
+//                        }
+//                        return null;
+//                    }).build());
 
             final Session activeSession = SessionStore.get().getActiveSession();
             String url = activeSession.getCurrentUri();
@@ -224,34 +221,35 @@ public class HamburgerMenuWidget extends UIWidget implements
                     }
                 });
             }
+//
+//            webapp相關功能暫時隱藏
+//            if (activeSession.getWebAppManifest() != null) {
+//                mItems.add(new HamburgerMenuAdapter.MenuItem.Builder(
+//                        HamburgerMenuAdapter.MenuItem.TYPE_DEFAULT,
+//                        (menuItem) -> {
+//                            if (mDelegate != null) {
+//                                mDelegate.onSaveWebApp();
+//                            }
+//                            return null;
+//                        })
+//                        .withTitle(getContext().getString(R.string.hamburger_menu_save_web_app))
+//                        .withIcon(R.drawable.ic_web_app_registration)
+//                        .build());
+//            }
 
-            if (activeSession.getWebAppManifest() != null) {
-                mItems.add(new HamburgerMenuAdapter.MenuItem.Builder(
-                        HamburgerMenuAdapter.MenuItem.TYPE_DEFAULT,
-                        (menuItem) -> {
-                            if (mDelegate != null) {
-                                mDelegate.onSaveWebApp();
-                            }
-                            return null;
-                        })
-                        .withTitle(getContext().getString(R.string.hamburger_menu_save_web_app))
-                        .withIcon(R.drawable.ic_web_app_registration)
-                        .build());
-            }
-
-            if (mSendTabEnabled) {
-                mItems.add(new HamburgerMenuAdapter.MenuItem.Builder(
-                        HamburgerMenuAdapter.MenuItem.TYPE_DEFAULT,
-                        (menuItem) -> {
-                            if (mDelegate != null) {
-                                mDelegate.onSendTab();
-                            }
-                            return null;
-                        })
-                        .withTitle(getContext().getString(R.string.hamburger_menu_send_tab))
-                        .withIcon(R.drawable.ic_icon_tabs_sendtodevice)
-                        .build());
-            }
+//            if (mSendTabEnabled) {
+//                mItems.add(new HamburgerMenuAdapter.MenuItem.Builder(
+//                        HamburgerMenuAdapter.MenuItem.TYPE_DEFAULT,
+//                        (menuItem) -> {
+//                            if (mDelegate != null) {
+//                                mDelegate.onSendTab();
+//                            }
+//                            return null;
+//                        })
+//                        .withTitle(getContext().getString(R.string.hamburger_menu_send_tab))
+//                        .withIcon(R.drawable.ic_icon_tabs_sendtodevice)
+//                        .build());
+//            }
 
             HamburgerMenuAdapter.MenuItem item = new HamburgerMenuAdapter.MenuItem.Builder(
                     HamburgerMenuAdapter.MenuItem.TYPE_DEFAULT,
@@ -279,21 +277,17 @@ public class HamburgerMenuWidget extends UIWidget implements
             mItems.add(item);
         }
 
-        // Disable "Find in Page" in the UI until it's implemented in chromium.
-        // See https://github.com/Igalia/wolvic/issues/1481
-        if (!BuildConfig.FLAVOR_backend.equals("chromium")) {
-            mItems.add(new HamburgerMenuAdapter.MenuItem.Builder(
-                    HamburgerMenuAdapter.MenuItem.TYPE_DEFAULT,
-                    (menuItem) -> {
-                        if (mDelegate != null) {
-                            mDelegate.onFindInPage();
-                        }
-                        return null;
-                    })
-                    .withTitle(getContext().getString(R.string.hamburger_menu_find_in_page))
-                    .withIcon(R.drawable.ic_icon_search)
-                    .build());
-        }
+//        mItems.add(new HamburgerMenuAdapter.MenuItem.Builder(
+//                HamburgerMenuAdapter.MenuItem.TYPE_DEFAULT,
+//                (menuItem) -> {
+//                    if (mDelegate != null) {
+//                        mDelegate.onFindInPage();
+//                    }
+//                    return null;
+//                })
+//                .withTitle(getContext().getString(R.string.hamburger_menu_find_in_page))
+//                .withIcon(R.drawable.ic_icon_search)
+//                .build());
 
         mItems.add(new HamburgerMenuAdapter.MenuItem.Builder(
                 HamburgerMenuAdapter.MenuItem.TYPE_DEFAULT,
@@ -318,19 +312,6 @@ public class HamburgerMenuWidget extends UIWidget implements
                     })
                     .withTitle(getContext().getString(R.string.hamburger_menu_toggle_passthrough))
                     .withIcon(mDelegate != null && mDelegate.isPassthroughEnabled() ? R.drawable.baseline_visibility_24 : R.drawable.baseline_visibility_off_24)
-                    .build());
-        }
-
-        if (mWidgetManager != null && mWidgetManager.isPageZoomEnabled() && mDelegate != null) {
-            mItems.add(new HamburgerMenuAdapter.MenuItem.Builder(
-                    HamburgerMenuAdapter.MenuItem.TYPE_ZOOM, null)
-                    .withZoom(Integer.toString(mDelegate.getCurrentZoomLevel()) + "%",
-                            (isZoomOut) -> {
-                        if (isZoomOut) mDelegate.onPageZoomOut();
-                        else mDelegate.onPageZoomIn();
-                        updateItems();
-                        return null;
-                    })
                     .build());
         }
 

@@ -2,6 +2,7 @@ package com.igalia.wolvic.utils;
 
 import android.content.Context;
 import android.os.Build;
+import android.provider.Settings;
 import android.util.Log;
 
 import androidx.annotation.IntDef;
@@ -11,7 +12,7 @@ import com.igalia.wolvic.BuildConfig;
 
 public class DeviceType {
     // These values need to match those in Device.h
-    @IntDef(value = {Unknown, OculusGo, OculusQuest, ViveFocus, ViveFocusPlus, PicoNeo2, PicoG2, PicoNeo3, OculusQuest2, HVR3DoF, HVR6DoF, Pico4x, MetaQuestPro, LynxR1, LenovoA3, LenovoVRX, MagicLeap2, MetaQuest3, VisionGlass})
+    @IntDef(value = {Unknown, OculusGo, OculusQuest, ViveFocus, ViveFocusPlus, PicoNeo2, PicoG2, PicoNeo3, OculusQuest2, HVR3DoF, HVR6DoF, PicoXR, MetaQuestPro, LynxR1, LenovoA3, LenovoVRX, MagicLeap2, MetaQuest3, VisionGlass})
     public @interface Type {}
     public static final int Unknown = 0;
     public static final int OculusGo = 1;
@@ -24,7 +25,7 @@ public class DeviceType {
     public static final int OculusQuest2 = 9;
     public static final int HVR3DoF = 10;
     public static final int HVR6DoF = 11;
-    public static final int Pico4x = 12;
+    public static final int PicoXR = 12;
     public static final int MetaQuestPro = 13;
     public static final int LynxR1 = 14;
     public static final int LenovoA3 = 15;
@@ -65,8 +66,8 @@ public class DeviceType {
             case PicoG2:
                 mDeviceName = "Pico G2";
                 break;
-            case Pico4x:
-                mDeviceName = "Pico 4/4E";
+            case PicoXR:
+                mDeviceName = "Pico XR";
                 break;
             case LynxR1:
                 mDeviceName = "Lynx-R1";
@@ -140,15 +141,13 @@ public class DeviceType {
     }
 
     // Identifiers for store-specific builds.
-    public enum StoreType {NONE, META_STORE, META_APP_LAB, MAINLAND_CHINA}
+    public enum StoreType {NONE, META_STORE, META_APP_LAB}
 
     public static StoreType getStoreType() {
         if (BuildConfig.FLAVOR_store.toLowerCase().contains("metastore"))
             return StoreType.META_STORE;
         else if (BuildConfig.FLAVOR_store.toLowerCase().contains("applab"))
             return StoreType.META_APP_LAB;
-        else if (BuildConfig.FLAVOR_store.toLowerCase().contains("mainlandchina"))
-            return StoreType.MAINLAND_CHINA;
         else
             return StoreType.NONE;
     }
@@ -160,9 +159,5 @@ public class DeviceType {
             deviceName = Build.MANUFACTURER + " " + Build.MODEL;
         }
         return aContext.getString(R.string.device_name, appName, deviceName);
-    }
-
-    public static boolean isTetheredDevice() {
-        return mType == HVR3DoF || mType == HVR6DoF || mType == VisionGlass || mType == LenovoA3;
     }
 }

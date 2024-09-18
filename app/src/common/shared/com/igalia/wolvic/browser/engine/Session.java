@@ -12,6 +12,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import androidx.preference.PreferenceManager;
+
+import android.net.Uri;
 import android.util.Log;
 import android.view.Surface;
 import android.view.inputmethod.CursorAnchorInfo;
@@ -53,6 +55,8 @@ import com.igalia.wolvic.utils.InternalPages;
 import com.igalia.wolvic.utils.SystemUtils;
 import com.igalia.wolvic.utils.UrlUtils;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
@@ -273,13 +277,9 @@ public class Session implements WContentBlocking.Delegate, WSession.NavigationDe
     }
 
     private void dumpState(WSession.ProgressDelegate aListener) {
-        if (mState.mSession == null)
-            return;
         if (mState.mIsLoading) {
             aListener.onPageStart(mState.mSession, mState.mUri);
-            aListener.onProgressChange(mState.mSession, 0);
         } else {
-            aListener.onProgressChange(mState.mSession, 100);
             aListener.onPageStop(mState.mSession, true);
         }
 
@@ -570,7 +570,6 @@ public class Session implements WContentBlocking.Delegate, WSession.NavigationDe
 
         WSession session = WFactory.createSession(settings);
         setupSessionListeners(session);
-
         return session;
     }
 
@@ -878,6 +877,7 @@ public class Session implements WContentBlocking.Delegate, WSession.NavigationDe
         if (mState.mSession != null) {
             Log.d(LOGTAG, "Loading URI: " + aUri);
             if (mExternalRequestDelegate == null || !mExternalRequestDelegate.onHandleExternalRequest(aUri)) {
+                //trySetUaMode(WSessionSettings.USER_AGENT_MODE_DESKTOP);
                 mState.mSession.loadUri(aUri, flags);
             }
         }
@@ -1013,11 +1013,17 @@ public class Session implements WContentBlocking.Delegate, WSession.NavigationDe
         }
         mState.mSettings.setUserAgentMode(mode);
         mState.mSession.getSettings().setUserAgentMode(mode);
+        if (mode == WSessionSettings.USER_AGENT_MODE_DESKTOP) {
+            mState.mSettings.setViewportMode(WSessionSettings.VIEWPORT_MODE_DESKTOP);
+        } else {
+            mState.mSettings.setViewportMode(WSessionSettings.VIEWPORT_MODE_MOBILE);
+        }
         mState.mSession.getSettings().setViewportMode(mState.mSettings.getViewportMode());
         return true;
     }
 
     public void setUaMode(int mode, boolean reload) {
+
         // the UA mode value did not change
         if (!trySetUaMode(mode))
             return;
@@ -1048,25 +1054,6 @@ public class Session implements WContentBlocking.Delegate, WSession.NavigationDe
 
     public void setParentSession(@NonNull Session parentSession) {
         mState.mParentId = parentSession.getId();
-    }
-
-    public void pageZoomIn() {
-        if (mState.mSession != null) {
-            mState.mSession.pageZoomIn();
-        }
-    }
-
-    public void pageZoomOut() {
-        if (mState.mSession != null) {
-            mState.mSession.pageZoomOut();
-        }
-    }
-
-    public int getCurrentZoomLevel() {
-        if (mState.mSession != null) {
-            return mState.mSession.getCurrentZoomLevel();
-        }
-        return 0;
     }
 
     // NavigationDelegate
@@ -1147,13 +1134,21 @@ public class Session implements WContentBlocking.Delegate, WSession.NavigationDe
     public @Nullable
     WResult<WAllowOrDeny> onLoadRequest(@NonNull WSession aSession, @NonNull LoadRequest aRequest) {
         String uri = aRequest.uri;
-
         Log.d(LOGTAG, "onLoadRequest: " + uri);
-
         if (aSession == mState.mSession) {
             Log.d(LOGTAG, "Testing for UA override");
 
             String userAgentOverride = sUserAgentOverride.lookupOverride(uri);
+            Uri uri2 =  Uri.parse(uri);
+            String host = uri2.getHost();
+            if (host != null) {
+                String domainName = host.startsWith("www.") ? host.substring(4) : host;
+                String path = uri2.getPath();
+                if((domainName.equals("youtube.com")||domainName.equals("m.youtube.com")) && path.equals("/watch"))
+                {
+                    userAgentOverride="Mozilla/5.0 (Linux; Android 7.1.1; Quest) AppleWebKit/537.36 (KHTML, like Gecko) OculusBrowser/11.1.0.1.64.238873877 SamsungBrowser/4.0 Chrome/84.0.4147.125 Mobile VR Safari/537.36";
+                }
+            }
 
             // Set the User-Agent according to the current UA settings
             // unless we are in Desktop mode, which uses its own User-Agent value.
@@ -1273,16 +1268,6 @@ public class Session implements WContentBlocking.Delegate, WSession.NavigationDe
 
         for (WSession.ProgressDelegate listener : mProgressListeners) {
             listener.onPageStop(aSession, b);
-        }
-    }
-
-    @Override
-    public void onProgressChange(@NonNull WSession aSession, int progress) {
-        if (mState.mSession != aSession) {
-            return;
-        }
-        for (WSession.ProgressDelegate listener : mProgressListeners) {
-            listener.onProgressChange(aSession, progress);
         }
     }
 

@@ -26,7 +26,7 @@
     <string name="settings_privacy_choose_search_engine_reset">Resetar as configurações do Motor de busca</string>
     <string name="settings_privacy_choose_search_engine_description">Escolher seu Motor de busca preferido.</string>
     <string name="settings_privacy_policy_popups_title_v1">Exceções para Pop-Ups</string>
-    <string name="settings_privacy_policy_popups_description">Você pode especificar quais sites são permitidos a abrir janelas pop-up</string>
+    <string name="settings_privacy_policy_popups_description">Você pode especificar quais sites são permitidos para abrir janelas pop-up</string>
     <string name="settings_privacy_policy_webxr_title">Permissões de Realidade Virtual</string>
     <string name="pop_up_site_switch_allow">Permitir</string>
     <string name="pop_up_site_switch_block">Bloquear</string>
@@ -103,7 +103,7 @@
     <string name="history_context_remove_bookmarks">Remover do Favoritos</string>
     <string name="settings_privacy_policy_webxr_description">Os sites a seguir bloqueiam a WebXR API de acessar seu dispositivo RV.</string>
     <string name="settings_privacy_policy_webxr_empty_description">Quando você abre um site que utiliza WebXR API, você pode abrir uma janela \"dialog\" que permite bloquear WebXR naquele site.</string>
-    <string name="settings_privacy_policy_webxr_reset">Redefinir sites não autorizados à acessar dispositivos RV.</string>
+    <string name="settings_privacy_policy_webxr_reset">Redefinir sites não permitidos acessar dispositivos RV.</string>
     <string name="settings_privacy_policy_tracking_description">Você desligou proteções nestes sites.</string>
     <string name="settings_privacy_policy_tracking_reset">Redefinir as exceções de Proteção de Rastreamento Aprimorada.</string>
     <string name="settings_privacy_policy_login_exceptions_title">Exceções de Login</string>
@@ -236,12 +236,12 @@
     <string name="security_options_permissions_title">Permissões (Permitir que %1$s acesse)</string>
     <string name="security_options_permissions_reject_message">Esta permissão só pode ser desativada em permissões do sistema</string>
     <string name="voice_search_start">O que você gostaria de pesquisar na Internet\?</string>
-    <string name="voice_search_example">Exemplo: Diga \"vídeos 360, previsão do tempo, notícias...\"</string>
+    <string name="voice_search_example">Exemplo: Diga \"vídeos 360, previsão do tempo, notícias…\"</string>
     <string name="voice_search_decoding">Procurando…</string>
     <string name="search_placeholder">Pesquise na Web ou digite endereço</string>
     <string name="video_mode_180_top_bottom">Estéreo 180 de cima para baixo</string>
     <string name="video_controls_live">AO VIVO</string>
-    <string name="crash_dialog_message">Ajude a Mozilla a melhorar o %1$s enviando seus dados de falha. &lt;a href=more&gt;Saiba mais&lt;/a&gt;</string>
+    <string name="crash_dialog_message">Ajude a VIVEPORT a melhorar o %1$s enviando seus dados de falha. &lt;a href=more&gt;Saiba mais&lt;/a&gt;</string>
     <string name="video_mode_360">360</string>
     <string name="do_not_sent_button">Não envie</string>
     <string name="brightness_mode_normal">Normal</string>
@@ -359,7 +359,7 @@
     <string name="hamburger_menu_tooltip">Menu</string>
     <string name="hamburger_menu_switch_to_desktop">Modo desktop</string>
     <string name="send_tab_dialog_no_devices">Nenhum dispositivo conectado.</string>
-    <string name="send_tab_dialog_syncing">Sincronizando...</string>
+    <string name="send_tab_dialog_syncing">Sincronizando…</string>
     <string name="send_tab_dialog_title">Enviar guia para dispositivo</string>
     <string name="developer_options_env_override">Ativar Substituição de Ambiente</string>
     <string name="bypass_cache_on_reload_switch">Ativar \"Cache Bypass\" ao Recarregar</string>
@@ -381,7 +381,7 @@
     <string name="fxa_account_options_account">Conta</string>
     <string name="fxa_account_options_sync_title">Configurações de Sincronização</string>
     <string name="fxa_account_options_sync_now">Sincronize Agora</string>
-    <string name="fxa_account_options_syncing">Sincronizando...</string>
+    <string name="fxa_account_options_syncing">Sincronizando…</string>
     <string name="fxa_account_options_sync_description">Escolha o que sincronizar em seus dispositivos usando o Firefox</string>
     <string name="fxa_account_options_bookmarks_sync">Favoritos</string>
     <string name="fxa_account_options_history_sync">Histórico</string>
@@ -718,7 +718,7 @@
     <string name="web_apps_empty">Sua lista de Aplicativos Web está vazia</string>
     <string name="web_apps_loading">Carregando Aplicativos Web</string>
     <string name="web_apps_dialog_title">Instalar Aplicativo Web</string>
-    <string name="web_apps_description">Clique no botão Salvar Aplicativo Web... quando você estiver em uma página para adicioná-lo aos seus Aplicativos Web.</string>
+    <string name="web_apps_description">Clique no botão Salvar Aplicativo Web… quando você estiver em uma página para adicioná-lo aos seus Aplicativos Web.</string>
     <string name="web_apps_saved_notification">Aplicativo Web adicionado!</string>
     <string name="download_addon_install_blocked">Instalação de complemento local bloqueada</string>
     <string name="download_addon_install_confirm_install">Instalar</string>
@@ -733,46 +733,4 @@
     <string name="web_apps_dialog_body">Deseja instalar o seguinte Aplicativo Web\? Ele estará disponível na Biblioteca.</string>
     <string name="hamburger_menu_save_web_app">Salvar aplicativo Web…</string>
     <string name="hamburger_menu_toggle_passthrough">Passthrough</string>
-    <string name="user_feedback_tooltip">Compartilhe ideias e feedback</string>
-    <string name="clear_user_data_dialog_title">Limpar %1$s Dados do usuário</string>
-    <string name="developer_options_clear_user_data_description">Todos dados de usuário</string>
-    <string name="security_options_use_system_root_ca">Usar \"Trusted Root Certificates\" do sistema</string>
-    <string name="voice_input_start">O que gostaria de fazer?</string>
-    <string name="video_mode_3d_top_bottom">3D Top Bottom</string>
-    <string name="rCN_first_launch_title">Contrato de Usuário e Política de Privacidade</string>
-    <string name="rCN_first_launch_clickable_terms_text">Licença de Usuário</string>
-    <string name="rCN_first_launch_clickable_privacy_text">Política de Privacidade</string>
-    <string name="rCN_first_launch_agree">Aceitar</string>
-    <string name="rCN_first_launch_disagree">Discordar</string>
-    <string name="rCN_first_launch_confirmation_body">\\f você seleciona “Discordar”, infelizmente não poderemos mais fornecer serviços para você.
-\n
-\nVocê pode ler o Licença de Usuário completo e a Política de Privacidade.</string>
-    <string name="rCN_first_launch_confirmation_agree">Aceitar e Continuar</string>
-    <string name="rCN_first_launch_confirmation_disagree">Discordar e Sair</string>
-    <string name="keyboardview_keycode_alt">Alt</string>
-    <string name="keyboardview_keycode_delete">Excluir</string>
-    <string name="keyboardview_keycode_cancel">Cancelar</string>
-    <string name="keyboardview_keycode_mode_change">Mudança de modo</string>
-    <string name="keyboardview_keycode_shift">Shift</string>
-    <string name="keyboardview_keycode_done">Feito</string>
-    <string name="keyboardview_keycode_enter">Entrar</string>
-    <string name="tray_wifi_unavailable_ssid">SSID indisponível</string>
-    <string name="rCN_first_launch_body">Bem-vindo ao “Wolvic”!
-\n
-\nRegistrar e usar o “Wolvic” exige que você concorde com o Contrato de Usuário e Política de Privacidade, ou então não podemos fornecer serviços para você. Leia cuidadosamente os documentos e clique em “Aceitar” para continuar. Se você clicar em “Discordar”, você não será capaz de continuar usando o “Wolvic”.
-\n
-\nVocê pode ler o Contrato de Usuário completo e Política de Privacidade.</string>
-    <string name="clear_user_data_dialog_text">%1$s será redefinido. Todos os dados, incluindo logins salvos, histórico e marcadores, serão excluídos permanentemente se não forem sincronizados. %1$s fechará automaticamente após a reinicialização ser concluída. Deseja continuar?</string>
-    <string name="display_options_start_with_passthrough">Comece no modo Passthrough</string>
-    <string name="fxa_account_options_device_name">Nome do dispositivo</string>
-    <string name="device_name">%1$s em %2$s</string>
-    <string name="move_tooltip">Mover</string>
-    <string name="developer_options_center_windows">Centralizar Janelas Verticalmente</string>
-    <string name="display_options_windows_can_move">Arraste para mover janelas</string>
-    <string name="display_options_sound_effect">Usar efeitos sonoros</string>
-    <string name="display_options_latin_auto_complete">Teclado em Latim com Autocompletar</string>
-    <string name="display_options_head_lock">Habilitar bloqueio de cabeça</string>
-    <string name="display_options_windows_distance">Distância das Janelas</string>
-    <string name="experimental_features">Características Experimentais</string>
-    <string name="controller_options_haptic_feedback">Feedback háptico</string>
 </resources>

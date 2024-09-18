@@ -24,4 +24,7 @@
         <meta-data android:name="com.htc.vr.content.NumController" android:value="2"/>  <!--fill the value of how many controllers the application can support.-->
         <meta-data android:name="minWaveSDKVersion" android:value="1" />
     </application>
+    <uses-feature
+        android:name="wave.feature.handtracking"
+        android:required="true" />
 </manifest>

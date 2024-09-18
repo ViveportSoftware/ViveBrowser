@@ -104,6 +104,11 @@ public class ChromiumPermissionDelegate implements PermissionManagerBridge.Deleg
 
     private static WSession.PermissionDelegate.MediaSource toWolvicMediaSource(
             PermissionManagerBridge.MediaSource source) {
+        // To align the behavior of GeckoView. When web app does not require
+        // video permission the MediaSource would be null instead of empty id
+        if (source.id.isEmpty())
+            return null;
+
         return new WSession.PermissionDelegate.MediaSource(source.id, source.name,
                 toWolvicMediaSourceType(source.source),
                 toWolvicMediaType(source.type));

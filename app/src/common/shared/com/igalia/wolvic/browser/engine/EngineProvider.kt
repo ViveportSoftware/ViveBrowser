@@ -62,6 +62,9 @@ object EngineProvider {
                 builder.aboutConfigEnabled(true)
             }
 
+            val isAutoplayEnabled = SettingsStore.getInstance(context).isAutoplayEnabled();
+            builder.mediaAutoplay(isAutoplayEnabled);
+
             val msaa = SettingsStore.getInstance(context).msaaLevel
             if (msaa > 0) {
                 builder.glMsaaLevel(if (msaa == 2) 4 else 2)

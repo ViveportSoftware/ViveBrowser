@@ -144,9 +144,12 @@ EngineSurfaceTexture::Create(const int32_t aHandle) {
     return result;
   }
   result = std::make_shared < vrb::ConcreteClass < EngineSurfaceTexture, EngineSurfaceTexture::State > > ();
-  result->m.surface = sEnv->NewGlobalRef(surface);
-  sEnv->DeleteLocalRef(surface);
-  result->IncrementUse();
+  if(result != nullptr){
+      result->m.surface = sEnv->NewGlobalRef(surface);
+      sEnv->DeleteLocalRef(surface);
+      result->IncrementUse();
+  } else
+      VRB_ERROR("Null pointer, file: %s, function: %s, line: %d",__FILE__, __FUNCTION__, __LINE__);
   return result;
 }
 

@@ -2,6 +2,11 @@
 <resources>
     <!-- IMPORTANT NOTE: If this file is updated anyhow, the STRs wiki must be updated accordingly:
     https://github.com/Igalia/wolvic/wiki/Localization -->
+
+    <!-- This string labels the button in the privacy option panel that enables/disables the use of
+system root CA for certificate. -->
+    <string name="security_options_use_system_root_ca">Utilisez des Certificats Racine de Confiance</string>
+
     <!-- This string is used on the virtual keyboard to label the 'Enter' key (stylized in uppercase letters as 'ENTER'). -->
     <string name="keyboard_enter_label">ENTRÉE</string>
     <!-- This string is used on the virtual keyboard to label the 'Enter' key with a "Go" IME action.
@@ -675,7 +680,7 @@
     <string name="crash_dialog_heading">Un problème est survenu entraînant le plantage</string>
     <!-- This string explains why Mozilla would like the user to allow the crash data to be uploaded.
          '%1$s' will be replaced at runtime with the app's domain name. -->
-    <string name="crash_dialog_message"><![CDATA[Aidez Mozilla à améliorer %1$s en envoyant vos données de plantage. <a href="more">En savoir plus</a>]]></string>
+    <string name="crash_dialog_message"><![CDATA[Aidez VIVEPORT à améliorer %1$s en envoyant vos données de plantage. <a href="more">En savoir plus</a>]]></string>
     <!-- This string labels a checkbox in the crash dialog box. When checked, the user will no longer
          be prompted for permission to upload crash data after an application crash. -->
     <string name="crash_dialog_send_data">Toujours envoyer vos données sans demander</string>
@@ -938,7 +943,7 @@
     <!-- This string is displayed is the "Sync" button in the history panel when the sync is in progress. -->
     <string name="fxa_syncing">Synchronisation…</string>
     <!-- This string is displayed in the title of the FxA sign out dialog displayed when the user clicks on the Sign out button. -->
-    <string name="fxa_signout_confirmation_title">Vous déconnecter de votre compte Mozilla ?</string>
+    <string name="fxa_signout_confirmation_title">Vous déconnecter de votre compte Mozilla ?</string>
     <!-- This string is displayed in the body of the FxA sign out dialog displayed when the user clicks on the Sign out button. -->
     <string name="fxa_signout_confirmation_body">SI vous vous déconnectez, vous ne pourrez plus envoyer ni recevoir d’onglets d’autres appareils. Vos marque-pages et votre historique cesseront également de se synchroniser.</string>
     <!-- This string is displayed in the checkbox text of the FxA sign out dialog displayed when the user clicks on the Sign out button.
@@ -1282,12 +1287,14 @@
     <string name="before_unload_prompt_stay">Rester sur la page</string>
     <!-- This string is displayed in a button of the Before Unload prompt. Clicking it confirms the navigation and leaves the page. -->
     <string name="before_unload_prompt_leave">Quitter la page</string>
+
     <!-- This string is displayed in the title for dialog that warns users about a navigation that results in a repost. -->
     <string name="repost_confirm_title">Confirmer le nouvel envoi du formulaire</string>
     <!-- This string is displayed in the message for re-navigation to page that leads to HTTP POST. -->
-    <string name="repost_confirm_message">La page que vous recherchez a utilisé des informations que vous avez envoyées. Si vous revenez sur cette page, chaque action précédemment effectuée sera répétée. Souhaitez-vous continuer ?</string>
+    <string name="repost_confirm_message">La page que vous recherchez a utilisé des informations que vous avez envoyées. Si vous revenez sur cette page, chaque action précédemment effectuée sera répétée. Souhaitez-vous continuer ?</string>
     <!-- This string is displayed in the resend button for post warning -->
     <string name="repost_confirm_continue">Continuer</string>
+
     <!-- This string is displayed in a button that when pressed allows a user to view a page that has been blocked from being displayed.-->
     <string name="performance_unblock_page">Débloquer la page</string>
     <!-- This string is displayed as the title of a dialog displayed when poor web page performance has been detected. -->
@@ -1626,7 +1633,7 @@ the Select` button. When clicked it closes all the previously selected tabs -->
 \n
 \nLe contenu et les éléments qui composent l’application ont été implémentés ou conçus et développés par IGALIA sous des licences à code source ouvert, étant protégés, sans limitations, par les lois de propriété intellectuelle et industrielle du royaume d\'Espagne et par les traités et accords internationaux qui peuvent résulter de l\'application.</string>
     <string name="privacy_policy_section_3">Cette politique de confidentialité est soumise à la loi espagnole. La langue de la politique de confidentialité de cette application est l’espagnol. Pour cette raison, toute divergence éventuelle entre la version originale en espagnol et sa traduction dans une autre langue sera considérée comme prédominante dans la version espagnole qui peut être trouvée ici : https://wolvic.com/es/legal/privacy/ .</string>
-    <string name="terms_service_section_2">Wolvic utilise des services d\'information basés sur le Web (« Services ») pour fournir certaines des fonctionnalités prévues pour votre utilisation avec cette version binaire de Wolvic, selon les conditions décrites ci-dessous.
+    <string name="terms_service_section_2">"Wolvic utilise des services d\'information basés sur le Web (« Services ») pour fournir certaines des fonctionnalités prévues pour votre utilisation avec cette version binaire de Wolvic, selon les conditions décrites ci-dessous.
 \n
 \n\t- Igalia et ses contributeurs, concédants de licence et partenaires s\'efforcent de fournir les Services les plus précis et les plus à jour. Cependant, nous ne pouvons pas garantir que ces informations sont complètes et sans erreur. Par exemple, le service de navigation sécurisée peut ne pas identifier certains sites à risque et peut identifier certains sites sûrs par erreur, et dans le service de localisation, tous les emplacements retournés par nos fournisseurs de services sont uniquement des estimations et ni nous ni nos fournisseurs de services ne garantissent l\'exactitude des emplacements fournis.
 \n
@@ -1658,7 +1665,7 @@ the Select` button. When clicked it closes all the previously selected tabs -->
 \n
 \n\t\t\t⁃ La navigation sécurisée est maintenant désactivée.
 \n
-\n\t\t◦ La navigation en fonction de l\'emplacement est toujours facultatif dans Wolvic. Aucune information de localisation n\'est jamais envoyée sans votre autorisation. Si vous souhaitez désactiver complètement la fonctionnalité, suivez ces étapes :
+\n\t\t◦  La navigation en fonction de l\'emplacement est toujours facultatif dans Wolvic. Aucune information de localisation n\'est jamais envoyée sans votre autorisation. Si vous souhaitez désactiver complètement la fonctionnalité, suivez ces étapes :
 \n
 \n\t\t\t⁃ Dans la barre d\'URL, tapez about:config.
 \n
@@ -1674,12 +1681,12 @@ the Select` button. When clicked it closes all the previously selected tabs -->
 \n
 \n\t\t\t⁃ Sélectionnez le bouton radio « Désactivé ».
 \n
-\n\t\t\t⁃ La protection améliorée contre le pistage est maintenant désactivée.</string>
+\n\t\t\t⁃ La protection améliorée contre le pistage est maintenant désactivée."</string>
     <string name="voice_search_unsupported">La commande vocale n\'est pas supportée pour votre langue.</string>
     <string name="settings_privacy_choose_search_engine_description">Choisissez votre moteur de recherche préféré.</string>
-    <string name="external_open_uri_error_bad_uri_body">URI invalide %1$s</string>
+    <string name="external_open_uri_error_bad_uri_body">uri non valide %1$s</string>
     <string name="external_open_uri_error_no_activity_body">Aucune application trouvée pour gérer %1$s</string>
-    <string name="privacy_dialog_message">Votre vie privée est importante pour nous. Afin de lancer le navigateur, veuillez accepter nos conditions d\'utilisation et notre politique de vie privée. Merci d\'utiliser Wolvic !</string>
+    <string name="privacy_dialog_message">Votre vie privée est important pour nous. Afin de lancer le navigateur, veuillez accepter nos conditions d\'utilisation et notre politique de vie privée. Merci d\'utiliser Wolvic !</string>
     <string name="privacy_policy_subtitle_2">Protection des données</string>
     <string name="external_open_uri_error_security_exception_body">Exception de sécurité lors de l\'ouverture de %1$s</string>
     <string name="terms_service_section_1">Wolvic est un logiciel libre et gratuit, construit par une communauté de milliers de personnes dans le monde entier. Il y a certaines choses que vous devez savoir :
@@ -1693,35 +1700,35 @@ the Select` button. When clicked it closes all the previously selected tabs -->
 \n\t- La façon dont nous utilisons vos renseignements personnels et les commentaires soumis à Igalia par l\'intermédiaire de Wolvic est décrite dans la politique de confidentialité de Wolvic.
 \n
 \n\t- Certaines fonctionnalités de Wolvic font appel à des services d\'information basés sur le Web ; cependant, nous ne pouvons pas garantir qu\'ils sont 100 % exacts ou sans erreur. Plus de détails, y compris des informations sur la façon de désactiver les fonctions qui utilisent ces services, peuvent être trouvés dans les conditions de service (ci-dessous).</string>
-    <string name="privacy_policy_section_2">IGALIA s\'engage à respecter les dispositions légales en matière de protection des données personnelles : Règlement (UE) 2016/679 du Parlement européen et du Conseil du 27 avril 2016 relatif à la protection des personnes physiques à l\'égard du traitement des données à caractère personnel et à la libre circulation de ces données, et abrogeant la directive 95/46/CE (règlement général sur la protection des données) et dans la loi organique 3/2018, du 5 décembre, relative à la protection des données et à la garantie des droits numériques (LOPDGDD).
-\nIGALIA ne collecte pas de données personnelles de manière à pouvoir identifier l\'utilisateur. Par conséquent, vous pouvez utiliser l\'application, consulter et naviguer dans l\'environnement de réalité virtuelle sans révéler votre identité ni fournir de données personnelles à IGALIA, que ce soit directement ou indirectement ; par conséquent, IGALIA ne sera pas responsable des données qui sont saisies dans WOLVIC.
-\nLes seules données et informations qu\'IGALIA obtiendra pour l\'utilisation de cette application, qui ne seront à aucun moment reliées individuellement à l\'utilisateur, sont les suivantes :
+    <string name="privacy_policy_section_2">IGALIA s\'engage à respecter les dispositions légales en matière de protection des données personnelles : Règlement (UE) 2016/679 du Parlement européen et du Conseil du 27 avril 2016 relatif à la protection des personnes physiques à l\'égard du traitement des données à caractère personnel et à la libre circulation de ces données, et abrogeant la directive 95/46/CE (règlement général sur la protection des données) et dans la loi organique 3/2018, du 5 décembre, relative à la protection des données et à la garantie des droits numériques (LOPDGDD).
+\nIGALIA ne collecte pas de données personnelles de manière à pouvoir identifier l\'utilisateur. Par conséquent, vous pouvez utiliser l\'application, consulter et naviguer dans l\'environnement de réalité virtuelle sans révéler votre identité ni fournir de données personnelles à IGALIA, que ce soit directement ou indirectement ; par conséquent, IGALIA ne sera pas responsable des données qui sont saisies dans WOLVIC.
+\nLes seules données et informations qu\'IGALIA obtiendra pour l\'utilisation de cette application, qui ne seront à aucun moment reliées individuellement à l\'utilisateur, sont les suivantes :
 \n
-\n\t- des données analytiques, purement statistiques et non identifiantes ;
-\n\t- afin de capturer et de traduire la voix en texte, les données sonores de l\'utilisateur sont envoyées aux serveurs appartenant à la société tierce responsable de chaque plateforme, à travers une API prévue à cet effet : par exemple, dans Oculus, depuis Facebook, un service qui l\'envoie à Oculus Voice SDK. À aucun moment les données susmentionnées ne sont traitées, accédées ou incorporées dans les serveurs appartenant à IGALIA. Les données transmises seront sous la responsabilité exclusive des sociétés tierces propriétaires de chaque plateforme (ci-après, les Tiers), qui peuvent être situées en dehors de l\'Union européenne et soumises à un régime juridique moins protecteur de la vie privée des utilisateurs. Nous vous recommandons de lire attentivement la politique de confidentialité et les conditions d\'utilisation de chacune de ces plateformes externes avant d\'accepter et d\'utiliser leurs services. IGALIA ne sera pas directement ou indirectement responsable du traitement des données personnelles par lesdits Tiers ;
+\n\t- des données analytiques, purement statistiques et non identifiantes ;
+\n\t- afin de capturer et de traduire la voix en texte, les données sonores de l\'utilisateur sont envoyées aux serveurs appartenant à la société tierce responsable de chaque plateforme, à travers une API prévue à cet effet : par exemple, dans Oculus, depuis Facebook, un service qui l\'envoie à Oculus Voice SDK. À aucun moment les données susmentionnées ne sont traitées, accédées ou incorporées dans les serveurs appartenant à IGALIA. Les données transmises seront sous la responsabilité exclusive des sociétés tierces propriétaires de chaque plateforme (ci-après, les Tiers), qui peuvent être situées en dehors de l\'Union européenne et soumises à un régime juridique moins protecteur de la vie privée des utilisateurs. Nous vous recommandons de lire attentivement la politique de confidentialité et les conditions d\'utilisation de chacune de ces plateformes externes avant d\'accepter et d\'utiliser leurs services. IGALIA ne sera pas directement ou indirectement responsable du traitement des données personnelles par lesdits Tiers ;
 \n\t- les informations de localisation géographique peuvent être obtenues à partir du navigateur, au lieu de celui utilisé par le système. Toutefois, pour ce faire, vous devez paramétrer les autorisations de localisation de votre appareil par le biais d\'un avis spécifique à cet égard et IGALIA ne reliera en aucun cas les informations susmentionnées à vous en tant que personne identifiée ou identifiable, bien que les Tiers mentionnés au point précédent puissent le faire, le cas échéant. Nous vous recommandons de prêter attention à leurs conditions légales.
-\n\t- IGALIA n\'accède pas et ne stocke pas, de quelque manière que ce soit, les adresses ou URLs visitées par vous ;
+\n\t- IGALIA n\'accède pas et ne stocke pas, de quelque manière que ce soit, les adresses ou URLs visitées par vous ;
 \n\t- l\'intégration avec des services Cloud (tels que Mozilla Accounts ou Google Accounts) pour synchroniser des données telles que votre historique de navigation ou vos signets d\'utilisateur peut être possible. Dans ce cas, IGALIA n\'accèdera ni ne traitera aucune information de quelque manière que ce soit, et celle-ci ne passera pas par les serveurs d\'IGALIA.
 \n
-\nNous vous rappelons à nouveau que les plateformes tierces auxquelles vous accédez ou que vous utilisez avec cette application pourraient collecter ces données ou d\'autres données d\'identification vous concernant, en les remplissant volontairement ou involontairement et/ou consciemment ou inconsciemment, éventuellement en dehors du champ d\'application de la législation européenne sur la protection des données. Par conséquent, nous vous recommandons de vous informer et de prêter une attention particulière aux conditions légales desdits Tiers, telles que, par exemple, les suivantes :
+\nNous vous rappelons à nouveau que les plateformes tierces auxquelles vous accédez ou que vous utilisez avec cette application pourraient collecter ces données ou d\'autres données d\'identification vous concernant, en les remplissant volontairement ou involontairement et/ou consciemment ou inconsciemment, éventuellement en dehors du champ d\'application de la législation européenne sur la protection des données. Par conséquent, nous vous recommandons de vous informer et de prêter une attention particulière aux conditions légales desdits Tiers, telles que, par exemple, les suivantes :
 \n
-\n\t- Google : https://policies.google.com/privacy
-\n\t- Facebook : https://www.facebook.com/about/privacy/update
-\n\t- MeetKai : https://meetkai.com/privacy
+\n\t- Google : https://policies.google.com/privacy
+\n\t- Facebook : https://www.facebook.com/about/privacy/update
+\n\t- MeetKai : https://meetkai.com/privacy
 \n
-\nDe même, IGALIA vous informe que lors de l\'utilisation de l\'option de reconnaissance vocale du navigateur, Meetkai conservera des transcriptions vocales totalement anonymes de votre voix dans le but d\'améliorer le service qu\'elle fournit. Votre voix ne sera pas conservée et il n\'y aura aucun moyen de relier les transcriptions à votre identité. Plus d\'informations sur la politique de confidentialité de MeetKai sur le lien suivant : https://meetkai.com/es/privacy. Igalia n\'a aucun intérêt à relier les transcriptions à un utilisateur ni à porter atteinte à sa vie privée ; par conséquent, Igalia demande qu\'aucune information personnelle ou confidentielle d\'aucune sorte ne soit incluse dans les adresses de voix sonores.
+\nDe même, IGALIA vous informe que lors de l\'utilisation de l\'option de reconnaissance vocale du navigateur, Meetkai conservera des transcriptions vocales totalement anonymes de votre voix dans le but d\'améliorer le service qu\'elle fournit. Votre voix ne sera pas conservée et il n\'y aura aucun moyen de relier les transcriptions à votre identité. Plus d\'informations sur la politique de confidentialité de MeetKai sur le lien suivant : https://meetkai.com/es/privacy. Igalia n\'a aucun intérêt à relier les transcriptions à un utilisateur ni à porter atteinte à sa vie privée ; par conséquent, Igalia demande qu\'aucune information personnelle ou confidentielle d\'aucune sorte ne soit incluse dans les adresses de voix sonores.
 \nDans tous les cas, IGALIA garantit aux intéressés l\'exercice des droits d\'accès, de rectification, d\'effacement, d\'opposition, de limitation de traitement et de portabilité, concernant leurs données personnelles.
 \nÀ ces fins, IGALIA a établi un protocole/une procédure interne pour les réaliser.
-\nLes parties intéressées peuvent exercer leurs droits de la manière suivante : en envoyant une demande à l\'adresse physique d\'IGALIA : Calle Bugallal Marchesi, 22, 1o, 15008, A Coruña, Référence : « Protection des données » ; ou, à l\'adresse électronique suivante : info@igalia.com.
+\nLes parties intéressées peuvent exercer leurs droits de la manière suivante : en envoyant une demande à l\'adresse physique d\'IGALIA : Calle Bugallal Marchesi, 22, 1o, 15008, A Coruña, Référence : « Protection des données » ; ou, à l\'adresse électronique suivante : info@igalia.com.
 \nDans les deux cas, l\'intéressé doit joindre une copie de sa carte d\'identité nationale, de son passeport ou d\'un document d\'identification pour prouver son identité.
-\nLe délégué à la protection des données ou le service chargé de la gestion des droits enregistrera les exercices des droits dans le formulaire, disponible à cet effet, dans lequel seront enregistrées les données suivantes :
+\nLe délégué à la protection des données ou le service chargé de la gestion des droits enregistrera les exercices des droits dans le formulaire, disponible à cet effet, dans lequel seront enregistrées les données suivantes :
 \n
-\n\t- Numéro de la demande : un numéro sera attribué à chacune des demandes reçues.
-\n\t- Siège : si le responsable a plusieurs sièges, il sera indiqué le siège où la demande a été reçue.
-\n\t- Canal de dépôt des demandes : le canal par lequel la demande a été reçue sera indiqué : adresse postale physique, courrier, etc.
-\n\t- Date de dépôt : la date à laquelle la demande a été déposée sera indiquée.
-\n\t- Droits exercés : le type de droit que la personne a exercé.
-\n\t- Jour de la réponse : le jour où la réponse a été envoyée à la partie intéressée.
+\n\t- Numéro de la demande : un numéro sera attribué à chacune des demandes reçues.
+\n\t- Siège : si le responsable a plusieurs sièges, il sera indiqué le siège où la demande a été reçue.
+\n\t- Canal de dépôt des demandes : le canal par lequel la demande a été reçue sera indiqué : adresse postale physique, courrier, etc.
+\n\t- Date de dépôt : la date à laquelle la demande a été déposée sera indiquée.
+\n\t- Droits exercés : le type de droit que la personne a exercé.
+\n\t- Jour de la réponse : le jour où la réponse a été envoyée à la partie intéressée.
 \n
 \nLes documents justificatifs (réception de la demande/réponse, communications, etc.) seront archivés dans le but de prouver leur bonne gestion.
 \nDe même, nous vous rappelons que vous avez le droit d\'introduire une réclamation auprès de l\'Agence espagnole de protection des données.</string>
@@ -1757,16 +1764,16 @@ the Select` button. When clicked it closes all the previously selected tabs -->
     <string name="download_addon_install_blocked_body">Pour continuer, autorisez l\'installation de l\'extension locale dans les Options pour les développeurs.</string>
     <string name="web_apps_dialog_body">Souhaitez-vous installer l\'application Web suivante \? Elle sera disponible dans la librairie.</string>
     <string name="settings_language_portuguese">Portugais</string>
-    <string name="deprecated_version_dialog_title">Fin de maintenance proche</string>
+    <string name="deprecated_version_dialog_title">Mise à jour nécessaire</string>
     <string name="deprecated_version_dialog_info_button">En savoir plus…</string>
     <string name="deprecated_version_dialog_store_button">Installer…</string>
     <string name="hamburger_menu_toggle_passthrough">Passthrough</string>
-    <string name="deprecated_version_dialog_body">Cette version de développement de Wolvic ne sera bientôt plus maintenue.
+    <string name="deprecated_version_dialog_body">Cette version de développement de Wolvic sera discontinuée à la fin d\'octobre 2023.
 \n
 \nVeuillez installer la nouvelle version de Wolvic à partir de la Meta Quest Store.
 \n
-\nIMPORTANT : hormis si vous utilisez Firefox Sync, la nouvelle application Wolvic n’aura ni vos marque-pages ni vos onglets.</string>
-    <string name="rCN_first_launch_body">Bienvenue dans « Wolvic » !
+\nIMPORTANT : hormis si vous utilisez Mozilla Sync, la nouvelle application Wolvic n’aura ni vos marque-pages ni vos onglets.</string>
+    <string name="rCN_first_launch_body">Bienvenue dans « Wolvic » !
 \n
 \nAfin de vous enregistrer et d’utiliser « Wolvic », vous devez accepter les conditions d’utilisation et la politique de confidentialité, ou nous ne pourrons pas vous fournir de services. Veuillez lire attentivement les documents et cliquer sur « Accepter » pour continuer. Si vous cliquez « Refuser », vous ne pourrez pas continuer à utiliser « Wolvic ».
 \n
@@ -1782,30 +1789,4 @@ the Select` button. When clicked it closes all the previously selected tabs -->
     <string name="rCN_first_launch_title">Notification de conditions d’utilisation et politique de confidentialité</string>
     <string name="rCN_first_launch_clickable_terms_text">Conditions d\'utilisation</string>
     <string name="rCN_first_launch_confirmation_agree">Accepter et Continuer</string>
-    <string name="keyboardview_keycode_alt">Alt</string>
-    <string name="display_options_start_with_passthrough">Démarrer avec le mode Passthrough</string>
-    <string name="developer_options_clear_user_data_description">Toutes les données utilisateur</string>
-    <string name="security_options_use_system_root_ca">Utiliser les Certificats Racine Approuvés du système</string>
-    <string name="voice_input_start">Que souhaitez-vous entrer ?</string>
-    <string name="keyboardview_keycode_cancel">Annuler</string>
-    <string name="keyboardview_keycode_delete">Supprimer</string>
-    <string name="keyboardview_keycode_done">Fait</string>
-    <string name="keyboardview_keycode_mode_change">Changement de mode</string>
-    <string name="keyboardview_keycode_shift">Shift</string>
-    <string name="keyboardview_keycode_enter">Entrée</string>
-    <string name="tray_wifi_unavailable_ssid">SSID non disponible</string>
-    <string name="clear_user_data_dialog_title">Supprimer les données utilisateur de %1$s</string>
-    <string name="clear_user_data_dialog_text">%1$s va être réinitialisé. Toutes les données, y compris les identifiants enregistrés, l’historique et les marque-pages, seront définitivement supprimés, s’ils n’ont pas été synchronisés. %1$s sera fermé automatiquement après la fin de la réinitialisation. Souhaitez-vous continuer ?</string>
-    <string name="video_mode_3d_top_bottom">3D en haut et en bas</string>
-    <string name="move_tooltip">Déplacer</string>
-    <string name="display_options_sound_effect">Utiliser les effets sonores</string>
-    <string name="display_options_latin_auto_complete">Autocomplétion avec le clavier latin</string>
-    <string name="display_options_head_lock">Activer le Head Lock</string>
-    <string name="display_options_windows_distance">Distance des fenêtres</string>
-    <string name="experimental_features">Fonctionnalités expérimentales</string>
-    <string name="controller_options_haptic_feedback">Retour haptique</string>
-    <string name="developer_options_center_windows">Centrer les fenêtres verticalement</string>
-    <string name="display_options_windows_can_move">Glisser pour déplacer les fenêtres</string>
-    <string name="fxa_account_options_device_name">Nom de l\'appareil</string>
-    <string name="device_name">%1$s sur %2$s</string>
 </resources>

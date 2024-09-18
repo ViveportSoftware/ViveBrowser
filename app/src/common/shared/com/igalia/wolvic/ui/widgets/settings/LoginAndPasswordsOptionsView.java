@@ -8,6 +8,7 @@ package com.igalia.wolvic.ui.widgets.settings;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
+import android.view.View;
 
 import androidx.databinding.DataBindingUtil;
 
@@ -42,7 +43,10 @@ class LoginAndPasswordsOptionsView extends SettingsView {
         mBinding = DataBindingUtil.inflate(inflater, R.layout.options_logins, this, true);
 
         // Header
-        mBinding.headerLayout.setBackClickListener(view -> mDelegate.showView(SettingViewType.PRIVACY));
+        mBinding.headerLayout.setBackClickListener(view -> {
+            if (mDelegate != null)
+                mDelegate.showView(SettingViewType.PRIVACY);
+        });
 
         // Footer
         mBinding.footerLayout.setFooterButtonClickListener(view -> resetOptions());
@@ -68,9 +72,11 @@ class LoginAndPasswordsOptionsView extends SettingsView {
     private SwitchSetting.OnCheckedChangeListener mLoginSyncListener = (compoundButton, value, doApply) -> setLoginSync(value, doApply);
 
     private void setAutocomplete(boolean value, boolean doApply) {
-        mBinding.autocompleteSwitch.setOnCheckedChangeListener(null);
-        mBinding.autocompleteSwitch.setValue(value, false);
-        mBinding.autocompleteSwitch.setOnCheckedChangeListener(mAutocompleteListener);
+        if (mBinding != null) {
+            mBinding.autocompleteSwitch.setOnCheckedChangeListener(null);
+            mBinding.autocompleteSwitch.setValue(value, false);
+            mBinding.autocompleteSwitch.setOnCheckedChangeListener(mAutocompleteListener);
+        }
 
         if (doApply) {
             SettingsStore.getInstance(getContext()).setLoginAutocompleteEnabled(value);

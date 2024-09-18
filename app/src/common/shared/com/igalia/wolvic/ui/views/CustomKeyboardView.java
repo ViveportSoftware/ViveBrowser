@@ -217,8 +217,8 @@ public class CustomKeyboardView extends View implements View.OnClickListener {
     private int mLastCodeY;
     private int mCurrentKey = NOT_A_KEY;
     // Fork
-    private int[] mHoveredKey = new int[3];
-    private int[] mPrevHoveredKey = new int[3];
+    private int[] mHoveredKey = new int[5];
+    private int[] mPrevHoveredKey = new int[5];
     private int mDownKey = NOT_A_KEY;
     private long mLastKeyTime;
     private long mCurrentKeyTime;

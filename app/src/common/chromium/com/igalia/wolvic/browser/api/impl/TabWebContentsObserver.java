@@ -167,6 +167,11 @@ public class TabWebContentsObserver extends WebContentsObserver {
     }
 
     @Override
+    public void mediaResized(int width, int height) {
+        mSession.getTab().onMediaResized(width, height);
+    }
+
+    @Override
     public void hasEffectivelyFullscreenVideoChange(boolean isFullscreen) {
         mSession.getTab().onMediaFullscreen(isFullscreen);
     }

@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import androidx.databinding.DataBindingUtil;
 
 import com.igalia.wolvic.R;
+import com.igalia.wolvic.databinding.LegalLicenseContentBinding;
 import com.igalia.wolvic.databinding.OptionsLegalDocumentBinding;
 import com.igalia.wolvic.ui.widgets.WidgetManagerDelegate;
 import com.igalia.wolvic.ui.widgets.WidgetPlacement;
@@ -19,11 +20,14 @@ public class LegalDocumentView extends SettingsView {
 
     public enum LegalDocument {
         TERMS_OF_SERVICE,
-        PRIVACY_POLICY
+        PRIVACY_POLICY,
+        LEGAL_LICENSE
     }
 
     private LegalDocument mLegalDocument;
     private OptionsLegalDocumentBinding mBinding;
+
+    private LegalLicenseContentBinding mLicenseBinding;
 
     public LegalDocumentView(Context aContext, WidgetManagerDelegate aWidgetManager, LegalDocument legalDocument) {
         super(aContext, aWidgetManager);
@@ -45,23 +49,36 @@ public class LegalDocumentView extends SettingsView {
         mBinding = DataBindingUtil.inflate(inflater, R.layout.options_legal_document, this, true);
 
         // Inflate the specific content
-        if (mLegalDocument == LegalDocument.TERMS_OF_SERVICE) {
-            inflater.inflate(R.layout.terms_service_content, mBinding.scrollbar, true);
-        } else {
-            inflater.inflate(R.layout.privacy_policy_content, mBinding.scrollbar, true);
+        switch (mLegalDocument){
+            case TERMS_OF_SERVICE:
+                inflater.inflate(R.layout.terms_service_content, mBinding.scrollbar, true);
+                mBinding.headerLayout.setTitle(R.string.settings_terms_service);
+                break;
+            case PRIVACY_POLICY:
+                inflater.inflate(R.layout.privacy_policy_content, mBinding.scrollbar, true);
+                mBinding.headerLayout.setTitle(R.string.settings_privacy_policy);
+                break;
+            case LEGAL_LICENSE:
+                mLicenseBinding = DataBindingUtil.inflate(inflater, R.layout.legal_license_content, mBinding.scrollbar, true);
+                mBinding.headerLayout.setTitle(R.string.settings_legal_license);
+                if(mLicenseBinding != null){
+                    mLicenseBinding.legalLicenseSection2.setLinkClickListener((widget, url) -> {
+                        mWidgetManager.openNewTabForeground(url);
+                        exitWholeSettings();
+                    });
+                }
+                break;
+            default:
+                break;
         }
-
 
         mScrollbar = mBinding.scrollbar;
 
-        // Header
-        if (mLegalDocument == LegalDocument.TERMS_OF_SERVICE)
-            mBinding.headerLayout.setTitle(R.string.settings_terms_service);
-        else
-            mBinding.headerLayout.setTitle(R.string.settings_privacy_policy);
+
 
         mBinding.headerLayout.setBackClickListener(view -> {
-            mDelegate.showView(SettingViewType.PRIVACY);
+            if (mDelegate != null)
+                mDelegate.showView(SettingViewType.PRIVACY);
         });
     }
 
@@ -73,9 +90,12 @@ public class LegalDocumentView extends SettingsView {
 
     @Override
     protected SettingViewType getType() {
-        if (mLegalDocument == LegalDocument.TERMS_OF_SERVICE)
-            return SettingViewType.TERMS_OF_SERVICE;
-        else
-            return SettingViewType.PRIVACY_POLICY;
+        switch (mLegalDocument) {
+            case TERMS_OF_SERVICE:
+                return SettingViewType.TERMS_OF_SERVICE;
+            case PRIVACY_POLICY:
+                return SettingViewType.PRIVACY_POLICY;
+        }
+        return SettingViewType.LEGAL_LICENSE;
     }
 }

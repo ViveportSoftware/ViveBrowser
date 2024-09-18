@@ -35,6 +35,44 @@ public class WRuntimeSettings {
     /** Only allow HTTPS connections. */
     public static final int HTTPS_ONLY = 2;
 
+    public WRuntimeSettings() {
+    }
+
+    public WRuntimeSettings(WRuntimeSettings settings) {
+        this.mArgs = settings.mArgs;
+        this.mExtras = settings.mExtras;
+        this.mConfigFilePath = settings.mConfigFilePath;
+        this.mWebManifest = settings.mWebManifest;
+        this.mJavaScript = settings.mJavaScript;
+        this.mRemoteDebugging = settings.mRemoteDebugging;
+        this.mWebFonts = settings.mWebFonts;
+        this.mConsoleOutput = settings.mConsoleOutput;
+        this.mFontSizeFactor = settings.mFontSizeFactor;
+        this.mEnterpriseRootsEnabled = settings.mEnterpriseRootsEnabled;
+        this.mFontInflationEnabled = settings.mFontInflationEnabled;
+        this.mInputAutoZoom = settings.mInputAutoZoom;
+        this.mDoubleTapZooming = settings.mDoubleTapZooming;
+        this.mGlMsaaLevel = settings.mGlMsaaLevel;
+        this.mLogLevel = settings.mLogLevel;
+        this.mConsoleServiceToLogcat = settings.mConsoleServiceToLogcat;
+        this.mDevToolsConsoleToLogcat = settings.mDevToolsConsoleToLogcat;
+        this.mAboutConfig = settings.mAboutConfig;
+        this.mForceUserScalable = settings.mForceUserScalable;
+        this.mAutofillLogins = settings.mAutofillLogins;
+        this.mAllowInsecureConenctions = settings.mAllowInsecureConenctions;
+        this.mMediaAutoplay = settings.mMediaAutoplay;
+        this.mPreferredColorScheme = settings.mPreferredColorScheme;
+        this.mDebugPause = settings.mDebugPause;
+        this.mUseMaxScreenDepth = settings.mUseMaxScreenDepth;
+        this.mDisplayDensityOverride = settings.mDisplayDensityOverride;
+        this.mDisplayDpiOverride = settings.mDisplayDpiOverride;
+        this.mScreenWidthOverride = settings.mScreenWidthOverride;
+        this.mScreenHeightOverride = settings.mScreenHeightOverride;
+        this.mCrashHandler = settings.mCrashHandler;
+        this.mRequestedLocales = settings.mRequestedLocales;
+        this.mContentBlocking = settings.mContentBlocking;
+    }
+
 
     /** Settings builder used to construct the settings object. */
     @AnyThread
@@ -399,6 +437,18 @@ public class WRuntimeSettings {
         }
 
         /**
+         * Set whether autoplay media should be enabled.
+         *
+         * @param flag True if autoplay media should be enabled, false otherwise.
+         * @return This Builder instance.
+         */
+        public @NonNull
+        WRuntimeSettings.Builder mediaAutoplay(final boolean flag) {
+            getSettings().mMediaAutoplay = flag;
+            return this;
+        }
+
+        /**
          * Sets the WebGL MSAA level.
          *
          * @param level number of MSAA samples, 0 if MSAA should be disabled.
@@ -517,6 +567,11 @@ public class WRuntimeSettings {
     public boolean isDoubleTapZoomingEnabled() {
         return mDoubleTapZooming;
     }
+
+    public boolean isMediaAutoplay() {
+        return mMediaAutoplay;
+    }
+
 
     public int getGlMsaaLevel() {
         return mGlMsaaLevel;
@@ -651,6 +706,7 @@ public class WRuntimeSettings {
     boolean mForceUserScalable = false;
     boolean mAutofillLogins = true;
     @HttpsOnlyMode int mAllowInsecureConenctions = ALLOW_ALL;
+    boolean mMediaAutoplay = true;
 
     int mPreferredColorScheme = COLOR_SCHEME_SYSTEM;
     boolean mDebugPause;

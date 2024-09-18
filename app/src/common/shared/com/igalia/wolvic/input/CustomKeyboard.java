@@ -169,6 +169,9 @@ public class CustomKeyboard extends Keyboard {
     @Override
     protected Key createKeyFromXml(Resources res, Row parent, int x, int y, XmlResourceParser parser) {
         Key key = super.createKeyFromXml(res, parent, x, y, parser);
+        if (key.codes == null || key.codes.length == 0) {
+            return key;
+        }
         if (key.codes[0] == KeyEvent.KEYCODE_ENTER || key.codes[0] == Keyboard.KEYCODE_DONE) {
             mEnterKey = key;
         } else if (key.codes[0] == ' ') {

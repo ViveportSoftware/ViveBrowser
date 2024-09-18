@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.os.SystemClock;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -12,6 +13,7 @@ import androidx.annotation.Nullable;
 import com.igalia.wolvic.browser.api.WImage;
 import com.igalia.wolvic.browser.api.WMediaSession;
 import com.igalia.wolvic.browser.api.WResult;
+import com.igalia.wolvic.utils.SystemUtils;
 
 import org.chromium.base.task.PostTask;
 import org.chromium.base.task.TaskTraits;
@@ -26,6 +28,7 @@ import org.chromium.services.media_session.MediaMetadata;
 import org.chromium.services.media_session.MediaPosition;
 
 import java.util.List;
+import java.util.Set;
 
 import org.chromium.media_session.mojom.MediaSessionAction;
 
@@ -42,6 +45,8 @@ public class TabMediaSessionObserver extends MediaSessionObserver implements Med
     private boolean mIsActive = false;
     private boolean mIsSuspended = false;
     private boolean mRunUpdatingPositionTask = false;
+    private WMediaSession.ElementMetadata elementMetadata;
+    protected final String LOGTAG = SystemUtils.createLogtag(this.getClass());
 
     public TabMediaSessionObserver(@NonNull WebContents webContents, @NonNull SessionImpl session) {
         super(MediaSession.fromWebContents(webContents));
@@ -52,6 +57,47 @@ public class TabMediaSessionObserver extends MediaSessionObserver implements Med
                         MediaNotificationImageUtils.getIdealMediaImageSize());
         mMediaImageManager.setWebContents(webContents);
     }
+
+    @Override
+    public void mediaSessionActionsChanged(Set<Integer> actions) {
+        long actionValue = 0;
+        for(Integer act : actions){
+            switch(act) {
+                case MediaSessionAction.PLAY:
+                    actionValue |= WMediaSession.Feature.PLAY;
+                    break;
+                case MediaSessionAction.PAUSE:
+                    actionValue |= WMediaSession.Feature.PAUSE;
+                    break;
+                case MediaSessionAction.STOP:
+                    actionValue |= WMediaSession.Feature.STOP;
+                    break;
+                case MediaSessionAction.SEEK_TO:
+                    actionValue |= WMediaSession.Feature.SEEK_TO;
+                    break;
+                case MediaSessionAction.SEEK_FORWARD:
+                    actionValue |= WMediaSession.Feature.SEEK_FORWARD;
+                    break;
+                case MediaSessionAction.SEEK_BACKWARD:
+                    actionValue |= WMediaSession.Feature.SEEK_BACKWARD;
+                    break;
+                case MediaSessionAction.SKIP_AD:
+                    actionValue |= WMediaSession.Feature.SKIP_AD;
+                    break;
+                case MediaSessionAction.NEXT_TRACK:
+                    actionValue |= WMediaSession.Feature.NEXT_TRACK;
+                    break;
+                case MediaSessionAction.PREVIOUS_TRACK:
+                    actionValue |= WMediaSession.Feature.PREVIOUS_TRACK;
+                    break;
+                default:
+                    break;
+            }
+        }
+        if(mSession.getMediaSessionDelegate()!=null)
+            mSession.getMediaSessionDelegate().onFeatures(mSession, mMediaSession, actionValue);
+    }
+
 
     @Override
     public void mediaSessionDestroyed() {
@@ -93,7 +139,8 @@ public class TabMediaSessionObserver extends MediaSessionObserver implements Med
     @Override
     public void mediaSessionMetadataChanged(MediaMetadata metadata) {
         assert mMediaSession != null;
-
+        Log.d(LOGTAG, "Metadata title:" + metadata.getTitle() +
+                ", album:" + metadata.getAlbum() + ", artist:" + metadata.getArtist());
         mMetadata = metadata;
         updateMetaData();
     }
@@ -120,11 +167,18 @@ public class TabMediaSessionObserver extends MediaSessionObserver implements Med
             startUpdatingPosition();
     }
 
+    public void onMediaResized(int width, int height) {
+        Log.d(LOGTAG, "onMediaResized: " + width + ", " + height);
+        elementMetadata = new WMediaSession.ElementMetadata("",
+                (mMediaPosition == null ? 0.0f : mMediaPosition.getDuration() / 1000),
+                width, height, 0, 0);
+    }
+
     public void onMediaFullscreen(boolean isFullscreen) {
         assert mMediaSession != null;
         if (mSession.getMediaSessionDelegate() != null)
             mSession.getMediaSessionDelegate().onFullscreen(
-                    mSession, mMediaSession, isFullscreen, null);
+                    mSession, mMediaSession, isFullscreen, elementMetadata);
     }
 
     /* package */ class WMediaSessionImpl implements WMediaSession {

@@ -18,6 +18,7 @@ import com.igalia.wolvic.browser.Addons;
 import com.igalia.wolvic.browser.engine.Session;
 import com.igalia.wolvic.databinding.AddonOptionsBinding;
 import com.igalia.wolvic.ui.widgets.WidgetManagerDelegate;
+import com.igalia.wolvic.ui.widgets.WindowWidget;
 import com.igalia.wolvic.ui.widgets.prompts.PromptData;
 import com.igalia.wolvic.utils.SystemUtils;
 
@@ -121,7 +122,10 @@ public class AddonOptionsView extends RecyclerView.ViewHolder implements AddonOp
                         mContext.getString(R.string.addons_remove_success_dialog_ok)
                 })
                 .build();
-        mWidgetManager.getFocusedWindow().showConfirmPrompt(data);
+        WindowWidget windowWidget = mWidgetManager.getFocusedWindow();
+        if (windowWidget != null) {
+            windowWidget.showConfirmPrompt(data);
+        }
     }
 
     private void showRemoveAddonErrorDialog(@NonNull Addon addon) {
@@ -135,7 +139,10 @@ public class AddonOptionsView extends RecyclerView.ViewHolder implements AddonOp
                 })
                 .withBody("")
                 .build();
-        mWidgetManager.getFocusedWindow().showConfirmPrompt(data);
+        WindowWidget windowWidget = mWidgetManager.getFocusedWindow();
+        if (windowWidget != null) {
+            windowWidget.showConfirmPrompt(data);
+        }
     }
 
     @Override

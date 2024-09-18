@@ -2,6 +2,11 @@
 <resources>
     <!-- IMPORTANT NOTE: If this file is updated anyhow, the STRs wiki must be updated accordingly:
     https://github.com/Igalia/wolvic/wiki/Localization -->
+
+    <!-- This string labels the button in the privacy option panel that enables/disables the use of
+system root CA for certificate. -->
+    <string name="security_options_use_system_root_ca">Используйте доверенные корневые сертификаты</string>
+
     <!-- This string is used on the virtual keyboard to label the 'Enter' key (stylized in uppercase letters as 'ENTER'). -->
     <string name="keyboard_enter_label">ENTER</string>
     <!-- This string is used on the virtual keyboard to label the 'Enter' key with a "Go" IME action.
@@ -503,7 +508,7 @@
     <string name="fxa_account_options_sync_now">Синхронизировать</string>
     <!-- This string is used to in the FxA account manage panel as the description of the Sync button while syncon.
          The sync button will start syncing when pressed-->
-    <string name="fxa_account_options_syncing">Синхронизация...</string>
+    <string name="fxa_account_options_syncing">Синхронизация…</string>
     <!-- This string is used in the FxA account manager panel as a header for the sync options for syncing
          history, bookmarks, passwords, etc. -->
     <string name="fxa_account_options_sync_description">Выберите, что нужно синхронизировать на ваших устройствах при помощи Firefox</string>
@@ -673,7 +678,7 @@
     <string name="crash_dialog_heading">У нас возникла проблема и мы упали</string>
     <!-- This string explains why Mozilla would like the user to allow the crash data to be uploaded.
          '%1$s' will be replaced at runtime with the app's domain name. -->
-    <string name="crash_dialog_message"><![CDATA[Пожалуйста, помогите Mozilla улучшить %1$s, отправив сообщение о падении.]]></string>
+    <string name="crash_dialog_message"><![CDATA[Пожалуйста, помогите VIVEPORT улучшить %1$s, отправив сообщение о падении.]]></string>
     <!-- This string labels a checkbox in the crash dialog box. When checked, the user will no longer
          be prompted for permission to upload crash data after an application crash. -->
     <string name="crash_dialog_send_data">Всегда отправлять данные, не спрашивая</string>
@@ -1408,7 +1413,7 @@ the Select` button. When clicked it closes all the previously selected tabs -->
     <!-- This string is displayed instead of the devices list if there are no available devices. -->
     <string name="send_tab_dialog_no_devices">Ни одного устройства не подключено.</string>
     <!-- This string is displayed instead of the devices list if the devices list is being synced. -->
-    <string name="send_tab_dialog_syncing">Синхронизация...</string>
+    <string name="send_tab_dialog_syncing">Синхронизация…</string>
     <!-- This string is displayed in the button of the Send Tab to device dialog. When clicked the current tab is sent to the selected device -->
     <string name="send_tab_dialog_button">Отправить</string>
     <!-- This string is displayed in the header of the what's new dialog that is displayed if the user has updated
@@ -1603,7 +1608,7 @@ the Select` button. When clicked it closes all the previously selected tabs -->
     <!-- This string is shown in the tooltip of the headset status bar icon when hovered.
     '%1$s' Will be replaced at runtime with headset battery level. -->
     <string name="tray_status_headset">Гарнитура: %1$s</string>
-    <string name="settings_terms_service">Правила пользования</string>
+    <string name="settings_terms_service">Условия обслуживания</string>
     <string name="voice_search_unsupported">Голосовой поиск не поддерживается для вашего языка.</string>
     <string name="settings_privacy_choose_search_engine_description">Выберите предпочитаемую поисковую систему.</string>
     <string name="privacy_dialog_disagree">Закрыть Wolvic</string>
@@ -1612,8 +1617,8 @@ the Select` button. When clicked it closes all the previously selected tabs -->
     <string name="privacy_policy_subtitle_2">Защита данных</string>
     <string name="privacy_policy_subtitle_1">Основная информация</string>
     <string name="settings_language_choose_language_voice_search_service_description">Выберите предпочитаемый онлайн-сервис для голосового поиска.</string>
-    <string name="voice_search_server_error">Голосовой поиск сейчас недоступен.</string>
-    <string name="privacy_dialog_message">Ваша конфиденциальность важна для нас. Для того, чтобы запустить браузер, пожалуйста, примите наши правила пользования и политику конфиденциальности. Спасибо, что пользуетесь Wolvic!</string>
+    <string name="voice_search_server_error">Голосовой поиск в настоящее время недоступен.</string>
+    <string name="privacy_dialog_message">Ваша конфиденциальность важна для нас. Для того чтобы запустить браузер, пожалуйста, примите наши условия обслуживания и политику конфиденциальности. Спасибо за использование Wolvic!</string>
     <string name="settings_language_portuguese_br">Португальский (Бразилия)</string>
     <string name="notifications_title">Уведомления</string>
     <string name="external_open_uri_error_title">Ошибка запуска стороннего приложения</string>
@@ -1627,10 +1632,10 @@ the Select` button. When clicked it closes all the previously selected tabs -->
 \n
 \n\t• Использование вашей персональной информации и данных, полученных в виде обратной связи, регулируется политикой конфиденциальности Wolvic.
 \n
-\n\t• Некоторые функции Wolvic используют сторонние информационные ресурсы. Мы не можем гарантировать, что они не содержат ошибок и на 100% точны. Более подробную информацию об этих ресурсах, а также как их отключить, вы можете узнать в правилах пользования (ниже).</string>
+\n\t• Некоторые функции Wolvic используют сторонние информационные ресурсы. Мы не можем гарантировать, что они не содержат ошибок и на 100% точны. Более подробную информацию об этих ресурсах, а также как их отключить, вы можете узнать в условиях использования (ниже).</string>
     <string name="hvr_enter_vr">Войти в VR</string>
     <string name="settings_privacy_search_engine_title">Поисковая система</string>
-    <string name="privacy_dialog_agree">Принять</string>
+    <string name="privacy_dialog_agree">Согласиться</string>
     <string name="external_open_uri_error_security_exception_body">SecurityException при вызове intent для %1$s</string>
     <string name="external_open_uri_error_no_activity_body">Не найдено приложение для обработки %1$s</string>
     <string name="settings_privacy_choose_search_engine_reset">Сбросить настройки поисковой системы</string>
@@ -1644,7 +1649,7 @@ the Select` button. When clicked it closes all the previously selected tabs -->
     <string name="notifications_empty">Список уведомлений пуст</string>
     <string name="notifications_loading">Загрузка уведомлений</string>
     <string name="settings_language_portuguese">Португальский</string>
-    <string name="terms_service_title">Правила пользования</string>
+    <string name="terms_service_title">Условия обслуживания</string>
     <string name="terms_service_section_2"/>
     <string name="upload_button">Загрузить</string>
     <string name="web_apps_dialog_cancel">Отмена</string>
@@ -1667,59 +1672,4 @@ the Select` button. When clicked it closes all the previously selected tabs -->
     <string name="download_addon_install_confirm_install">Установить</string>
     <string name="download_addon_install_blocked">Установка локального дополнения заблокирована</string>
     <string name="voice_service_metkai">MeetKai</string>
-    <string name="developer_options_center_windows">Центрировать окна по вертикали</string>
-    <string name="display_options_windows_can_move">Передвигать окна перетаскиванием</string>
-    <string name="display_options_sound_effect">Использовать звуковые эффекты</string>
-    <string name="display_options_start_with_passthrough">Начинать в режиме Passthrough</string>
-    <string name="display_options_latin_auto_complete">Автодополнение слов для латинской клавиатуры</string>
-    <string name="display_options_head_lock">Включить Head Lock</string>
-    <string name="display_options_windows_distance">Расстояние между окнами</string>
-    <string name="fxa_account_options_device_name">Название устройства</string>
-    <string name="security_options_use_system_root_ca">Использовать системные доверенные корневые сертификаты</string>
-    <string name="voice_input_start">Что бы вы хотели ввести?</string>
-    <string name="video_mode_3d_top_bottom">3D Вертикальная стереопара</string>
-    <string name="deprecated_version_dialog_body">Данная версия Wolvic \"App Lab\" будет удалена в конце октября 2023 года.
-\n
-\nПожалуйста, установите последнюю версию Wolvic из каталога Meta Quest Store.
-\n
-\nВАЖНО: если вы не используете синхронизацию, новое приложение Wolvic не получит ваши вкладки и закладки.</string>
-    <string name="rCN_first_launch_confirmation_body">Если вы выбрали «Не соглашаюсь», к сожалению, мы не сможем предоставлять вам наши услуги.
-\n
-\nВы можете прочитать полный текст пользовательского соглашения и политики конфиденциальности.</string>
-    <string name="rCN_first_launch_confirmation_agree">Согласиться и продолжить</string>
-    <string name="rCN_first_launch_confirmation_disagree">Не согласиться и выйти</string>
-    <string name="keyboardview_keycode_alt">Alt</string>
-    <string name="keyboardview_keycode_cancel">Cancel</string>
-    <string name="keyboardview_keycode_delete">Delete</string>
-    <string name="keyboardview_keycode_done">Done</string>
-    <string name="keyboardview_keycode_mode_change">Mode change</string>
-    <string name="keyboardview_keycode_enter">Enter</string>
-    <string name="tray_wifi_unavailable_ssid">SSID недоступен</string>
-    <string name="clear_user_data_dialog_title">Очистить данные пользователя %1$s</string>
-    <string name="clear_user_data_dialog_text">%1$s будет сброшен. Все данные, включая сохранённые логины, историю и закладки, будут безвозвратно удалены, если они не были ранее синхронизированы. %1$s будет автоматически закрыт после завершения сброса. Продолжить?</string>
-    <string name="developer_options_clear_user_data_description">Все данные пользователя</string>
-    <string name="experimental_features">Экспериментальные функции</string>
-    <string name="controller_options_haptic_feedback">Тактильная обратная связь</string>
-    <string name="security_options_permission_fine_location_warning">Wolvic может получать только приблизительные координаты. Это можно изменить в системных настройках.</string>
-    <string name="device_name">%1$s на %2$s</string>
-    <string name="hamburger_menu_toggle_passthrough">Passthrough</string>
-    <string name="move_tooltip">Переместить</string>
-    <string name="deprecated_version_dialog_title">Поддержка скоро прекратится</string>
-    <string name="rCN_first_launch_title">Пользовательское соглашение и уведомление о политике конфиденциальности</string>
-    <string name="keyboardview_keycode_shift">Shift</string>
-    <string name="rCN_first_launch_clickable_terms_text">Пользовательское соглашение</string>
-    <string name="rCN_first_launch_agree">Соглашаюсь</string>
-    <string name="rCN_first_launch_disagree">Не соглашаюсь</string>
-    <string name="rCN_first_launch_clickable_privacy_text">Политика конфиденциальности</string>
-    <string name="user_feedback_tooltip">Делитесь идеями и обратной связью</string>
-    <string name="privacy_policy_subtitle_3">Применимые законы и исходный язык</string>
-    <string name="upload_list_empty">Нет файлов для загрузки</string>
-    <string name="deprecated_version_dialog_info_button">Узнать больше…</string>
-    <string name="deprecated_version_dialog_store_button">Установить…</string>
-    <string name="rCN_first_launch_body">Добро пожаловать в Wolvic!
-\n
-\nЧтобы зарегистрировать и начать пользоваться Wolvic, вы должны принять пользовательское соглашение и политику конфиденциальности. Внимательно прочитайте документы и нажмите «Соглашаюсь», чтобы продолжить. Если вы нажмёте «Не соглашаюсь», вы не сможете пользоваться Wolvic.
-\n
-\nВы можете ознакомиться с полным текстом пользовательского соглашения и политики конфиденциальности.</string>
-    <string name="privacy_policy_section_3">Эта политика конфиденциальности регулируется законодательством Испании. Оригинальный язык политики — испанский. Любые возможные отличия между оригинальной версией и переводами на другие языки будут трактоваться в соответствии с испанской версией, которая доступна по адресу: https://wolvic.com/es/legal/privacy/ .</string>
 </resources>

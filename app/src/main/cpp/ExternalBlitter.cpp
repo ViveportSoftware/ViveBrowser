@@ -136,8 +136,10 @@ ExternalBlitter::Draw(const device::Eye aEye) {
 void
 ExternalBlitter::EndFrame() {
   if (m.surface) {
+#ifdef GECKO
     // We need to detach the SurfaceTexture to prevent the Gecko WebGL compositor from getting blocked.
     m.surface->ReleaseTexImage();
+#endif
     m.surface = nullptr;
   }
 }

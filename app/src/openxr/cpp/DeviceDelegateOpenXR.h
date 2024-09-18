@@ -42,8 +42,7 @@ public:
   int32_t GetControllerModelCount() const override;
   const std::string GetControllerModelName(const int32_t aModelIndex) const override;
   bool IsPositionTrackingSupported() const override;
-  void OnControllersCreated(std::function<void()> callback) override;
-  void OnControllersReady(const ControllersReadyCallback& callback) override;
+  void OnControllersReady(const std::function<void()>& callback) override;
   void SetCPULevel(const device::CPULevel aLevel) override;
   void ProcessEvents() override;
   bool SupportsFramePrediction(FramePrediction aPrediction) const override;
@@ -65,8 +64,6 @@ public:
   void UpdateHandMesh(const uint32_t aControllerIndex, const std::vector<vrb::Matrix>& handJointTransforms,
                       const vrb::GroupPtr& aRoot, const bool aEnabled, const bool leftHanded) override;
   void DrawHandMesh(const uint32_t aControllerIndex, const vrb::Camera&) override;
-  void SetHitDistance(const float) override;
-  void SetPointerMode(const PointerMode mode) override;
   // Custom methods for NativeActivity render loop based devices.
   void BeginXRSession();
   void EnterVR(const crow::BrowserEGLContext& aEGLContext);
@@ -82,7 +79,6 @@ protected:
 private:
   State& m;
   VRB_NO_DEFAULTS(DeviceDelegateOpenXR)
-  void updateEyeGaze();
 };
 
 } // namespace crow

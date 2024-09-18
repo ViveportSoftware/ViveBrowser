@@ -56,11 +56,15 @@ public class ContentLanguageOptionsView extends SettingsView {
 
         // Header
         mBinding.headerLayout.setBackClickListener(view -> {
-            mDelegate.showView(SettingViewType.LANGUAGE);
+            if (mDelegate != null) {
+                mDelegate.showView(SettingViewType.LANGUAGE);
+            }
         });
         mBinding.headerLayout.setHelpClickListener(view -> {
             SessionStore.get().getActiveSession().loadUri(getResources().getString(R.string.sumo_language_content_url));
-            mDelegate.exitWholeSettings();
+            if (mDelegate != null) {
+                mDelegate.exitWholeSettings();
+            }
         });
 
         // Adapters
@@ -123,8 +127,12 @@ public class ContentLanguageOptionsView extends SettingsView {
 
     private void refreshLanguages() {
         post(() -> {
-            mPreferredAdapter.setLanguageList(LocaleUtils.getPreferredLanguages(getContext()));
-            mAvailableAdapter.setLanguageList(LocaleUtils.getAvailableLanguages(getContext()));
+            if (mPreferredAdapter != null) {
+                mPreferredAdapter.setLanguageList(LocaleUtils.getPreferredLanguages(getContext()));
+            }
+            if (mAvailableAdapter != null) {
+                mAvailableAdapter.setLanguageList(LocaleUtils.getAvailableLanguages(getContext()));
+            }
         });
     }
 

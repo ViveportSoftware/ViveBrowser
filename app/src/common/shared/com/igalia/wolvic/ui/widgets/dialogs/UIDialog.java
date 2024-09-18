@@ -29,9 +29,6 @@ public abstract class UIDialog extends UIWidget implements WidgetManagerDelegate
 
     private void initialize() {
         mWidgetManager.addWorldClickListener(this);
-
-        // For visibility, dialogs are not shown on the cylinder by default.
-        mWidgetPlacement.cylinder = false;
     }
 
     @Override

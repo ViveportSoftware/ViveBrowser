@@ -35,10 +35,6 @@ public interface WidgetManagerDelegate {
         void onWebXRRenderStateChange(boolean aRendering);
     }
 
-    interface EyeTrackingCallback {
-        void onEyeTrackingPermissionRequest(boolean aPermissionGranted);
-    }
-
     float DEFAULT_DIM_BRIGHTNESS = 0.25f;
     float DEFAULT_NO_DIM_BRIGHTNESS = 1.0f;
 
@@ -65,14 +61,6 @@ public interface WidgetManagerDelegate {
     int YAW_TARGET_ALL = 0; // Targets widgets and VR videos.
     int YAW_TARGET_WIDGETS = 1; // Targets widgets only.
 
-    // Keep in sync with DeviceDelegate.h
-    @IntDef(value = { TRACKED_POINTER, TRACKED_EYE })
-    @interface PointerMode {}
-    int TRACKED_POINTER = 0;
-    int TRACKED_EYE = 1;
-
-    enum OriginatorType {WEBSITE, APPLICATION}
-
     int newWidgetHandle();
     void addWidget(Widget aWidget);
     void updateWidget(Widget aWidget);
@@ -80,8 +68,8 @@ public interface WidgetManagerDelegate {
     void updateWidgetsPlacementTranslationZ();
     void updateVisibleWidgets();
     void recreateWidgetSurface(Widget aWidget);
-    void startWidgetResize(WindowWidget aWidget);
-    void finishWidgetResize(WindowWidget aWidget);
+    void startWidgetResize(Widget aWidget, float maxWidth, float maxHeight, float minWidth, float minHeight);
+    void finishWidgetResize(Widget aWidget);
     void startWidgetMove(Widget aWidget, @WidgetMoveBehaviourFlags int aMoveBehaviour);
     void finishWidgetMove();
     void addUpdateListener(@NonNull UpdateListener aUpdateListener);
@@ -91,8 +79,9 @@ public interface WidgetManagerDelegate {
     void pushWorldBrightness(Object aKey, float aBrightness);
     void setWorldBrightness(Object aKey, float aBrightness);
     void popWorldBrightness(Object aKey);
-    void triggerHapticFeedback(int deviceID);
+    void triggerHapticFeedback();
     void setControllersVisible(boolean visible);
+    void setWindowSize(float targetWidth, float targetHeight);
     void keyboardDismissed();
     void updateEnvironment();
     void updatePointerColor();
@@ -102,7 +91,6 @@ public interface WidgetManagerDelegate {
     void togglePassthrough();
     boolean isPassthroughEnabled();
     boolean isPassthroughSupported();
-    boolean isPageZoomEnabled();
     void setHeadLockEnabled(boolean isHeadLockEnabled);
     void recenterUIYaw(@YawTarget int target);
     void setCylinderDensity(float aDensity);
@@ -121,7 +109,7 @@ public interface WidgetManagerDelegate {
     boolean isWebXRIntersitialHidden();
     boolean isWebXRPresenting();
     boolean isPermissionGranted(@NonNull String permission);
-    void requestPermission(String originator, @NonNull String permission, OriginatorType originatorType, WSession.PermissionDelegate.Callback aCallback);
+    void requestPermission(String uri, @NonNull String permission, WSession.PermissionDelegate.Callback aCallback);
     boolean canOpenNewWindow();
     void openNewWindow(String uri);
     void openNewTab(@NonNull String uri);
@@ -135,8 +123,4 @@ public interface WidgetManagerDelegate {
     void updateLocale(@NonNull Context context);
     @NonNull
     AppServicesProvider getServicesProvider();
-    KeyboardWidget getKeyboard();
-    void setPointerMode(@PointerMode int mode);
-    void checkEyeTrackingPermissions(@NonNull EyeTrackingCallback callback);
-    boolean isEyeTrackingSupported();
 }

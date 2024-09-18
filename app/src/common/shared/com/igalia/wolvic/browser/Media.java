@@ -1,5 +1,7 @@
 package com.igalia.wolvic.browser;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -8,9 +10,10 @@ import com.igalia.wolvic.browser.api.WSession;
 import com.igalia.wolvic.utils.SystemUtils;
 
 import java.util.concurrent.CopyOnWriteArrayList;
+import android.util.Log;
 
 public class Media implements WMediaSession.Delegate {
-    private static final String LOGTAG = SystemUtils.createLogtag(Media.class);
+    protected final String LOGTAG = SystemUtils.createLogtag(this.getClass());
     private boolean mIsFullscreen = false;
     private @Nullable
     WMediaSession mMediaSession;
@@ -98,18 +101,6 @@ public class Media implements WMediaSession.Delegate {
        if (mMediaSession != null) {
            mMediaSession.seekTo(aTime, true);
        }
-    }
-
-    public void seekForward() {
-        if (mMediaSession != null) {
-            mMediaSession.seekForward();
-        }
-    }
-
-    public void seekBackward() {
-        if (mMediaSession != null) {
-            mMediaSession.seekBackward();
-        }
     }
 
     public void play() {
@@ -221,13 +212,16 @@ public class Media implements WMediaSession.Delegate {
 
     @Override
     public void onFullscreen(@NonNull WSession session, @NonNull WMediaSession mediaSession, boolean enabled, @Nullable WMediaSession.ElementMetadata meta) {
+
         long oldWidth = getWidth();
         long oldHeight = getHeight();
+        Log.d(LOGTAG, "old Width:" + oldWidth + ", old Height:" + oldHeight);
         mIsFullscreen = enabled;
         if (meta != null) {
             mElement = meta;
             mDuration = meta.duration;
         }
+
         if (mResizeDelegate!= null && meta != null) {
             final long w = getWidth();
             final long h = getHeight();

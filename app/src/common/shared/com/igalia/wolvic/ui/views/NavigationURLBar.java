@@ -6,7 +6,6 @@
 package com.igalia.wolvic.ui.views;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -158,10 +157,7 @@ public class NavigationURLBar extends FrameLayout {
         mBinding.urlEditText.setOnEditorActionListener((aTextView, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_SEARCH
                     || actionId == EditorInfo.IME_ACTION_GO || actionId == EditorInfo.IME_ACTION_SEND) {
-                String textContent = aTextView.getText().toString();
-                ((Activity)getContext()).runOnUiThread(() -> {
-                    handleURLEdit(textContent);
-                });
+                handleURLEdit(aTextView.getText().toString());
                 return true;
             }
             return false;
@@ -381,8 +377,9 @@ public class NavigationURLBar extends FrameLayout {
     }
 
     public  void handleURLEdit(String text) {
+        String url = UrlUtils.urlForText(getContext(), text.trim());
+
         if (!mDelegate.onHandleExternalRequest(text)) {
-            String url = UrlUtils.urlForText(getContext(), text.trim(), mSession.getWSession().getUrlUtilsVisitor());
             mViewModel.setUrl(url);
             mSession.loadUri(url);
         }

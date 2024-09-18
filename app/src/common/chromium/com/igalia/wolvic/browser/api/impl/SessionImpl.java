@@ -1,9 +1,9 @@
 package com.igalia.wolvic.browser.api.impl;
 
 import android.graphics.Matrix;
+import android.util.Base64;
 import android.view.ViewGroup;
 
-import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -28,9 +28,7 @@ import org.chromium.wolvic.UserDialogManagerBridge;
 
 import java.io.InputStream;
 import java.security.cert.X509Certificate;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class SessionImpl implements WSession, DownloadManagerBridge.Delegate {
@@ -53,7 +51,6 @@ public class SessionImpl implements WSession, DownloadManagerBridge.Delegate {
     private WebContents mWebContents;
     private TabImpl mTab;
     private ReadyCallback mReadyCallback = new ReadyCallback();
-    private UrlUtilsVisitor mUrlUtilsVisitor;
 
     private class ReadyCallback implements RuntimeImpl.Callback {
         @Override
@@ -92,8 +89,11 @@ public class SessionImpl implements WSession, DownloadManagerBridge.Delegate {
     }
 
     @Override
-    public void loadData(@NonNull byte[] data, String mymeType) {
-        // TODO: Implement
+    public void loadData(@NonNull byte[] data, String mimeType) {
+        if (isOpen()) {
+            String encodedHtml = Base64.encodeToString(data, Base64.NO_PADDING);
+            mTab.loadData(encodedHtml, mimeType, "base64");
+        }
     }
 
     @Override
@@ -202,6 +202,8 @@ public class SessionImpl implements WSession, DownloadManagerBridge.Delegate {
         WDisplay display = new DisplayImpl(this, mTab.getCompositorView());
         mRuntime.getContainerView().addView(mTab.getCompositorView(),
                 new ViewGroup.LayoutParams(settings.getWindowWidth(), settings.getWindowHeight()));
+        mRuntime.getContainerView().addView(getContentView(),
+                new ViewGroup.LayoutParams(settings.getWindowWidth(), settings.getWindowHeight()));
         getTextInput().setView(getContentView());
         return display;
     }
@@ -209,6 +211,7 @@ public class SessionImpl implements WSession, DownloadManagerBridge.Delegate {
     @Override
     public void releaseDisplay(@NonNull WDisplay display) {
         mRuntime.getContainerView().removeView(mTab.getCompositorView());
+        mRuntime.getContainerView().removeView(getContentView());
         getTextInput().setView(null);
     }
 
@@ -248,24 +251,6 @@ public class SessionImpl implements WSession, DownloadManagerBridge.Delegate {
         return mTextInput;
     }
 
-    @AnyThread
-    @Override
-    public void pageZoomIn() {
-        mTab.pageZoomIn();
-    }
-
-    @AnyThread
-    @Override
-    public void pageZoomOut() {
-        mTab.pageZoomOut();
-    }
-
-    @AnyThread
-    @Override
-    public int getCurrentZoomLevel() {
-        return mTab.getCurrentZoomLevel();
-    }
-
     @NonNull
     @Override
     public WPanZoomController getPanZoomController() {
@@ -290,8 +275,15 @@ public class SessionImpl implements WSession, DownloadManagerBridge.Delegate {
         }
 
         mPermissionDelegate = delegate;
-        mChromiumPermissionDelegate = new ChromiumPermissionDelegate(this, delegate);
+        mChromiumPermissionDelegate = (delegate != null ? new ChromiumPermissionDelegate(this, delegate) : null);
     }
+    @Override
+    public void resetPermissionDelegate(){
+        if(mChromiumPermissionDelegate != null){
+            PermissionManagerBridge.get().setDelegate(mChromiumPermissionDelegate);
+        }
+    }
+
 
     @Nullable
     @Override
@@ -403,8 +395,6 @@ public class SessionImpl implements WSession, DownloadManagerBridge.Delegate {
 
     @Override
     public void newDownload(String url) {
-        if (mContentDelegate == null)
-            return;
         // Since we only have the URL, we have to use default values for the rest of the web
         // response data.
         mContentDelegate.onExternalResponse(this, new WWebResponse() {
@@ -473,20 +463,5 @@ public class SessionImpl implements WSession, DownloadManagerBridge.Delegate {
 
     public WResult<Boolean> checkLoginIfAlreadySaved(PasswordForm form) {
        return mRuntime.getUpLoginPersistence().checkLoginIfAlreadySaved(form);
-    }
-
-    @NonNull
-    @Override
-    public UrlUtilsVisitor getUrlUtilsVisitor() {
-        if (mUrlUtilsVisitor == null) {
-            mUrlUtilsVisitor = new UrlUtilsVisitor() {
-                private final List<String> ENGINE_SUPPORTED_SCHEMES = Arrays.asList("about", "data", "file", "ftp", "http", "https", "view-source", "ws", "wss", "blob", "chrome");
-                @Override
-                public boolean isSupportedScheme(@NonNull String scheme) {
-                    return ENGINE_SUPPORTED_SCHEMES.contains(scheme);
-                }
-            };
-        }
-        return mUrlUtilsVisitor;
     }
 }

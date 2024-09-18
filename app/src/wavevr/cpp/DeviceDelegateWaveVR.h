@@ -3,8 +3,17 @@
 
 #include "vrb/Forward.h"
 #include "vrb/MacroUtils.h"
+#include "vrb/Vector.h"
+#include "vrb/Matrix.h"
 #include "DeviceDelegate.h"
+#include "shared/Matrices.h"
+#include "ElbowModel.h"
+#include "Controller.h"
+#include <wvr/wvr_hand.h>
 #include <memory>
+
+const uint32_t kHandCount = 2;
+const uint32_t kJointCount = 26;
 
 namespace crow {
 
@@ -46,6 +55,12 @@ protected:
 private:
   State& m;
   VRB_NO_DEFAULTS(DeviceDelegateWaveVR)
+private:
+  WVR_DevicePosePair_t *findDevicePair(WVR_DeviceType type);
+  void UpdateHand(Controller &controller, const WVR_DevicePosePair_t &devicePair,
+                    const vrb::Matrix &hmd);
+  void UpdateController(Controller &controller, const WVR_DevicePosePair_t &devicePair,
+                          const vrb::Matrix &hmd);
 };
 
 } // namespace crow

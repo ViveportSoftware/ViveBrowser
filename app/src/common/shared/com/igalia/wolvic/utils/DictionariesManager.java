@@ -53,17 +53,20 @@ public class DictionariesManager implements DownloadsManager.DownloadsListener, 
 
     public void getOrDownloadDictionary(@NonNull String lang) {
         if (DictionaryUtils.isBuiltinDictionary(lang)) {
-            for (String dbName : DictionaryUtils.getBuiltinDicNames(lang)) {
-                if (!mContext.getDatabasePath(dbName).exists()) {
-                    try {
-                        InputStream in = mContext.getAssets().open(
-                            DictionaryUtils.getBuiltinDicPath() + dbName);
-                        storeDatabase(in, dbName);
-                    } catch (Exception e) {
-                        Log.e(LOGTAG, Objects.requireNonNull(e.getMessage()));
+            if (DictionaryUtils.getBuiltinDicNames(lang) != null)
+                for (String dbName : DictionaryUtils.getBuiltinDicNames(lang)) {
+                    if (!mContext.getDatabasePath(dbName).exists()) {
+                        try {
+                            InputStream in = mContext.getAssets().open(
+                                    DictionaryUtils.getBuiltinDicPath() + dbName);
+                            storeDatabase(in, dbName);
+                        } catch (Exception e) {
+                            Log.e(LOGTAG, Objects.requireNonNull(e.getMessage()));
+                        }
                     }
                 }
-            }
+            else
+                Log.e(LOGTAG, "Null pointer, DictionariesManager.getOrDownloadDictionary: DictionaryUtils.getBuiltinDicNames, lang: "+lang);
         } else if (DictionaryUtils.isExternalDictionary(mContext, lang)) {
             if (DictionaryUtils.getExternalDicPath(mContext, lang) != null)
                 return;

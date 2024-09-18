@@ -18,7 +18,7 @@ import java.util.ArrayList;
  */
 public class YoutubeUrlHelper {
     public static String maybeRewriteYoutubeURL(GURL url) {
-        if (!url.domainIs("youtube.com") && !url.domainIs("youtube-nocookie.com")) {
+        if (!url.domainIs("m.youtube.com") && !url.domainIs("youtube.com") && !url.domainIs("youtube-nocookie.com")) {
             return url.getSpec();
         }
 
@@ -26,20 +26,30 @@ public class YoutubeUrlHelper {
             return url.getSpec();
         }
 
+        //return checkForMobileSite(url.getSpec());
+        //return url.getSpec();
         return ensureAppIsSetToDesktop(Uri.parse(url.getSpec())).toString();
     }
 
     private static Uri ensureAppIsSetToDesktop(Uri uri) {
         Uri.Builder builder = uri.buildUpon().clearQuery();
+        String vid="";
         for (String param : uri.getQueryParameterNames()) {
             if (param.equals("app")) {
                 // skip existing app parameter, because we'll rewrite it later
                 continue;
             }
+            if (param.equals("v")) {
+                vid=uri.getQueryParameter(param);
+                continue;
+            }
             builder.appendQueryParameter(param, uri.getQueryParameter(param));
         }
-
+        builder.appendEncodedPath(vid);
         builder.appendQueryParameter("app", "desktop");
+        //this will auto enter 360 Projection when fullscreen
+        //builder.appendQueryParameter("mozVideoProjection", "360_auto");
         return builder.build();
     }
+
 }

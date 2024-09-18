@@ -131,7 +131,7 @@ public class NavigationBarWidget extends UIWidget implements WSession.Navigation
     private SendTabDialogWidget mSendTabDialog;
     private int mBlockedCount;
     private Executor mUIThreadExecutor;
-    private ArrayList<NavigationListener> mNavigationListeners;
+    private final ArrayList<NavigationListener> mNavigationListeners = new ArrayList<>();
     private TrackingProtectionStore mTrackingDelegate;
     private WidgetPlacement mBeforeFullscreenPlacement;
     private float mSavedCylinderDensity = 0.0f;
@@ -198,7 +198,7 @@ public class NavigationBarWidget extends UIWidget implements WSession.Navigation
 
         mResizeBackHandler = () -> exitResizeMode(ResizeAction.RESTORE_SIZE);
 
-        mNavigationListeners = new ArrayList<>();
+        mNavigationListeners.clear();
 
         mFullScreenBackHandler = () -> {
             if (mAttachedWindow != null) {
@@ -207,8 +207,11 @@ public class NavigationBarWidget extends UIWidget implements WSession.Navigation
         };
         mVRVideoBackHandler = () -> {
             exitVRVideo();
-            if (mAttachedWindow != null &&
-                    mViewModel.getAutoEnteredVRVideo().getValue().get()) {
+            if (mAttachedWindow == null) {
+                return;
+            }
+            ObservableBoolean autoEnteredVRVideo = mViewModel.getAutoEnteredVRVideo().getValue();
+            if (autoEnteredVRVideo != null && autoEnteredVRVideo.get()) {
                 mAttachedWindow.setIsFullScreen(false);
             } else {
                 mAttachedWindow.reCenterFrontWindow();
@@ -473,7 +476,7 @@ public class NavigationBarWidget extends UIWidget implements WSession.Navigation
     TrackingProtectionStore.TrackingProtectionListener mTrackingListener = new TrackingProtectionStore.TrackingProtectionListener() {
         @Override
         public void onExcludedTrackingProtectionChange(@NonNull String url, boolean excluded, boolean isPrivate) {
-            Session currentSession = getSession();
+            Session currentSession = getSessionNullable();
             if (currentSession != null) {
                 String currentSessionHost = UrlUtils.getHost(currentSession.getCurrentUri());
                 String sessionHost = UrlUtils.getHost(url);
@@ -577,7 +580,7 @@ public class NavigationBarWidget extends UIWidget implements WSession.Navigation
             mAttachedWindow.setIsFullScreen(false);
         }
 
-        if (getSession() != null) {
+        if (getSessionNullable() != null) {
             cleanSession(getSession());
         }
         if (mAttachedWindow != null) {
@@ -630,15 +633,29 @@ public class NavigationBarWidget extends UIWidget implements WSession.Navigation
 
         requestFocusFromTouch();
 
-        if (getSession() != null) {
+        if (getSessionNullable() != null) {
             setUpSession(getSession());
         }
         handleWindowResize();
     }
 
+    @NonNull
     private Session getSession() {
         if (mAttachedWindow != null) {
-            return mAttachedWindow.getSession();
+            Session session = mAttachedWindow.getSession();
+            if (session != null) {
+                return session;
+            }
+        }
+        throw new NullPointerException("Session is null.");
+    }
+
+    @Nullable
+    private Session getSessionNullable() {
+        try {
+            return getSession();
+        } catch (Exception e) {
+            //e.printStackTrace();
         }
         return null;
     }
@@ -647,7 +664,7 @@ public class NavigationBarWidget extends UIWidget implements WSession.Navigation
         aSession.addSessionChangeListener(this);
         aSession.addNavigationListener(this);
         aSession.addContentListener(this);
-        mBinding.navigationBarNavigation.urlBar.setSession(getSession());
+        mBinding.navigationBarNavigation.urlBar.setSession(getSessionNullable());
     }
 
     private void cleanSession(@NonNull Session aSession) {
@@ -901,8 +918,10 @@ public class NavigationBarWidget extends UIWidget implements WSession.Navigation
 
         // Remember the cylinder density before we enter VR video
         mSavedCylinderDensity = mWidgetManager.getCylinderDensity();
-        // Disable curved display temporary
-        mWidgetManager.setCylinderDensityForce(0.0f);
+        // We have to disable curved display temporary if we are playing front facing VR videos
+        if (isFrontFacingVRProjection(aProjection)) {
+            mWidgetManager.setCylinderDensityForce(0.0f);
+        }
 
         mViewModel.setIsInVRVideo(true);
         mWidgetManager.pushBackHandler(mVRVideoBackHandler);
@@ -916,7 +935,6 @@ public class NavigationBarWidget extends UIWidget implements WSession.Navigation
         // the web content is already in fullscreen state.
         if (mFullScreenMedia == null)
             mFullScreenMedia = getSession().getActiveVideo();
-
         // mFullScreenMedia may still be null at this point.
         // For example, this can happen if the page does not provide the media playback events
         // that we use to recognize when a video is playing and obtain its metadata.
@@ -966,7 +984,7 @@ public class NavigationBarWidget extends UIWidget implements WSession.Navigation
     }
 
     private void exitVRVideo() {
-        if (!mViewModel.getIsInVRVideo().getValue().get()) {
+        if (!mViewModel.getIsInVRVideo().getValue().get() || mAttachedWindow == null) {
             return;
         }
         if (mFullScreenMedia != null) {
@@ -976,7 +994,9 @@ public class NavigationBarWidget extends UIWidget implements WSession.Navigation
         mWidgetManager.popBackHandler(mVRVideoBackHandler);
         mWidgetManager.hideVRVideo();
         boolean composited = mProjectionMenu.getPlacement().composited;
-        mProjectionMenu.getPlacement().copyFrom(mProjectionMenuPlacement);
+        if (mProjectionMenuPlacement != null) {
+            mProjectionMenu.getPlacement().copyFrom(mProjectionMenuPlacement);
+        }
         mProjectionMenu.getPlacement().composited = composited;
         mProjectionMenu.setSelectedProjection(VIDEO_PROJECTION_NONE);
         mWidgetManager.updateWidget(mProjectionMenu);
@@ -986,7 +1006,9 @@ public class NavigationBarWidget extends UIWidget implements WSession.Navigation
         this.setVisible(!mAttachedWindow.isKioskMode());
         mAttachedWindow.disableVRVideoMode();
         mAttachedWindow.setVisible(true);
-        mMediaControlsWidget.setVisible(false);
+        if (mMediaControlsWidget != null) {
+            mMediaControlsWidget.setVisible(false);
+        }
         mTrayViewModel.setShouldBeVisible(!mAttachedWindow.isFullScreen() && !mAttachedWindow.isKioskMode());
         mViewModel.setAutoEnteredVRVideo(false);
         AnimationHelper.fadeIn(mBinding.navigationBarFullscreen.fullScreenModeContainer, AnimationHelper.FADE_ANIMATION_DURATION, null);
@@ -997,7 +1019,7 @@ public class NavigationBarWidget extends UIWidget implements WSession.Navigation
     }
 
     private void setResizePreset(float aMultiplier) {
-        final float aspect = (float) mAttachedWindow.getWindowWidth() / (float) mAttachedWindow.getWindowHeight();
+        final float aspect = SettingsStore.getInstance(getContext()).getWindowAspect();
         mAttachedWindow.resizeByMultiplier(aspect, aMultiplier);
     }
 
@@ -1018,7 +1040,7 @@ public class NavigationBarWidget extends UIWidget implements WSession.Navigation
 
     @Override
     public void onLocationChange(@NonNull WSession session, @Nullable String url) {
-        if (getSession() != null && getSession().getWSession() == session) {
+        if (getSessionNullable() != null && getSession().getWSession() == session) {
             updateTrackingProtection();
         }
 
@@ -1049,9 +1071,9 @@ public class NavigationBarWidget extends UIWidget implements WSession.Navigation
     };
 
     private void updateTrackingProtection() {
-        if (getSession() != null) {
+        if (getSessionNullable() != null) {
             mTrackingDelegate.contains(getSession(), isExcluded -> {
-                if (isExcluded != null) {
+                if (isExcluded != null && mViewModel != null) {
                     mViewModel.setIsTrackingEnabled(!isExcluded);
                 }
 
@@ -1110,12 +1132,18 @@ public class NavigationBarWidget extends UIWidget implements WSession.Navigation
     @Override
     public void onVoiceSearchClicked() {
         if (mVoiceSearchWidget == null) {
-            mVoiceSearchWidget = new VoiceSearchWidget(getContext());
+            Context context = getContext();
+            if (context == null) {
+                return;
+            }
+            mVoiceSearchWidget = new VoiceSearchWidget(context);
             mVoiceSearchWidget.setDelegate(this);
             mVoiceSearchWidget.setDelegate(() -> {
-                mVoiceSearchWidget.hide(UIWidget.REMOVE_WIDGET);
-                mVoiceSearchWidget.releaseWidget();
-                mVoiceSearchWidget = null;
+                if (mVoiceSearchWidget != null) {
+                    mVoiceSearchWidget.hide(UIWidget.REMOVE_WIDGET);
+                    mVoiceSearchWidget.releaseWidget();
+                    mVoiceSearchWidget = null;
+                }
             });
         }
 
@@ -1128,6 +1156,9 @@ public class NavigationBarWidget extends UIWidget implements WSession.Navigation
     public void onShowAwesomeBar() {
         if (mAwesomeBar == null) {
             mAwesomeBar = createChild(SuggestionsWidget.class);
+            if (mAwesomeBar == null) {
+                return;
+            }
             mAwesomeBar.setURLBarPopupDelegate(this);
         }
 
@@ -1307,7 +1338,9 @@ public class NavigationBarWidget extends UIWidget implements WSession.Navigation
 
     private void startWidgetResize() {
         if (mAttachedWindow != null) {
-            mWidgetManager.startWidgetResize(mAttachedWindow);
+            Pair<Float, Float> maxSize = mAttachedWindow.getSizeForScale(mAttachedWindow.getMaxWindowScale());
+            Pair<Float, Float> minSize = mAttachedWindow.getSizeForScale(0.5f);
+            mWidgetManager.startWidgetResize(mAttachedWindow, maxSize.first, 4.5f, minSize.first, minSize.second);
         }
     }
 
@@ -1393,26 +1426,10 @@ public class NavigationBarWidget extends UIWidget implements WSession.Navigation
 
                 showSaveWebAppDialog();
             }
-
-            @Override
-            public void onPageZoomIn() {
-                mAttachedWindow.getSession().pageZoomIn();
-            }
-
-            @Override
-            public void onPageZoomOut() {
-                mAttachedWindow.getSession().pageZoomOut();
-            }
-
-            @Override
-            public int getCurrentZoomLevel() {
-                return mAttachedWindow.getSession().getCurrentZoomLevel();
-            }
         });
         boolean isSendTabEnabled = false;
-        if (!BuildConfig.FLAVOR_backend.equals("chromium") &&
-                (URLUtil.isHttpUrl(mAttachedWindow.getSession().getCurrentUri()) ||
-                URLUtil.isHttpsUrl(mAttachedWindow.getSession().getCurrentUri()))) {
+        if (URLUtil.isHttpUrl(mAttachedWindow.getSession().getCurrentUri()) ||
+                URLUtil.isHttpsUrl(mAttachedWindow.getSession().getCurrentUri())) {
             isSendTabEnabled = true;
         }
         mHamburgerMenu.setSendTabEnabled(isSendTabEnabled);
@@ -1435,7 +1452,7 @@ public class NavigationBarWidget extends UIWidget implements WSession.Navigation
     }
 
     public void showSaveWebAppDialog() {
-        if (getSession() == null || getSession().getWebAppManifest() == null) {
+        if (getSessionNullable() == null || getSession().getWebAppManifest() == null) {
             Log.w(LOGTAG, "showSaveWebAppDialog: missing Session or Web app manifest");
             return;
         }
@@ -1555,7 +1572,7 @@ public class NavigationBarWidget extends UIWidget implements WSession.Navigation
             @Override
             public void onBlock() {
                 if (aCategory == SITE_PERMISSION_TRACKING) {
-                    if (getSession() != null) {
+                    if (getSessionNullable() != null) {
                         mTrackingDelegate.add(getSession());
                     }
 
@@ -1574,7 +1591,7 @@ public class NavigationBarWidget extends UIWidget implements WSession.Navigation
             @Override
             public void onAllow() {
                 if (aCategory == SITE_PERMISSION_TRACKING) {
-                    if (getSession() != null) {
+                    if (getSessionNullable() != null) {
                         mTrackingDelegate.remove(getSession());
                     }
 

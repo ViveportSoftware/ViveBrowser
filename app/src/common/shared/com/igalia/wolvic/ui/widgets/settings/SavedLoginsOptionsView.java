@@ -42,7 +42,12 @@ class SavedLoginsOptionsView extends SettingsView {
 
     protected void initialize(Context aContext) {
         mWidgetManager = (WidgetManagerDelegate)aContext;
-        mMainExecutor = mWidgetManager.getServicesProvider().getExecutors().mainThread();
+
+        if(mWidgetManager!=null){
+            mMainExecutor = mWidgetManager.getServicesProvider().getExecutors().mainThread();
+        }else{
+            Log.e(LOGTAG, "Null pointer, SavedLoginsOptionsView::initialize mWidgetManager");
+        }
 
         mAdapter = new LoginsAdapter(getContext(), mCallback, LoginsAdapter.SAVED_LOGINS_LIST);
 
@@ -85,7 +90,11 @@ class SavedLoginsOptionsView extends SettingsView {
 
     @Override
     protected boolean reset() {
-        mWidgetManager.getServicesProvider().getLoginStorage().deleteEverything();
+        if(mWidgetManager!=null){
+            mWidgetManager.getServicesProvider().getLoginStorage().deleteEverything();
+        }else{
+            Log.e(LOGTAG, "Null pointer, SavedLoginsOptionsView::reset mWidgetManager");
+        }
         updateAdapter();
         return true;
     }
@@ -100,21 +109,25 @@ class SavedLoginsOptionsView extends SettingsView {
     private Comparator<Login> mAZOriginComparator = (o1, o2) -> o1.getOrigin().compareTo(o2.getOrigin());
 
     private void updateAdapter() {
-        mWidgetManager.getServicesProvider().getLoginStorage().getLogins().thenAcceptAsync(logins -> {
-            if (logins.isEmpty()) {
-                mBinding.setIsEmpty(true);
+        if(mWidgetManager!=null){
+            mWidgetManager.getServicesProvider().getLoginStorage().getLogins().thenAcceptAsync(logins -> {
+                if (logins.isEmpty()) {
+                    mBinding.setIsEmpty(true);
 
-            } else {
-                mBinding.setIsEmpty(false);
-                logins.sort(mAZOriginComparator);
-                mAdapter.setItems(logins);
-            }
-            mBinding.loginsList.scrollToPosition(0);
+                } else {
+                    mBinding.setIsEmpty(false);
+                    logins.sort(mAZOriginComparator);
+                    mAdapter.setItems(logins);
+                }
+                mBinding.loginsList.scrollToPosition(0);
 
-        }, mMainExecutor).exceptionally(throwable -> {
-            Log.d(LOGTAG, String.valueOf(throwable.getLocalizedMessage()));
-            return null;
-        });
+            }, mMainExecutor).exceptionally(throwable -> {
+                Log.d(LOGTAG, String.valueOf(throwable.getLocalizedMessage()));
+                return null;
+            });
+        }else{
+            Log.e(LOGTAG, "Null pointer, SavedLoginsOptionsView::updateAdapter mWidgetManager");
+        }
     }
 
     @Override
@@ -135,10 +148,14 @@ class SavedLoginsOptionsView extends SettingsView {
 
         @Override
         public void onLoginDeleted(@NonNull View view, @NonNull Login login) {
-            mWidgetManager.getServicesProvider().getLoginStorage().delete(login).thenAcceptAsync(aBoolean -> updateAdapter(), mMainExecutor).exceptionally(throwable -> {
-                Log.d(LOGTAG, String.valueOf(throwable.getLocalizedMessage()));
-                return null;
-            });
+            if(mWidgetManager!=null){
+                mWidgetManager.getServicesProvider().getLoginStorage().delete(login).thenAcceptAsync(aBoolean -> updateAdapter(), mMainExecutor).exceptionally(throwable -> {
+                    Log.d(LOGTAG, String.valueOf(throwable.getLocalizedMessage()));
+                    return null;
+                });
+            }else{
+                Log.e(LOGTAG, "Null pointer, SavedLoginsOptionsView::onLoginDeleted mWidgetManager");
+            }
         }
     };
 }

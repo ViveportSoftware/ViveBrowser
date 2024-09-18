@@ -141,9 +141,6 @@ public class AutoCompletionView extends FrameLayout {
         }
         if (mLineWidth > 0) {
             layoutItems();
-            if (mIsExtended) {
-                layoutExtendedItems();
-            }
         }
     }
 

@@ -82,22 +82,26 @@ public class FilePromptWidget extends PromptWidget implements DownloadsManager.D
                 mAudio.playSound(AudioEngine.Sound.CLICK);
             }
 
-            mPromptDelegate.dismiss();
+            if (mPromptDelegate != null) {
+                mPromptDelegate.dismiss();
+            }
             hide(REMOVE_WIDGET);
         });
 
         mBinding.positiveButton.setOnClickListener(view -> {
-            if (mPromptDelegate instanceof FilePromptDelegate) {
-                Collection<FileUploadItem> selectedItems = mFileUploadAdapter.getSelectedItems();
-                if (selectedItems.size() > 0) {
-                    Uri[] selectedUris = selectedItems.stream().map(FileUploadItem::getUri).toArray(Uri[]::new);
-                    ((FilePromptDelegate) mPromptDelegate).confirm(selectedUris);
+            if (mPromptDelegate != null) {
+                if (mPromptDelegate instanceof FilePromptDelegate) {
+                    Collection<FileUploadItem> selectedItems = mFileUploadAdapter.getSelectedItems();
+                    if (selectedItems.size() > 0) {
+                        Uri[] selectedUris = selectedItems.stream().map(FileUploadItem::getUri).toArray(Uri[]::new);
+                        ((FilePromptDelegate) mPromptDelegate).confirm(selectedUris);
+                    } else {
+                        mPromptDelegate.dismiss();
+                    }
                 } else {
+                    Log.w(LOGTAG, "Prompt delegate is not an instance of FilePromptDelegate");
                     mPromptDelegate.dismiss();
                 }
-            } else {
-                Log.w(LOGTAG, "Prompt delegate is not an instance of FilePromptDelegate");
-                mPromptDelegate.dismiss();
             }
             hide(REMOVE_WIDGET);
         });
@@ -134,7 +138,9 @@ public class FilePromptWidget extends PromptWidget implements DownloadsManager.D
     public void hide(int aHideFlags) {
         super.hide(aHideFlags);
 
-        mDownloadsManager.removeListener(this);
+        if (mDownloadsManager != null) {
+            mDownloadsManager.removeListener(this);
+        }
     }
 
     @Override

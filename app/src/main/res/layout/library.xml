@@ -36,7 +36,9 @@
                         style="@style/libraryButtonMiddleTheme"
                         android:src="@drawable/ic_icon_webapps"
                         android:id="@+id/web_apps"
-                        android:onClick="@{(view) -> delegate != null ? delegate.onButtonClick(view) : void}"/>
+                        android:onClick="@{(view) -> delegate != null ? delegate.onButtonClick(view) : void}"
+                        android:visibility="gone"
+                        />
                     <com.igalia.wolvic.ui.views.UIButton
                         style="@style/libraryButtonMiddleTheme"
                         android:src="@drawable/ic_icon_history"
@@ -51,7 +53,9 @@
                         style="@style/libraryButtonMiddleTheme"
                         android:src="@drawable/ic_icon_addons"
                         android:id="@+id/addons"
-                        android:onClick="@{(view) -> delegate != null ? delegate.onButtonClick(view) : void}"/>
+                        android:onClick="@{(view) -> delegate != null ? delegate.onButtonClick(view) : void}"
+                        android:visibility="gone"
+                        />
                     <com.igalia.wolvic.ui.views.UIButton
                         style="@style/libraryButtonMiddleTheme"
                         android:src="@drawable/ic_icon_dialog_notification"

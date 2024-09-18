@@ -17,6 +17,7 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
 import android.net.Uri;
+import androidx.preference.PreferenceManager;
 import android.text.format.Formatter;
 import android.util.Log;
 import android.util.Pair;
@@ -36,7 +37,6 @@ import androidx.annotation.StringRes;
 import androidx.annotation.UiThread;
 import androidx.core.content.FileProvider;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.preference.PreferenceManager;
 
 import com.igalia.wolvic.R;
 import com.igalia.wolvic.VRBrowserActivity;
@@ -74,8 +74,6 @@ import com.igalia.wolvic.utils.ViewUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URLConnection;
 import java.util.Arrays;
 import java.util.Collections;
@@ -107,13 +105,10 @@ public class WindowWidget extends UIWidget implements SessionChangeListener,
     public static final int DEACTIVATE_CURRENT_SESSION = 0;
     public static final int LEAVE_CURRENT_SESSION_ACTIVE = 1;
 
-    private final float MIN_SCALE = 0.5f;
     private final float DEFAULT_SCALE = 1.0f;
     private final float MAX_SCALE = 3.0f;
 
     private Surface mSurface;
-    private int mSurfaceWidth;
-    private int mSurfaceHeight;
     private int mWidth;
     private int mHeight;
     private int mHandle;
@@ -657,34 +652,13 @@ public class WindowWidget extends UIWidget implements SessionChangeListener,
     }
 
     public float getCurrentScale() {
-        // This method walks back the calculations in getSizeForScale().
-        Pair<Float, Float> minWorldSize = getMinWorldSize();
-        Pair<Float, Float> maxWorldSize = getMaxWorldSize();
-        Pair<Float,Float> mainAxisMinMax;
-        float mainAxisCurrent, mainAxisDefault;
-
-        boolean isHorizontal = getCurrentAspect() >= 1.0;
-        if (isHorizontal) {
-            // horizontal orientation
-            mainAxisCurrent = getWindowWidth() - mBorderWidth * 2;
-            mainAxisDefault = WidgetPlacement.floatDimension(getContext(), R.dimen.window_world_width);
-            mainAxisMinMax = Pair.create(minWorldSize.first, maxWorldSize.first);
-        } else {
-            // vertical orientation
-            mainAxisCurrent = getWindowHeight() - mBorderWidth * 2;
-            mainAxisDefault = WidgetPlacement.floatDimension(getContext(), R.dimen.window_world_width) * getCurrentAspect();
-            mainAxisMinMax = Pair.create(minWorldSize.second, maxWorldSize.second);
-        }
-
-        if (mainAxisCurrent < mainAxisDefault) {
-            return (float) Math.pow(mainAxisCurrent / mainAxisDefault, 2);
-        } else if (mainAxisCurrent == mainAxisDefault) {
-            return DEFAULT_SCALE;
-        } else if (mainAxisCurrent == mainAxisMinMax.second) {
-            return MAX_SCALE;
-        } else {
-            return DEFAULT_SCALE + (mainAxisCurrent - mainAxisDefault) * (MAX_SCALE - DEFAULT_SCALE) / (mainAxisMinMax.second - mainAxisDefault);
-        }
+        float currentAspect = getCurrentAspect();
+        float currentWorldHeight = mWidgetPlacement.worldWidth / currentAspect;
+        float currentArea = mWidgetPlacement.worldWidth * currentWorldHeight;
+        float defaultWidth = WidgetPlacement.floatDimension(getContext(), R.dimen.window_world_width);
+        float defaultHeight = defaultWidth / SettingsStore.getInstance(getContext()).getWindowAspect();
+        float defaultArea = defaultWidth * defaultHeight;
+        return currentArea / defaultArea;
     }
 
     public float getCurrentAspect() {
@@ -770,10 +744,8 @@ public class WindowWidget extends UIWidget implements SessionChangeListener,
                 setWillNotDraw(true);
                 return;
             }
-            mSurfaceWidth = aWidth;
-            mSurfaceHeight = aHeight;
-            mWidth = (int) (aWidth / getPlacement().textureScale);
-            mHeight = (int) (aHeight / getPlacement().textureScale);
+            mWidth = aWidth;
+            mHeight = aHeight;
             mTexture = aTexture;
             aTexture.setDefaultBufferSize(aWidth, aHeight);
             mSurface = new Surface(aTexture);
@@ -787,10 +759,8 @@ public class WindowWidget extends UIWidget implements SessionChangeListener,
             super.setSurface(aSurface, aWidth, aHeight, aFirstDrawCallback);
 
         } else {
-            mSurfaceWidth = aWidth;
-            mSurfaceHeight = aHeight;
-            mWidth = (int) (aWidth / getPlacement().textureScale);
-            mHeight = (int) (aHeight / getPlacement().textureScale);
+            mWidth = aWidth;
+            mHeight = aHeight;
             mSurface = aSurface;
             mFirstDrawCallback = aFirstDrawCallback;
             if (mSurface != null) {
@@ -803,7 +773,7 @@ public class WindowWidget extends UIWidget implements SessionChangeListener,
 
     private void callSurfaceChanged() {
         if (mSession != null && mSurface != null) {
-            mSession.surfaceChanged(mSurface, mBorderWidth, mBorderWidth, mSurfaceWidth - mBorderWidth * 2, mSurfaceHeight - mBorderWidth * 2);
+            mSession.surfaceChanged(mSurface, mBorderWidth, mBorderWidth, mWidth - mBorderWidth * 2, mHeight - mBorderWidth * 2);
             mSession.updateLastUse();
         }
     }
@@ -814,10 +784,8 @@ public class WindowWidget extends UIWidget implements SessionChangeListener,
             super.resizeSurface(aWidth, aHeight);
         }
 
-        mSurfaceWidth = aWidth;
-        mSurfaceHeight = aHeight;
-        mWidth = (int) (aWidth / getPlacement().textureScale);
-        mHeight = (int) (aHeight / getPlacement().textureScale);
+        mWidth = aWidth;
+        mHeight = aHeight;
         if (mTexture != null) {
             mTexture.setDefaultBufferSize(aWidth, aHeight);
         }
@@ -1241,6 +1209,9 @@ public class WindowWidget extends UIWidget implements SessionChangeListener,
             Log.e(LOGTAG, "Attempting to stack same session.");
             return;
         }
+        if (mSession == null) {
+            return;
+        }
         // e.g. tab opened via window.open()
         aSession.updateLastUse();
         Session current = mSession;
@@ -1537,7 +1508,7 @@ public class WindowWidget extends UIWidget implements SessionChangeListener,
         if (mMaxWindowScale != aScale) {
             mMaxWindowScale = aScale;
 
-            Pair<Float, Float> maxSize = getSizeForScale(aScale, getCurrentAspect());
+            Pair<Float, Float> maxSize = getSizeForScale(aScale);
 
             if (mWidgetPlacement.worldWidth > maxSize.first) {
                 float currentAspect = (float) mWidgetPlacement.width / (float) mWidgetPlacement.height;
@@ -1559,68 +1530,34 @@ public class WindowWidget extends UIWidget implements SessionChangeListener,
         return mMaxWindowScale;
     }
 
-    public Pair<Float, Float> getMaxWorldSize() {
-        float defaultWidth = WidgetPlacement.floatDimension(getContext(), R.dimen.window_world_width);
-        float absoluteMaxWidth = SettingsStore.MAX_WINDOW_WIDTH_DEFAULT * WidgetPlacement.worldToDpRatio(getContext());
-        float currentMaxWidth = defaultWidth + (absoluteMaxWidth - defaultWidth) * (getMaxWindowScale() - DEFAULT_SCALE) / (MAX_SCALE - DEFAULT_SCALE);
-        float currentMaxHeight = SettingsStore.MAX_WINDOW_HEIGHT_DEFAULT * WidgetPlacement.worldToDpRatio(getContext());
-        return new Pair<>(currentMaxWidth, currentMaxHeight);
-    }
-
-    public Pair<Float, Float> getMinWorldSize() {
-        float minWidth = WidgetPlacement.floatDimension(getContext(), R.dimen.window_world_width) * MIN_SCALE;
-        float minHeight = minWidth * SettingsStore.WINDOW_HEIGHT_DEFAULT / SettingsStore.WINDOW_WIDTH_DEFAULT;
-        return new Pair<>(minWidth, minHeight);
+    public @NonNull Pair<Float, Float> getSizeForScale(float aScale) {
+        return getSizeForScale(aScale, SettingsStore.getInstance(getContext()).getWindowAspect());
     }
 
     public @NonNull Pair<Float, Float> getSizeForScale(float aScale, float aAspect) {
-        Pair<Float, Float> minWorldSize = getMinWorldSize();
-        Pair<Float, Float> maxWorldSize = getMaxWorldSize();
-        Pair<Float,Float> mainAxisMinMax, crossAxisMinMax;
-        float mainAxisDefault, mainAxisTarget;
-        float mainCrossAspect;
-
-        boolean isHorizontal = aAspect >= 1.0;
-        if (isHorizontal) {
-            // horizontal orientation
-            mainAxisDefault = WidgetPlacement.floatDimension(getContext(), R.dimen.window_world_width);
-            mainAxisMinMax = Pair.create(minWorldSize.first, maxWorldSize.first);
-            crossAxisMinMax = Pair.create(minWorldSize.second, maxWorldSize.second);
-            mainCrossAspect = aAspect;
-        } else {
-            // vertical orientation
-            mainAxisDefault = WidgetPlacement.floatDimension(getContext(), R.dimen.window_world_width) * aAspect;
-            mainAxisMinMax = Pair.create(minWorldSize.second, maxWorldSize.second);
-            crossAxisMinMax = Pair.create(minWorldSize.first, maxWorldSize.first);
-            mainCrossAspect = 1 / aAspect;
-        }
+        final float defaultWorldWidth = WidgetPlacement.floatDimension(getContext(), R.dimen.window_world_width);
+        final float maxWidthWorld = SettingsStore.MAX_WINDOW_WIDTH_DEFAULT * (defaultWorldWidth/SettingsStore.WINDOW_WIDTH_DEFAULT);
+        float targetWidth;
 
         if (aScale < DEFAULT_SCALE) {
-            // Reduce the area of the window according to the desired scale, preserving the aspect ratio.
-            mainAxisTarget = (float) (mainAxisDefault * Math.sqrt(aScale));
+            // Reduce the area of the window according to the desired scale.
+            float worldWidth = WidgetPlacement.floatDimension(getContext(), R.dimen.window_world_width);
+            float worldHeight = worldWidth / aAspect;
+            float targetArea = worldWidth * worldHeight * aScale;
+            targetWidth = (float) Math.sqrt(targetArea * aAspect);
         } else if (aScale == DEFAULT_SCALE) {
-            // Main axis is set to the default size, cross axis will try to preserve the ratio.
-            mainAxisTarget = mainAxisDefault;
-        } else if (aScale >= getMaxWindowScale()) {
-            // Main axis is set to the maximum size, cross axis will try to preserve the ratio.
-            mainAxisTarget = mainAxisMinMax.second;
+            // Default window size.
+            targetWidth = defaultWorldWidth;
+        } else if (aScale >= MAX_SCALE) {
+            // Maximum window size.
+            targetWidth = maxWidthWorld;
         } else {
             // Proportional between the default and maximum sizes.
-            mainAxisTarget = mainAxisDefault + (mainAxisMinMax.second - mainAxisDefault) * (aScale - DEFAULT_SCALE) / (MAX_SCALE - DEFAULT_SCALE);
+            targetWidth = defaultWorldWidth + (maxWidthWorld - defaultWorldWidth) * (aScale - DEFAULT_SCALE) / (MAX_SCALE - DEFAULT_SCALE);
         }
 
-        float crossAxisTarget = mainAxisTarget / mainCrossAspect;
-
-        // Adjust in case crossAxisTarget might have fallen outside of the boundaries.
-        if (crossAxisTarget < crossAxisMinMax.first) {
-            crossAxisTarget = crossAxisMinMax.first;
-            mainAxisTarget = Math.max(mainAxisMinMax.first, Math.min(crossAxisTarget * mainCrossAspect, mainAxisMinMax.second));
-        } else if (crossAxisTarget > crossAxisMinMax.second) {
-            crossAxisTarget = crossAxisMinMax.second;
-            mainAxisTarget = Math.max(mainAxisMinMax.first, Math.min(crossAxisTarget * mainCrossAspect, mainAxisMinMax.second));
-        }
-
-        return isHorizontal ? Pair.create(mainAxisTarget, crossAxisTarget) : Pair.create(crossAxisTarget, mainAxisTarget);
+        float targetHeight = targetWidth / aAspect;
+        return Pair.create(targetWidth, targetHeight);
     }
 
     private int getWindowWidth(float aWorldWidth) {
@@ -1941,14 +1878,6 @@ public class WindowWidget extends UIWidget implements SessionChangeListener,
         mViewModel.setIsLoading(false);
     }
 
-    @Override
-    public void onProgressChange(@NonNull WSession aSession, int progress) {
-        // Pages that are completely loaded from cache don't trigger onFirstContentfulPaint so we
-        // force it here to the get page properly rendered.
-        if (!mAfterFirstPaint)
-            mSession.onFirstContentfulPaint(aSession);
-    }
-
     public void captureImage() {
         mSession.captureBitmap();
     }
@@ -2030,7 +1959,6 @@ public class WindowWidget extends UIWidget implements SessionChangeListener,
                 mWidgetManager.requestPermission(
                         aRequest.uri,
                         android.Manifest.permission.READ_EXTERNAL_STORAGE,
-                        WidgetManagerDelegate.OriginatorType.WEBSITE,
                         new WSession.PermissionDelegate.Callback() {
                             @Override
                             public void grant() {
@@ -2281,16 +2209,9 @@ public class WindowWidget extends UIWidget implements SessionChangeListener,
 
     @Override
     public boolean onHandleExternalRequest(@NonNull String url) {
-        URI uri;
-        try {
-            uri = UrlUtils.parseUri(url);
-            if (uri.getScheme() == null)
-                return false;
-        } catch (URISyntaxException e) {
+        if (UrlUtils.isEngineSupportedScheme(url)) {
             return false;
-        }
-        if (UrlUtils.isEngineSupportedScheme(uri, mSession.getWSession().getUrlUtilsVisitor())) {
-            return false;
+
         } else {
             Intent intent;
             try {

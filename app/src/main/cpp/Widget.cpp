@@ -80,7 +80,6 @@ struct Widget::State {
     cylinder = aCylinder;
 
     UpdateSurface(aTextureWidth, aTextureHeight);
-
     vrb::CreationContextPtr create = render->GetRenderThreadCreationContext();
     transform = vrb::Transform::Create(create);
     transformContainer = vrb::Transform::Create(create);
@@ -122,12 +121,16 @@ struct Widget::State {
       if (quad) {
         quad->SetTexture(surface, aTextureWidth, aTextureHeight);
         quad->SetMaterial(vrb::Color(0.4f, 0.4f, 0.4f), vrb::Color(1.0f, 1.0f, 1.0f), vrb::Color(0.0f, 0.0f, 0.0f), 0.0f);
-        quad->GetRenderState()->SetTintColor(tintColor);
+        vrb::RenderStatePtr ptr =quad->GetRenderState();
+        if(ptr!= nullptr)
+            ptr->SetTintColor(tintColor);
         quad->UpdateProgram(customFragment);
       } else if (cylinder) {
         cylinder->SetTexture(surface, aTextureWidth, aTextureHeight);
         cylinder->SetMaterial(vrb::Color(0.4f, 0.4f, 0.4f), vrb::Color(1.0f, 1.0f, 1.0f), vrb::Color(0.0f, 0.0f, 0.0f), 0.0f);
-        cylinder->GetRenderState()->SetTintColor(tintColor);
+        vrb::RenderStatePtr ptr =cylinder->GetRenderState();
+        if(ptr!= nullptr)
+            ptr->SetTintColor(tintColor);
         cylinder->UpdateProgram(customFragment);
       }
     }
@@ -231,18 +234,25 @@ WidgetPtr
 Widget::Create(vrb::RenderContextPtr& aContext, const int aHandle, const WidgetPlacementPtr& aPlacement,
                const int32_t aTextureWidth, const int32_t aTextureHeight,const QuadPtr& aQuad) {
   WidgetPtr result = std::make_shared<vrb::ConcreteClass<Widget, Widget::State> >(aContext);
-  aQuad->GetWorldMinAndMax(result->m.min, result->m.max);
-  result->m.Initialize(aHandle, aPlacement, aTextureWidth, aTextureHeight, aQuad, nullptr);
-  return result;
+  if(result!= nullptr){
+      aQuad->GetWorldMinAndMax(result->m.min, result->m.max);
+      result->m.Initialize(aHandle, aPlacement, aTextureWidth, aTextureHeight, aQuad, nullptr);
+  }
+  else{
+      VRB_ERROR("Null pointer, file: %s, function: %s, line: %d",__FILE__, __FUNCTION__, __LINE__);
+  }
+    return result;
 }
 
 WidgetPtr
 Widget::Create(vrb::RenderContextPtr& aContext, const int aHandle, const WidgetPlacementPtr& aPlacement, const float aWorldWidth, const float aWorldHeight,
                const int32_t aTextureWidth, const int32_t aTextureHeight, const CylinderPtr& aCylinder) {
   WidgetPtr result = std::make_shared<vrb::ConcreteClass<Widget, Widget::State> >(aContext);
-  result->m.min = vrb::Vector(-aWorldWidth * 0.5f, -aWorldHeight * 0.5f, 0.0f);
-  result->m.max = vrb::Vector(aWorldWidth *0.5f, aWorldHeight * 0.5f, 0.0f);
-  result->m.Initialize(aHandle, aPlacement, aTextureWidth, aTextureHeight, nullptr, aCylinder);
+  if(result!= nullptr){
+      result->m.min = vrb::Vector(-aWorldWidth * 0.5f, -aWorldHeight * 0.5f, 0.0f);
+      result->m.max = vrb::Vector(aWorldWidth *0.5f, aWorldHeight * 0.5f, 0.0f);
+      result->m.Initialize(aHandle, aPlacement, aTextureWidth, aTextureHeight, nullptr, aCylinder);
+  }
   return result;
 }
 
@@ -643,16 +653,20 @@ Widget::SetProxifyLayer(const bool aValue) {
     vrb::TextureSurfacePtr proxySurface = vrb::TextureSurface::Create(render, m.name);
     if (m.cylinder) {
       CylinderPtr proxy = Cylinder::Create(create, *m.cylinder);
-      proxy->SetCylinderTheta(m.cylinder->GetCylinderTheta());
-      proxy->SetTexture(proxySurface, textureWidth, textureHeight);
-      proxy->SetTransform(m.cylinder->GetTransformNode()->GetTransform());
-      proxy->UpdateProgram("");
-      m.layerProxy->AddNode(proxy->GetRoot());
+      if(proxy!= nullptr){
+          proxy->SetCylinderTheta(m.cylinder->GetCylinderTheta());
+          proxy->SetTexture(proxySurface, textureWidth, textureHeight);
+          proxy->SetTransform(m.cylinder->GetTransformNode()->GetTransform());
+          proxy->UpdateProgram("");
+          m.layerProxy->AddNode(proxy->GetRoot());
+      }
     } else {
       QuadPtr proxy = Quad::Create(create, *m.quad);
-      proxy->SetTexture(proxySurface, textureWidth, textureHeight);
-      proxy->UpdateProgram("");
-      m.layerProxy->AddNode(proxy->GetRoot());
+      if(proxy!= nullptr){
+          proxy->SetTexture(proxySurface, textureWidth, textureHeight);
+          proxy->UpdateProgram("");
+          m.layerProxy->AddNode(proxy->GetRoot());
+      }
     }
   }
 
@@ -670,16 +684,8 @@ void Widget::LayoutQuadWithCylinderParent(const WidgetPtr& aParent) {
     // The widget is flat and the parent is a cylinder.
     // Adjust the widget rotation based on the parent cylinder
     // e.g. rotate the tray based on the parent cylindrical window.
-    auto x = m.transform->GetTransform().GetTranslation().x();
-    if (x != 0.0) {
-      auto radius = m.placement->cylinderMapRadius;
-      auto angle = M_PI_2 - atan(x/radius);
-      vrb::Matrix transform = vrb::Matrix::Rotation(vrb::Vector(-cosf(angle), 0.0f, sinf(angle)));
-      transform.PostMultiplyInPlace(vrb::Matrix::Translation(vrb::Vector(-x, 0.0f, 0.0f)));
-      m.transformContainer->SetTransform(transform);
-    } else {
-      m.transformContainer->SetTransform(vrb::Matrix::Identity());
-    }
+    const float radius = cylinder->GetTransformNode()->GetTransform().GetScale().x();
+    m.AdjustCylinderRotation(radius);
   } else {
     // The widget is flat and the parent is flat. Copy the parent transformContainer matrix (used for cylinder rotations)
     // because the parent widget can still be recursively rotated based on a parent cylinder.

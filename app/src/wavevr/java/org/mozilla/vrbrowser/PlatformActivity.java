@@ -13,7 +13,6 @@ import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.view.KeyEvent;
 
-import com.igalia.wolvic.ui.widgets.WidgetManagerDelegate;
 import com.igalia.wolvic.utils.SystemUtils;
 
 public class PlatformActivity extends VRActivity {
@@ -40,8 +39,6 @@ public class PlatformActivity extends VRActivity {
         return null;
     }
 
-    protected String getEyeTrackingPermissionString() { return null; }
-
     public PlatformActivity() {}
 
     @Override
@@ -62,8 +59,6 @@ public class PlatformActivity extends VRActivity {
         // as the UI standard on this platform is to require the use of
         // the system menu to exit applications.
     }
-
-    public final PlatformActivityPlugin createPlatformPlugin(WidgetManagerDelegate delegate) { return null; }
 
     protected native void queueRunnable(Runnable aRunnable);
     protected native void initializeJava(AssetManager aAssets);

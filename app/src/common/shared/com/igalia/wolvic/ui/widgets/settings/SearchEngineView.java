@@ -51,7 +51,8 @@ public class SearchEngineView extends SettingsView implements SharedPreferences.
 
         // Header
         mBinding.headerLayout.setBackClickListener(view -> {
-            mDelegate.showView(SettingViewType.PRIVACY);
+            if(mDelegate!=null)
+                mDelegate.showView(SettingViewType.PRIVACY);
         });
 
         // Footer

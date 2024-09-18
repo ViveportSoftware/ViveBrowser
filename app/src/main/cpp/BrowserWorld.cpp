@@ -55,7 +55,6 @@
 #include "vrb/Transform.h"
 #include "vrb/VertexArray.h"
 #include "vrb/Vector.h"
-#include "tiny_gltf.h"
 
 #include <android/asset_manager_jni.h>
 #include <array>
@@ -218,10 +217,19 @@ struct BrowserWorld::State {
 
   State() : paused(true), glInitialized(false), modelsLoaded(false), env(nullptr), cylinderDensity(0.0f), nearClip(0.1f),
             farClip(300.0f), activity(nullptr), windowsInitialized(false), exitImmersiveRequested(false), loaderDelay(0) {
-    context = RenderContext::Create();
-    create = context->GetRenderThreadCreationContext();
-    loader = ModelLoaderAndroid::Create(context);
-    context->GetProgramFactory()->SetLoaderThread(loader);
+      try {
+          context = RenderContext::Create();
+          if (context) {
+              create = context->GetRenderThreadCreationContext();
+              loader = ModelLoaderAndroid::Create(context);
+              context->GetProgramFactory()->SetLoaderThread(loader);
+          } else {
+              VRB_ERROR("Failed to create RenderContextPtr in BrowserWorld::State.");
+          }
+      } catch (std::exception &e) {
+          VRB_ERROR("Exception: %s", e.what());
+      }
+
     rootOpaque = Transform::Create(create);
     rootTransparent = Transform::Create(create);
     rootController = Group::Create(create);
@@ -239,8 +247,16 @@ struct BrowserWorld::State {
     blitter = ExternalBlitter::Create(create);
     fadeAnimation = FadeAnimation::Create(create);
     splashAnimation = SplashAnimation::Create(create);
-    monitor = PerformanceMonitor::Create(create);
-    monitor->AddPerformanceMonitorObserver(std::make_shared<PerformanceObserver>());
+      try {
+          monitor = PerformanceMonitor::Create(create);
+          if(monitor){
+              monitor->AddPerformanceMonitorObserver(std::make_shared<PerformanceObserver>());
+          }else{
+              VRB_ERROR("Failed to create monitor in BrowserWorld::State.");
+          }
+      } catch (std::exception &e) {
+          VRB_ERROR("Exception: %s", e.what());
+      }
     wasInGazeMode = false;
     webXRInterstialState = WebXRInterstialState::FORCED;
     widgetsYaw = vrb::Matrix::Identity();
@@ -508,10 +524,6 @@ BrowserWorld::State::UpdateControllers(bool& aRelayoutWidgets) {
       }
     }
 
-    // Used by some runtimes to perform visual optimizations
-    if (hitDistance < farClip)
-        device->SetHitDistance(hitDistance);
-
     if (controller.focused && (!hitWidget || !hitWidget->IsResizing()) && resizingWidget) {
       resizingWidget->HoverExitResize();
       resizingWidget.reset();
@@ -538,8 +550,10 @@ BrowserWorld::State::UpdateControllers(bool& aRelayoutWidgets) {
     if (controller.beamToggle)
       controller.beamToggle->ToggleAll(controller.hasAim);
 
+#if !defined(WAVEVR)
     if (controller.modelToggle)
       controller.modelToggle->ToggleAll(controller.mode == ControllerMode::Device);
+#endif //!defined(WAVEVR)
 
     device->UpdateHandMesh(controller.index, controller.handJointTransforms, controllers->GetRoot(),
                            controller.enabled && controller.mode == ControllerMode::Hand, controller.leftHanded);
@@ -705,6 +719,8 @@ BrowserWorld::State::ClearWebXRControllerData() {
         controller.selectActionStopFrameId = 0;
         controller.squeezeActionStartFrameId = 0;
         controller.squeezeActionStopFrameId = 0;
+        controller.scrollDeltaX = 0.0;
+        controller.scrollDeltaY = 0.0;
         for (int i = 0; i < controller.numAxes; ++i) {
             controller.immersiveAxes[i] = 0;
         }
@@ -967,17 +983,9 @@ BrowserWorld::InitializeJava(JNIEnv* aEnv, jobject& aActivity, jobject& aAssetMa
   m.loader->InitializeJava(aEnv, aActivity, aAssetManager);
   VRBrowser::SetDeviceType(m.device->GetDeviceType());
 
-  tinygltf::asset_manager = AAssetManager_fromJava(m.env, aAssetManager);
-
-  m.device->OnControllersCreated([this](){
-    m.controllers->InitializeBeam();
-    m.controllers->SetPointerColor(vrb::Color(VRBrowser::GetPointerColor()));
-    m.rootController->AddNode(m.controllers->GetRoot());
-  });
 
   if (!m.modelsLoaded) {
     m.device->OnControllersReady([this](){
-      bool loadStarted = false;
       const int32_t modelCount = m.device->GetControllerModelCount();
       for (int32_t index = 0; index < modelCount; index++) {
         vrb::LoadTask task = m.device->GetControllerModelTask(index);
@@ -987,18 +995,19 @@ BrowserWorld::InitializeJava(JNIEnv* aEnv, jobject& aActivity, jobject& aAssetMa
           // we need to do the model load right when the controller becomes available)
           m.controllers->SetControllerModelTask(index, task);
           m.controllers->LoadControllerModel(index);
-          loadStarted = true;
         } else {
           const std::string fileName = m.device->GetControllerModelName(index);
           if (!fileName.empty()) {
             m.controllers->LoadControllerModel(index, m.loader, fileName);
-            loadStarted = true;
           }
         }
       }
-      if (m.device->IsControllerLightEnabled())
+      m.controllers->InitializeBeam();
+      m.controllers->SetPointerColor(vrb::Color(VRBrowser::GetPointerColor()));
+      m.rootController->AddNode(m.controllers->GetRoot());
+      if (m.device->IsControllerLightEnabled()) {
         m.rootController->AddLight(m.light);
-      return loadStarted;
+      }
     });
 
     VRBrowser::CheckTogglePassthrough();
@@ -1012,6 +1021,10 @@ BrowserWorld::InitializeJava(JNIEnv* aEnv, jobject& aActivity, jobject& aAssetMa
     m.modelsLoaded = true;
   }
   SetThreadName("VRB Render");
+
+  // This must be initialized before using Gecko. Gecko could fail to detect XR runtimes if
+  // we try to load some URL before setting the external context for example.
+  VRBrowser::RegisterExternalContext((jlong)m.externalVR->GetSharedData());
 }
 
 void
@@ -1145,8 +1158,8 @@ BrowserWorld::StartFrame() {
 #if defined(STORE_BUILD)
   ProcessOVRPlatformEvents();
 #endif
-  m.device->ProcessEvents();
 #endif
+  m.device->ProcessEvents();
   m.context->Update();
   m.externalVR->PullBrowserState();
   m.externalVR->SetHapticState(m.controllers);
@@ -1173,10 +1186,6 @@ BrowserWorld::StartFrame() {
     if (relayoutWidgets) {
       UpdateVisibleWidgets();
     }
-    if (m.device->IsPassthroughEnabled() && m.device->usesPassthroughCompositorLayer() && !m.layerPassthrough) {
-      m.layerPassthrough = m.device->CreateLayerPassthrough();
-      m.rootPassthroughParent->AddNode(VRLayerNode::Create(m.create, m.layerPassthrough));
-    }
     TickWorld();
     m.externalVR->PushSystemState();
   }
@@ -1202,13 +1211,13 @@ BrowserWorld::EndFrame() {
 }
 
 void
-BrowserWorld::TriggerHapticFeedback(const float aPulseDuration, const float aPulseIntensity, const int aControllerId) {
+BrowserWorld::TriggerHapticFeedback(const float aPulseDuration, const float aPulseIntensity) {
   if (!m.controllers) {
     return;
   }
 
   for (Controller& controller: m.controllers->GetControllers()) {
-    if (controller.index != aControllerId || !m.controllers->GetHapticCount(controller.index)) {
+    if (!controller.focused || !m.controllers->GetHapticCount(controller.index)) {
       continue;
     }
     m.controllers->SetHapticFeedback(controller.index, controller.inputFrameID + 1, aPulseDuration, aPulseIntensity);
@@ -1235,9 +1244,13 @@ void
 BrowserWorld::TogglePassthrough() {
   ASSERT_ON_RENDER_THREAD();
   m.device->TogglePassthroughEnabled();
-  // No need to create the passthrough layer here. StartFrame() will do it on demand.
-  if (!m.device->IsPassthroughEnabled()) {
-    resetPassthroughLayerIfNeeded();
+  if (m.device->IsPassthroughEnabled()) {
+    if (m.device->usesPassthroughCompositorLayer() && !m.layerPassthrough) {
+      m.layerPassthrough = m.device->CreateLayerPassthrough();
+      m.rootPassthroughParent->AddNode(VRLayerNode::Create(m.create, m.layerPassthrough));
+    }
+  } else {
+    // Make environment changes during pass through mode on to take effect
     UpdateEnvironment();
   }
 }
@@ -1698,11 +1711,6 @@ BrowserWorld::SetIsServo(const bool aIsServo) {
   m.externalVR->SetSourceBrowser(aIsServo ? ExternalVR::VRBrowserType::Servo : ExternalVR::VRBrowserType::Gecko);
 }
 
-void
-BrowserWorld::SetPointerMode(crow::DeviceDelegate::PointerMode pointerMode) {
-  m.device->SetPointerMode(pointerMode);
-}
-
 JNIEnv*
 BrowserWorld::GetJNIEnv() const {
   ASSERT_ON_RENDER_THREAD(nullptr);
@@ -1711,11 +1719,21 @@ BrowserWorld::GetJNIEnv() const {
 
 BrowserWorldPtr
 BrowserWorld::Create() {
-  BrowserWorldPtr result = std::make_shared<vrb::ConcreteClass<BrowserWorld, BrowserWorld::State> >();
-  result->m.self = result;
-  result->m.surfaceObserver = std::make_shared<SurfaceObserver>(result->m.self);
-  result->m.context->GetSurfaceTextureFactory()->AddGlobalObserver(result->m.surfaceObserver);
-  return result;
+    try{
+        BrowserWorldPtr result = std::make_shared<vrb::ConcreteClass<BrowserWorld, BrowserWorld::State> >();
+        if(result){
+            result->m.self = result;
+            result->m.surfaceObserver = std::make_shared<SurfaceObserver>(result->m.self);
+            result->m.context->GetSurfaceTextureFactory()->AddGlobalObserver(result->m.surfaceObserver);
+            // This must be initialized before using Gecko. Gecko could fail to detect XR runtimes if
+            // we try to load some URL before setting the external context for example.
+            //  VRBrowser::RegisterExternalContext((jlong)result->m.externalVR->GetSharedData());
+        }
+        return result;
+    } catch (std::exception &e) {
+        VRB_ERROR("Exception: %s", e.what());
+        return nullptr;
+    }
 }
 
 BrowserWorld::BrowserWorld(State& aState) : m(aState) {}
@@ -1814,10 +1832,6 @@ BrowserWorld::TickImmersive() {
   m.externalVR->SetCompositorEnabled(false);
   m.device->SetRenderMode(device::RenderMode::Immersive);
 
-  // We must clear the passthrough layer when entering immersive mode even if we are not adding it
-  // to the list of layers to render. See https://github.com/Igalia/wolvic/issues/1351
-  resetPassthroughLayerIfNeeded();
-
   const bool supportsFrameAhead = m.device->SupportsFramePrediction(DeviceDelegate::FramePrediction::ONE_FRAME_AHEAD);
   auto framePrediction = DeviceDelegate::FramePrediction::ONE_FRAME_AHEAD;
   if (!supportsFrameAhead || (m.externalVR->GetVRState() != ExternalVR::VRState::Rendering) || m.webXRInterstialState != WebXRInterstialState::HIDDEN) {
@@ -1885,17 +1899,6 @@ BrowserWorld::TickImmersive() {
 }
 
 void
-BrowserWorld::resetPassthroughLayerIfNeeded() {
-  if (!m.layerPassthrough)
-    return;
-
-  ASSERT(m.rootPassthroughParent->GetNodeCount() == 1);
-  m.rootPassthroughParent->RemoveNode(*m.rootPassthroughParent->GetNode(0));
-  m.device->DeleteLayer(m.layerPassthrough);
-  m.layerPassthrough = nullptr;
-}
-
-void
 BrowserWorld::DrawImmersive(device::Eye aEye) {
   ASSERT(m.device->ShouldRender());
   m.device->BindEye(aEye);
@@ -1938,7 +1941,6 @@ BrowserWorld::TickSplashAnimation() {
     DrawSplashAnimation(aEye);
   };
   if (animationFinished) {
-    RecenterUIYaw(YawTarget::ALL);
     m.frameEndHandler = [=]() {
       if (m.splashAnimation && m.splashAnimation->GetLayer()) {
         m.device->DeleteLayer(m.splashAnimation->GetLayer());
@@ -1983,7 +1985,7 @@ BrowserWorld::CreateSkyBox(const std::string& aBasePath, const std::string& aExt
   // meantime.
   const std::string extension = aExtension.empty() ? ".png" : aExtension;
   GLenum glFormat = GL_SRGB8_ALPHA8;
-#elif OCULUSVR
+#elif defined(OPENXR) && defined(OCULUSVR)
   const std::string extension = aExtension.empty() ? ".ktx" : aExtension;
   GLenum glFormat = extension == ".ktx" ? GL_COMPRESSED_SRGB8_ETC2 : GL_SRGB8_ALPHA8;
 #else
@@ -2082,8 +2084,8 @@ JNI_METHOD(void, setWorldBrightnessNative)
 }
 
 JNI_METHOD(void, triggerHapticFeedbackNative)
-(JNIEnv*, jobject, jfloat aPulseDuration, jfloat aPulseIntensity, jint aControllerId) {
-  crow::BrowserWorld::Instance().TriggerHapticFeedback(aPulseDuration, aPulseIntensity, aControllerId);
+(JNIEnv*, jobject, jfloat aPulseDuration, jfloat aPulseIntensity) {
+  crow::BrowserWorld::Instance().TriggerHapticFeedback(aPulseDuration, aPulseIntensity);
 }
 
 JNI_METHOD(void, setTemporaryFilePath)
@@ -2202,21 +2204,6 @@ JNI_METHOD(void, setIsServo)
   crow::BrowserWorld::Instance().SetIsServo(aIsServo);
 }
 
-JNI_METHOD(void, setPointerModeNative)
-(JNIEnv*, jobject, jint nativePointerMode) {
-    crow::DeviceDelegate::PointerMode pointerMode;
-    switch (nativePointerMode) {
-        case 0:
-            pointerMode = crow::DeviceDelegate::PointerMode::TRACKED_POINTER;
-            break;
-        case 1:
-            pointerMode = crow::DeviceDelegate::PointerMode::TRACKED_EYE;
-            break;
-        default:
-            ASSERT(false);
-            break;
-    }
-    crow::BrowserWorld::Instance().SetPointerMode(pointerMode);
-}
+
 
 } // extern "C"

@@ -2726,19 +2726,7 @@ public interface WSession {
     @UiThread
     void getClientToScreenMatrix(@NonNull final Matrix matrix);
 
-    interface UrlUtilsVisitor {
-        @AnyThread
-        boolean isSupportedScheme(@NonNull String scheme);
-    }
 
-    /**
-     * Get the URL utils visitor for this session.
-     *
-     * @return UrlUtilsVisitor instance.
-     */
-    @AnyThread
-    @NonNull
-    UrlUtilsVisitor getUrlUtilsVisitor();
 
     /**
      * Get a matrix for transforming from page coordinates to screen coordinates. The page coordinates
@@ -2781,15 +2769,6 @@ public interface WSession {
     WTextInput getTextInput();
 
 
-    @AnyThread
-    void pageZoomIn();
-
-    @AnyThread
-    void pageZoomOut();
-
-    @AnyThread
-    int getCurrentZoomLevel();
-
     /**
      * Get the PanZoomController instance for this session.
      *
@@ -2824,6 +2803,16 @@ public interface WSession {
      */
     @UiThread
     void setPermissionDelegate(final @Nullable WSession.PermissionDelegate delegate);
+
+    /**
+     * Reset permissionDelegate to PermissionManagerBridge for fixing issue that permission request maybe call a delegate who is close. (workaround)
+     *
+     */
+    @UiThread
+    default void resetPermissionDelegate(){
+
+    }
+
 
     /**
      * Get the content callback handler.

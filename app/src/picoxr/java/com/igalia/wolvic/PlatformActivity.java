@@ -9,8 +9,6 @@ import android.app.NativeActivity;
 import android.content.Intent;
 import android.view.KeyEvent;
 
-import com.igalia.wolvic.ui.widgets.WidgetManagerDelegate;
-
 public class PlatformActivity extends NativeActivity {
 
     public static boolean filterPermission(final String aPermission) {
@@ -28,14 +26,10 @@ public class PlatformActivity extends NativeActivity {
         return true;
     }
 
-    public final PlatformActivityPlugin createPlatformPlugin(WidgetManagerDelegate delegate) { return null; }
-
     protected Intent getStoreIntent() {
         // Dummy implementation.
         return null;
     }
-
-    protected String getEyeTrackingPermissionString() { return "com.picovr.permission.EYE_TRACKING"; }
 
     @Override
     public void onBackPressed() {

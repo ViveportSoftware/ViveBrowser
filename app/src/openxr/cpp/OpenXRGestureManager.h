@@ -25,7 +25,8 @@ virtual XrPosef aimPose(const XrTime predictedDisplayTime, const OpenXRHandFlags
 virtual bool systemGestureDetected(const vrb::Matrix& palm, const vrb::Matrix& head) const = 0;
 virtual void getTriggerPinchStatusAndFactor(const HandJointsArray& handJoints, bool& isPinching, double& pinchFactor);
 
-static bool handFacesHead(const vrb::Matrix& hand, const vrb::Matrix& head);
+protected:
+bool palmFacesHead(const vrb::Matrix& palm, const vrb::Matrix& head) const;
 
 private:
 double mSmoothIndexThumbDistance { 0 };
@@ -36,7 +37,7 @@ private:
 void populateNextStructureIfNeeded(XrHandJointLocationsEXT& handJointLocations) override;
 bool hasAim() const override;
 XrPosef aimPose(const XrTime predictedDisplayTime, const OpenXRHandFlags, const vrb::Matrix& head) const override;
-bool systemGestureDetected(const vrb::Matrix& hand, const vrb::Matrix& head) const override;
+bool systemGestureDetected(const vrb::Matrix& palm, const vrb::Matrix& head) const override;
 void getTriggerPinchStatusAndFactor(const HandJointsArray& handJoints, bool& isPinching, double& pinchFactor) override;
 
 XrHandTrackingAimStateFB mFBAimState;

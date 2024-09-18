@@ -54,6 +54,11 @@ class LoginEditOptionsView extends SettingsView {
 
         // Inflate this data binding layout
         mBinding = DataBindingUtil.inflate(inflater, R.layout.options_edit_login, this, true);
+        if(mBinding==null)
+        {
+            Log.e(LOGTAG, "Null pointer, LoginEditOptionsView::updateUI: mBinding");
+            return;
+        }
 
         mScrollbar = mBinding.scrollbar;
 
@@ -119,7 +124,8 @@ class LoginEditOptionsView extends SettingsView {
     }
 
     private OnClickListener mSiteButtonListener = (view) -> {
-        mDelegate.exitWholeSettings();
+        if (mDelegate != null)
+            mDelegate.exitWholeSettings();
         mWidgetManager.openNewTabForeground(mLogin.getOrigin());
     };
 

@@ -77,6 +77,9 @@ class FxAAccountOptionsView extends SettingsView {
         mBinding.headerLayout.setBackClickListener(view -> onDismiss());
 
         mAccounts = ((VRBrowserApplication)getContext().getApplicationContext()).getAccounts();
+        if (mAccounts == null) {
+            throw new NullPointerException("mAccounts can not be null.");
+        }
 
         mUIThreadExecutor = ((VRBrowserApplication)getContext().getApplicationContext()).getExecutors().mainThread();
 

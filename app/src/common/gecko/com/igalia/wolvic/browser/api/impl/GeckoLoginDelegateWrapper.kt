@@ -1,6 +1,5 @@
 package com.igalia.wolvic.browser.api.impl
 
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -65,10 +64,8 @@ class GeckoAutocompleteDelegateWrapper(private val storageDelegate: GeckoLoginSt
             .build()
 
         @JvmStatic
-        fun create(storage: Lazy<LoginsStorage>, loginAutofillEnabled: Boolean) : GeckoAutocompleteDelegateWrapper {
-            return GeckoAutocompleteDelegateWrapper(GeckoLoginStorageDelegate(
-                loginStorage = storage,
-                isLoginAutofillEnabled = { loginAutofillEnabled }))
+        fun create(storage: Lazy<LoginsStorage>) : GeckoAutocompleteDelegateWrapper {
+            return GeckoAutocompleteDelegateWrapper(GeckoLoginStorageDelegate(storage))
         }
     }
 }

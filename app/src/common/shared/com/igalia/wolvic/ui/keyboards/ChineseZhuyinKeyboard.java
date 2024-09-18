@@ -140,7 +140,11 @@ public class ChineseZhuyinKeyboard extends BaseKeyboard {
         String code = aText;
         String transCode = "";
         while (code.length() > 0) {
-            transCode += mKeyCodes.get(code.substring(0, 1)).code;
+            Words words = mKeyCodes.get(code.substring(0, 1));
+            if (words == null) {
+                break;
+            }
+            transCode += words.code;
             code = code.replaceFirst(code.substring(0, 1), "");
         }
         return transCode;
@@ -340,74 +344,72 @@ public class ChineseZhuyinKeyboard extends BaseKeyboard {
     }
 
     private void loadKeymapTable(String aKey) {
-        SQLiteDatabase reader = SQLiteDatabase.openDatabase(mWordDB.getPath(), null, SQLiteDatabase.OPEN_READONLY);
-        String transCode = aKey;
-        int limit = 50;
-        boolean exactQuery = false;
-        final char firstKeyCodeInTones = '4'; // the first keycode of tones[˙, ˊ, ˋ, ˉ].
+        try(SQLiteDatabase reader = SQLiteDatabase.openDatabase(mWordDB.getPath(), null, SQLiteDatabase.OPEN_READONLY)) {
+            String transCode = aKey;
+            int limit = 50;
+            boolean exactQuery = false;
+            final char firstKeyCodeInTones = '4'; // the first keycode of tones[˙, ˊ, ˋ, ˉ].
 
-        // Finding if aKey contains tones.
-        if (transCode.charAt(transCode.length() - 2) == firstKeyCodeInTones) {
-            exactQuery = true;
-        }
-        // We didn't store the first tone in DB.
-        transCode = transCode.replaceAll("44", "");
-
-        sqliteArgs[0] = transCode;
-        sqliteArgs[1] = "" + limit;
-
-        // Query word exactly
-        try (Cursor cursor = reader.rawQuery("SELECT code, word FROM words_" + transCode.substring(0, 2)
-                + " WHERE code = ? GROUP BY word ORDER BY frequency DESC LIMIT ?", sqliteArgs)) {
-            if (cursor.moveToFirst()) {
-                do {
-                    String key = getString(cursor, 0);
-                    String displays = getString(cursor, 1);
-                    addToKeyMap(aKey, key, displays);
-                    --limit;
-                } while (limit >= 0 && cursor.moveToNext());
+            // Finding if aKey contains tones.
+            if (transCode.charAt(transCode.length() - 2) == firstKeyCodeInTones) {
+                exactQuery = true;
             }
-        } catch (Exception e) {
-            Log.e(LOGTAG, "Querying Zhuyin db failed");
-        }
+            // We didn't store the first tone in DB.
+            transCode = transCode.replaceAll("44", "");
 
-        if (!exactQuery) {
-            // Query word roughly
-            roughSqliteArgs[0] = transCode + "%";
-            roughSqliteArgs[1] = "" + transCode;
-            roughSqliteArgs[2] = "" + limit;
+            sqliteArgs[0] = transCode;
+            sqliteArgs[1] = "" + limit;
+
+            // Query word exactly
             try (Cursor cursor = reader.rawQuery("SELECT code, word FROM words_" + transCode.substring(0, 2)
-                    + " WHERE code like ? and code!= ? GROUP BY word ORDER BY frequency DESC LIMIT ?", roughSqliteArgs)) {
+                    + " WHERE code = ? GROUP BY word ORDER BY frequency DESC LIMIT ?", sqliteArgs)) {
                 if (cursor.moveToFirst()) {
                     do {
                         String key = getString(cursor, 0);
-                        String word = getString(cursor, 1);
-                        addToKeyMap(aKey, key, word);
+                        String displays = getString(cursor, 1);
+                        addToKeyMap(aKey, key, displays);
                         --limit;
                     } while (limit >= 0 && cursor.moveToNext());
                 }
-            } catch (Exception e) {
-                Log.e(LOGTAG, "Querying Zhuyin db failed");
             }
-        }
 
-        if (limit <= 0) {
-            return;
-        }
+            if (!exactQuery) {
+                // Query word roughly
+                roughSqliteArgs[0] = transCode + "%";
+                roughSqliteArgs[1] = "" + transCode;
+                roughSqliteArgs[2] = "" + limit;
+                try (Cursor cursor = reader.rawQuery("SELECT code, word FROM words_" + transCode.substring(0, 2)
+                        + " WHERE code like ? and code!= ? GROUP BY word ORDER BY frequency DESC LIMIT ?", roughSqliteArgs)) {
+                    if (cursor.moveToFirst()) {
+                        do {
+                            String key = getString(cursor, 0);
+                            String word = getString(cursor, 1);
+                            addToKeyMap(aKey, key, word);
+                            --limit;
+                        } while (limit >= 0 && cursor.moveToNext());
+                    }
+                }
+            }
 
-        // Query phrase
-        reader = SQLiteDatabase.openDatabase(mPhraseDB.getPath(), null, SQLiteDatabase.OPEN_READONLY);
-        sqliteArgs[0] = transCode + '%';
-        sqliteArgs[1] = "" + limit;
-        try (Cursor cursor = reader.rawQuery("SELECT code, word FROM phrases_" + transCode.substring(0, 2)
-                + " WHERE code like ? GROUP BY word ORDER BY frequency DESC LIMIT ?", sqliteArgs)) {
-            if (cursor.moveToFirst()) {
-                do {
-                    String key = getString(cursor, 0);
-                    String word = getString(cursor, 1);
-                    addToKeyMap(aKey, key, word);
-                    --limit;
-                } while (limit >= 0 && cursor.moveToNext());
+            if (limit <= 0) {
+                return;
+            }
+
+            // Query phrase
+            try(SQLiteDatabase reader1 = SQLiteDatabase.openDatabase(mPhraseDB.getPath(), null, SQLiteDatabase.OPEN_READONLY)) {
+                sqliteArgs[0] = transCode + '%';
+                sqliteArgs[1] = "" + limit;
+                try (Cursor cursor = reader1.rawQuery("SELECT code, word FROM phrases_" + transCode.substring(0, 2)
+                        + " WHERE code like ? GROUP BY word ORDER BY frequency DESC LIMIT ?", sqliteArgs)) {
+                    if (cursor.moveToFirst()) {
+                        do {
+                            String key = getString(cursor, 0);
+                            String word = getString(cursor, 1);
+                            addToKeyMap(aKey, key, word);
+                            --limit;
+                        } while (limit >= 0 && cursor.moveToNext());
+                    }
+                }
             }
         } catch (Exception e) {
             Log.e(LOGTAG, "Querying Zhuyin db failed");

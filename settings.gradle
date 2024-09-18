@@ -20,6 +20,9 @@ if (userProperties != null) {
     }
 }
 
+// Set default chromium AAR path
+gradle.ext.set("localProperties.chromium_aar", file('chromium_aar').toString())
+
 Properties localProperties = null;
 if (file('local.properties').canRead()) {
     localProperties = new Properties()

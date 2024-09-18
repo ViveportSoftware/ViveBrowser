@@ -310,6 +310,11 @@ public class SessionStore implements
     public void setActiveSession(Session aSession) {
         if (aSession != null) {
             aSession.setActive(true);
+
+            WSession tempSession = aSession.getWSession();
+            if(tempSession != null){
+                tempSession.resetPermissionDelegate();
+            }
         }
         mActiveSession = aSession;
     }
@@ -457,7 +462,13 @@ public class SessionStore implements
         }
     }
 
+
+
     public void clearCache(long clearFlags) {
+        if (mRuntime == null) {
+            return;
+        }
+
         LinkedList<Session> activeSession = new LinkedList<>();
         for (Session session: mSessions) {
             if (session.getWSession() != null) {
@@ -465,12 +476,34 @@ public class SessionStore implements
                 activeSession.add(session);
             }
         }
-        mRuntime.clearData(clearFlags).then(aVoid -> {
-            for (Session session: activeSession) {
-                session.recreateSession();
-            }
-            return null;
-        });
+
+        if(BuildConfig.FLAVOR_backend.equals("chromium")){
+            mRuntime.clearData(clearFlags, () -> {
+                        Log.d(LOGTAG, "clear data for chromium");
+                        for (Session session: activeSession) {
+                            if(session == null)
+                                continue;
+                            boolean inactive = !session.getSessionState().isActive();
+                            session.recreateSession();
+
+                            if (inactive) {
+                                WSession wSession = session.getSessionState().mSession;
+                                if (wSession != null) {
+                                    wSession.setActive(false);
+                                }
+                            }
+                        }
+                    }).then(aVoid -> null);
+        }
+        else{
+            mRuntime.clearData(clearFlags
+            ).then(aVoid -> {
+                for (Session session: activeSession) {
+                    session.recreateSession();
+                }
+                return null;
+            });
+        }
     }
 
     // Permission Delegate

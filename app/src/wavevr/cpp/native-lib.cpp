@@ -19,6 +19,7 @@
 #include "vrb/Logger.h"
 #include "vrb/GLError.h"
 #include "vrb/RunnableQueue.h"
+#include "Context.h"
 
 using namespace crow;
 
@@ -29,6 +30,24 @@ static DeviceDelegateWaveVRPtr sDevice;
 #define JNI_METHOD(return_type, method_name) \
   JNIEXPORT return_type JNICALL              \
     Java_com_igalia_wolvic_PlatformActivity_##method_name
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+bool WVR_EXPORT WVR_EnableCustomizedATW(bool enable);
+
+bool WVR_EXPORT WVR_EnableAdaptiveSubmitFrameSync(bool enable);
+
+void WVR_EXPORT WVR_BlockingIfSubmitDurationTimeout(bool enable);
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 extern "C" {
 
@@ -63,6 +82,10 @@ int main(int argc, char *argv[]) {
       {WVR_InputId_Alias1_Touchpad, WVR_InputType_Button | WVR_InputType_Touch | WVR_InputType_Analog, WVR_AnalogType_2D},
       {WVR_InputId_Alias1_Trigger, WVR_InputType_Button , WVR_AnalogType_None},
       {WVR_InputId_Alias1_Bumper, WVR_InputType_Button , WVR_AnalogType_None},
+      {WVR_InputId_Alias1_A, WVR_InputType_Button , WVR_AnalogType_None},
+      {WVR_InputId_Alias1_B, WVR_InputType_Button , WVR_AnalogType_None},
+      {WVR_InputId_Alias1_X, WVR_InputType_Button , WVR_AnalogType_None},
+      {WVR_InputId_Alias1_Y, WVR_InputType_Button , WVR_AnalogType_None},
       {WVR_InputId_Alias1_Grip, WVR_InputType_Button , WVR_AnalogType_None}
   };
   WVR_SetInputRequest(WVR_DeviceType_HMD, inputIdAndTypes, sizeof(inputIdAndTypes) / sizeof(*inputIdAndTypes));
@@ -74,9 +97,13 @@ int main(int argc, char *argv[]) {
   param = { WVR_GraphicsApiType_OpenGL, WVR_RenderConfig_Default };
 
   WVR_RenderError pError = WVR_RenderInit(&param);
+  WVR_EnableCustomizedATW(true);
   if (pError != WVR_RenderError_None) {
     VRB_LOG("Present init failed - Error[%d]", pError);
   }
+
+  WVR_BlockingIfSubmitDurationTimeout(false);
+
   sDevice->InitializeRender();
   VRB_GL_CHECK(glEnable(GL_DEPTH_TEST));
   VRB_GL_CHECK(glEnable(GL_CULL_FACE));
@@ -114,12 +141,14 @@ JNI_METHOD(void, initializeJava)
 }
 
 jint JNI_OnLoad(JavaVM* aVm, void*) {
+  Context *ctx = new Context(aVm);
   sQueue = vrb::RunnableQueue::Create(aVm);
   WVR_RegisterMain(main);
   return JNI_VERSION_1_6;
 }
 
 void JNI_OnUnload(JavaVM* vm, void* reserved) {
+  delete Context::getInstance();
   sQueue = nullptr;
 }
 

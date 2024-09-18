@@ -13,7 +13,6 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.hardware.display.DisplayManager;
 import android.os.Bundle;
-import android.os.Build;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Surface;
@@ -33,11 +32,8 @@ import com.huawei.hms.push.RemoteMessage;
 import com.huawei.hvr.LibUpdateClient;
 import com.igalia.wolvic.browser.PermissionDelegate;
 import com.igalia.wolvic.browser.SettingsStore;
-import com.igalia.wolvic.geolocation.HVRLocationManager;
-import com.igalia.wolvic.messaging.WolvicHmsMessageService;
 import com.igalia.wolvic.speech.SpeechRecognizer;
 import com.igalia.wolvic.speech.SpeechServices;
-import com.igalia.wolvic.telemetry.HVRTelemetry;
 import com.igalia.wolvic.telemetry.TelemetryService;
 import com.igalia.wolvic.ui.adapters.SystemNotification;
 import com.igalia.wolvic.ui.widgets.SystemNotificationsManager;
@@ -78,8 +74,6 @@ public abstract class PlatformActivity extends FragmentActivity implements Surfa
         return null;
     }
 
-    protected String getEyeTrackingPermissionString() { return null; }
-
     private final SharedPreferences.OnSharedPreferenceChangeListener mOnSharedPreferenceChangeListener =
             (sharedPreferences, key) -> {
                 if (key.equals(getString(R.string.settings_key_privacy_policy_accepted))) {
@@ -114,8 +108,6 @@ public abstract class PlatformActivity extends FragmentActivity implements Surfa
         }
         mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         mPrefs.registerOnSharedPreferenceChangeListener(mOnSharedPreferenceChangeListener);
-
-        initializeAGConnect();
 
         DisplayManager manager = (DisplayManager) getSystemService(Context.DISPLAY_SERVICE);
         if (manager.getDisplays().length < 2) {
@@ -238,6 +230,8 @@ public abstract class PlatformActivity extends FragmentActivity implements Surfa
         mView.getHolder().addCallback(this);
         new LibUpdateClient(this).runUpdate();
         nativeOnCreate();
+
+        initializeAGConnect();
     }
 
     private void initializeAGConnect() {
@@ -252,9 +246,8 @@ public abstract class PlatformActivity extends FragmentActivity implements Surfa
             try {
                 SpeechRecognizer speechRecognizer = SpeechServices.getInstance(this, speechService);
                 ((VRBrowserApplication) getApplicationContext()).setSpeechRecognizer(speechRecognizer);
-            } catch (Exception e) {
-                Log.e(TAG, "Exception creating the speech recognizer: " + e);
-                ((VRBrowserApplication) getApplicationContext()).setSpeechRecognizer(null);
+            } catch (ReflectiveOperationException e) {
+                e.printStackTrace();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -271,11 +264,7 @@ public abstract class PlatformActivity extends FragmentActivity implements Surfa
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(WolvicHmsMessageService.MESSAGE_RECEIVED_ACTION);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            registerReceiver(mHmsMessageBroadcastReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
-        } else {
-            registerReceiver(mHmsMessageBroadcastReceiver, filter);
-        }
+        registerReceiver(mHmsMessageBroadcastReceiver, filter);
 
         setHmsMessageServiceAutoInit(true);
         getHmsMessageServiceToken();
@@ -381,8 +370,6 @@ public abstract class PlatformActivity extends FragmentActivity implements Surfa
         Log.i(TAG, "PlatformActivity surfaceDestroyed");
         queueRunnable(this::nativeOnSurfaceDestroyed);
     }
-
-    public final PlatformActivityPlugin createPlatformPlugin(WidgetManagerDelegate delegate) { return null; }
 
     protected boolean platformExit() {
         return false;

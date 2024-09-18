@@ -39,7 +39,7 @@ public class ChoicePromptWidget extends PromptWidget {
     private ListView mList;
     private Button mCloseButton;
     private Button mOkButton;
-    private ChoiceWrapper[] mListItems;
+    private ChoiceWrapper[] mListItems = new ChoiceWrapper[]{};
     private ChoiceAdapter mAdapter;
 
     public ChoicePromptWidget(Context aContext) {
@@ -70,7 +70,9 @@ public class ChoicePromptWidget extends PromptWidget {
                 mAudio.playSound(AudioEngine.Sound.CLICK);
             }
 
-            mAdapter.notifyDataSetChanged();
+            if (mAdapter != null) {
+                mAdapter.notifyDataSetChanged();
+            }
 
             postDelayed(() -> {
                 ChoiceWrapper selectedItem = mListItems[position];
@@ -129,8 +131,6 @@ public class ChoicePromptWidget extends PromptWidget {
 
             hide(REMOVE_WIDGET);
         });
-
-        mListItems = new ChoiceWrapper[]{};
     }
 
     @Override
