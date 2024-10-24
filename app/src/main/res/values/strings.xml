@@ -2532,6 +2532,7 @@ the Select` button. When clicked it closes all the previously selected tabs -->
     <string name="legal_license_subtitle_2">Third-Party License</string>
     <string name="legal_license_section_2">
         <![CDATA[
+
     This Work contains the materials provided by the following third parties, please refer to its copyright and license notice under each third-party license.
     <br>1.&emsp;Commons-math 3:3.6.1
     <br>&emsp;&emsp;Licensed under the Apache License, Version 2.0 (the “License”);
@@ -2560,6 +2561,8 @@ the Select` button. When clicked it closes all the previously selected tabs -->
     <br>&emsp;&emsp;Licensed under Mozilla Public License, version 2 (the “License”).
     <br>&emsp;&emsp; You may obtain a copy of the License at:
     <br>&emsp;&emsp;<a href="https://www.mozilla.org/en-US/MPL/2.0/">https://www.mozilla.org/en-US/MPL/2.0/</a>
+    <br><br>6.&emsp;VIVE Browser Engine
+    <br>&emsp;&emsp;<a href="file:///android_res/raw/chromium_licenses.html">Chromium 3rd Party Licenses</a>
     <br><br><br><br>
         ]]>
     </string>

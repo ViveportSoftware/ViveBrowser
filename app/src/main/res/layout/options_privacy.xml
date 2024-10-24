@@ -109,6 +109,7 @@
                     android:id="@+id/useSystemRootCASwitch"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:visibility="gone"
                     app:description="@string/security_options_use_system_root_ca" />
 
                 <com.igalia.wolvic.ui.views.settings.SwitchSetting
