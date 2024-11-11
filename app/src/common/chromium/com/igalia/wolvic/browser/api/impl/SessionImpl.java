@@ -2,6 +2,7 @@ package com.igalia.wolvic.browser.api.impl;
 
 import android.graphics.Matrix;
 import android.util.Base64;
+import android.util.Log;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -20,6 +21,9 @@ import com.igalia.wolvic.browser.api.WSessionSettings;
 import com.igalia.wolvic.browser.api.WSessionState;
 import com.igalia.wolvic.browser.api.WTextInput;
 import com.igalia.wolvic.browser.api.WWebResponse;
+
+import org.chromium.content_public.browser.NavigationEntry;
+import org.chromium.content_public.browser.NavigationHistory;
 import org.chromium.content_public.browser.WebContents;
 import org.chromium.wolvic.DownloadManagerBridge;
 import org.chromium.wolvic.PasswordForm;
@@ -32,6 +36,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SessionImpl implements WSession, DownloadManagerBridge.Delegate {
+    private static final String TAG = "TabImpl";
     RuntimeImpl mRuntime;
     SettingsImpl mSettings;
     ContentDelegate mContentDelegate;
@@ -48,22 +53,42 @@ public class SessionImpl implements WSession, DownloadManagerBridge.Delegate {
     PanZoomControllerImpl mPanZoomController;
     private PermissionManagerBridge.Delegate mChromiumPermissionDelegate;
     private String mInitialUri;
+    private int mInitialFlag = WSession.LOAD_FLAGS_NONE;
     private WebContents mWebContents;
     private TabImpl mTab;
     private ReadyCallback mReadyCallback = new ReadyCallback();
 
+    private NavigationHistory mRestoreData = null;
+
     private class ReadyCallback implements RuntimeImpl.Callback {
         @Override
         public void onReady() {
+            Log.d("VIVEBROWSER", "onReady");
             assert mTab == null;
             mTab = new TabImpl(
                     mRuntime.getContainerView().getContext(), SessionImpl.this, mWebContents);
-            if (mInitialUri != null) {
-                assert mWebContents == null;
-                mTab.loadUrl(mInitialUri);
-                mInitialUri = null;
+
+
+
+            if(mTab != null  && mRestoreData != null){
+                Log.d("VIVEBROWSER", "onReady setNavigationHistory");
+                mTab.restore(mRestoreData.getCurrentEntryIndex(), mRestoreData);
+
+                mRestoreData = null;
             }
+            if (mInitialUri != null) {
+                Log.d("VIVEBROWSER", "onReady mInitialUri : " + mInitialUri + " flag: " + mInitialFlag);
+                assert mWebContents == null;
+
+                mTab.loadUrl(mInitialUri, mInitialFlag);
+                mInitialUri = null;
+                mInitialFlag = WSession.LOAD_FLAGS_NONE;
+            }
+
             mWebContents = null;
+
+
+
         }
     }
 
@@ -80,11 +105,14 @@ public class SessionImpl implements WSession, DownloadManagerBridge.Delegate {
 
     @Override
     public void loadUri(@NonNull String uri, int flags) {
+        Log.d("VIVEBROWSER", "loadUri uri: " + uri + "flags: " + flags);
         if (!isOpen()) {
             // If the session isn't open yet, save the uri and load when the session is ready.
             mInitialUri = uri;
+            mInitialFlag = flags;
         } else {
-            mTab.loadUrl(uri);
+            Log.d("VIVEBROWSER", "mTab.loadUrl(uri) mTab: " + mTab.getContentView().getWebContents().getLastCommittedUrl().getSpec());
+            mTab.loadUrl(uri, flags);
         }
     }
 
@@ -217,8 +245,20 @@ public class SessionImpl implements WSession, DownloadManagerBridge.Delegate {
 
     @Override
     public void restoreState(@NonNull WSessionState state) {
-
+        NavigationHistory entries = ((SessionStateImpl)state).getmNavigationHistory();
+        if(entries != null){
+            Log.d("VIVEBROWSER","restoreState mTab != null restoreState");
+            if(mTab != null){
+                mTab.restore(entries.getCurrentEntryIndex(), entries);
+            }
+            else{
+                Log.d("VIVEBROWSER","restoreState mTab == null wait for onReady");
+                //如果是app啟動時retore data，mTab會還沒被初始化，所以無法進行restore
+                mRestoreData = entries;
+            }
+        }
     }
+
 
     @Override
     public void getClientToSurfaceMatrix(@NonNull Matrix matrix) {
@@ -462,6 +502,6 @@ public class SessionImpl implements WSession, DownloadManagerBridge.Delegate {
     }
 
     public WResult<Boolean> checkLoginIfAlreadySaved(PasswordForm form) {
-       return mRuntime.getUpLoginPersistence().checkLoginIfAlreadySaved(form);
+        return mRuntime.getUpLoginPersistence().checkLoginIfAlreadySaved(form);
     }
 }

@@ -112,6 +112,8 @@ struct DeviceDelegateOpenXR::State {
   XrEnvironmentBlendMode passthroughBlendMode { XR_ENVIRONMENT_BLEND_MODE_MAX_ENUM };
   HandMeshRendererPtr handMeshRenderer = nullptr;
   HandMeshPropertiesMSFTPtr handMeshProperties;
+  std::vector<XrEnvironmentBlendMode> blendModes;
+  XrEnvironmentBlendMode immersiveBlendMode { XR_ENVIRONMENT_BLEND_MODE_OPAQUE };
 
   bool IsPositionTrackingSupported() {
       CHECK(system != XR_NULL_SYSTEM_ID);
@@ -343,7 +345,7 @@ struct DeviceDelegateOpenXR::State {
       CHECK_XRCMD(xrEnumerateEnvironmentBlendModes(instance, system, viewConfigurationType, 0, &count, nullptr));
       CHECK(count > 0);
 
-      std::vector<XrEnvironmentBlendMode> blendModes(count);
+      blendModes.resize(count);
       CHECK_XRCMD(xrEnumerateEnvironmentBlendModes(instance, system, viewConfigurationType, count, &count, blendModes.data()));
       VRB_LOG("OpenXR: %d supported blend mode%c", count, count > 1 ? 's' : ' ');
       for (const auto& blendMode : blendModes)
@@ -370,6 +372,27 @@ struct DeviceDelegateOpenXR::State {
     immersiveDisplay->SetDeviceName(systemProperties.systemName);
     immersiveDisplay->SetEyeResolution(viewConfig.front().recommendedImageRectWidth, viewConfig.front().recommendedImageRectHeight);
     immersiveDisplay->SetSittingToStandingTransform(vrb::Matrix::Translation(kAverageHeight));
+    auto toDeviceBlendModes = [](std::vector<XrEnvironmentBlendMode> aOpenXRBlendModes) {
+        std::vector<device::BlendMode> deviceBlendModes;
+        for (const auto& blendMode : aOpenXRBlendModes) {
+            switch (blendMode) {
+            case XR_ENVIRONMENT_BLEND_MODE_OPAQUE:
+                deviceBlendModes.push_back(device::BlendMode::Opaque);
+                break;
+            case XR_ENVIRONMENT_BLEND_MODE_ADDITIVE:
+                deviceBlendModes.push_back(device::BlendMode::Additive);
+                break;
+            case XR_ENVIRONMENT_BLEND_MODE_ALPHA_BLEND:
+                deviceBlendModes.push_back(device::BlendMode::AlphaBlend);
+                break;
+            default:
+                VRB_ERROR("Unsupported blend mode %d", blendMode);
+                break;
+            }
+        }
+        return deviceBlendModes;
+    };
+    immersiveDisplay->SetBlendModes(toDeviceBlendModes(blendModes));
     immersiveDisplay->CompleteEnumeration();
   }
 
@@ -1135,6 +1158,16 @@ DeviceDelegateOpenXR::BindEye(const device::Eye aWhich) {
     layer->SetCurrentEye(aWhich);
 }
 
+bool
+DeviceDelegateOpenXR::IsPassthroughEnabled() const {
+    if (m.renderMode == device::RenderMode::StandAlone)
+        return mIsPassthroughEnabled;
+
+    return (m.immersiveBlendMode != XR_ENVIRONMENT_BLEND_MODE_OPAQUE) ||
+            (m.passthroughStrategy->usesCompositorLayer() &&
+             mImmersiveXrSessionType == DeviceDelegate::ImmersiveXRSessionType::AR);
+};
+
 void
 DeviceDelegateOpenXR::EndFrame(const FrameEndMode aEndMode) {
   if (!m.vrReady) {
@@ -1154,8 +1187,16 @@ DeviceDelegateOpenXR::EndFrame(const FrameEndMode aEndMode) {
   std::vector<const XrCompositionLayerBaseHeader*>& layers = m.frameEndLayers;
   layers.clear();
 
+  bool shouldUsePassthrough = IsPassthroughEnabled();
+  auto pickEnvironmentBlendMode = [this, shouldUsePassthrough](device::RenderMode renderMode) {
+      if (renderMode == device::RenderMode::Immersive)
+          return shouldUsePassthrough ? m.immersiveBlendMode : m.defaultBlendMode;
+
+      return mIsPassthroughEnabled ? m.passthroughBlendMode : m.defaultBlendMode;
+  };
+
   // This limit is valid at least for Pico and Meta.
-  auto submitEndFrame = [&layers, displayTime, session = m.session, blendMode = mIsPassthroughEnabled ? m.passthroughBlendMode : m.defaultBlendMode]() {
+  auto submitEndFrame = [&layers, displayTime, session = m.session, blendMode = pickEnvironmentBlendMode(m.renderMode), distance = m.furthestHitDistance]() {
       static int i = 0;
       XrFrameEndInfo frameEndInfo{XR_TYPE_FRAME_END_INFO};
       frameEndInfo.displayTime = displayTime;
@@ -1176,7 +1217,7 @@ DeviceDelegateOpenXR::EndFrame(const FrameEndMode aEndMode) {
   }
 
   // Add skybox or passthrough layer
-  if (mIsPassthroughEnabled) {
+  if (shouldUsePassthrough) {
       if (m.passthroughLayer && m.passthroughLayer->IsDrawRequested() && m.IsPassthroughLayerReady()) {
           m.passthroughLayer->Update(m.localSpace, predictedPose, XR_NULL_HANDLE);
           layers.push_back(reinterpret_cast<XrCompositionLayerBaseHeader*>(&m.passthroughLayer->xrCompositionLayer));
@@ -1596,5 +1637,9 @@ DeviceDelegateOpenXR::ShouldExitRenderLoop() const
 DeviceDelegateOpenXR::DeviceDelegateOpenXR(State &aState) : m(aState) {}
 
 DeviceDelegateOpenXR::~DeviceDelegateOpenXR() { m.Shutdown(); }
+
+void DeviceDelegateOpenXR::SetImmersiveBlendMode(device::BlendMode mode) {
+  m.immersiveBlendMode = toOpenXRBlendMode(mode);
+}
 
 } // namespace crow

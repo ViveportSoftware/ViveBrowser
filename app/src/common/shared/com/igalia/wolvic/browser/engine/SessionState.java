@@ -1,5 +1,7 @@
 package com.igalia.wolvic.browser.engine;
 
+import android.util.Log;
+
 import androidx.annotation.IntDef;
 
 import com.google.gson.Gson;
@@ -91,7 +93,7 @@ public class SessionState {
         @Override
         public WSessionState read(JsonReader in) {
             try {
-                String session = JsonParser.parseReader(in).getAsString();
+                String session = JsonParser.parseReader(in).toString();
                 return WSessionState.fromJson(session);
 
             } catch (Exception e) {

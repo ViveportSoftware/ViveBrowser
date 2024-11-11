@@ -398,6 +398,9 @@ public class SessionImpl implements WSession {
         if ((flags & WSession.LOAD_FLAGS_BYPASS_CLASSIFIER) != 0) {
             result |= GeckoSession.LOAD_FLAGS_BYPASS_CLASSIFIER;
         }
+        if ((flags & WSession.LOAD_FLAGS_REPLACE_HISTORY) != 0) {
+            result |= GeckoSession.LOAD_FLAGS_REPLACE_HISTORY;
+        }
         return result;
     }
 }

@@ -203,6 +203,9 @@ namespace crow {
     WVR_StopHandTracking(WVR_HandTrackerType_Natural);
   }
 
+  void HandManager::assignJointRadius(HandTypeEnum handType, int jointId){
+    mJointRadii[handType][jointId] = .01f;
+  }
 
   void HandManager::calculateHandMatrices() {
     WVR_Result result = WVR_GetHandTrackingData(
@@ -221,6 +224,11 @@ namespace crow {
         handPose = &mHandPoseData.right;
       }
 
+      if(mJointTransforms[handType].size() != handJoints->jointCount){
+        mJointTransforms[handType].resize(handJoints->jointCount);
+        mJointRadii[handType].resize(handJoints->jointCount);
+      }
+
       //1. Pose data.
       if (handJoints->isValidPose) {
         for (uint32_t jCount = 0; jCount < handJoints->jointCount; ++jCount) {
@@ -228,6 +236,9 @@ namespace crow {
           uint64_t validBits = mHandTrackerInfo.jointValidFlagArray[jCount];
           WVR_HandJointData_tToMatrix4(handJoints->joints[jCount],
                                        validBits, mJointMats[handType][jID]);
+
+          assignJointRadius((HandTypeEnum) handType, jID);
+          mJointTransforms[handType][jID]=(vrb::Matrix().FromColumnMajor(mJointMats[handType][jID].get()));
         }
 
         if (mIsPrintedSkeErrLog[handType]) {
@@ -352,6 +363,11 @@ namespace crow {
       }
 
       memcpy(skeletonMatrices + jointID * 16, modelSkeletonPoses[jointID].get(), blockSize);
+
+      if(controller.type == WVR_DeviceType_NaturalHand_Right)
+        delegate->SetHandJointLocations(controller.index, mJointTransforms[Hand_Right], mJointRadii[Hand_Right]);
+      else if(controller.type == WVR_DeviceType_NaturalHand_Left)
+        delegate->SetHandJointLocations(controller.index, mJointTransforms[Hand_Left], mJointRadii[Hand_Left]);
     }
 
     if (renderMode == device::RenderMode::StandAlone) {

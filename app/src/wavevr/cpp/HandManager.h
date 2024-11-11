@@ -119,5 +119,9 @@ namespace crow {
     EGLContext mEGLInitContext;
     EGLDisplay mEGLInitDisplay;
 
+    std::vector<vrb::Matrix> mJointTransforms[Hand_MaxNumber];
+    std::vector<float> mJointRadii[Hand_MaxNumber];
+    void assignJointRadius(HandTypeEnum handType, int jointID);
+
   };
 }

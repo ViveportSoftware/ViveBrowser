@@ -1,5 +1,7 @@
 package com.igalia.wolvic.browser.api.impl;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -7,7 +9,9 @@ import com.igalia.wolvic.browser.api.WSession;
 import com.igalia.wolvic.browser.api.WWebRequestError;
 
 import org.chromium.content_public.browser.LifecycleState;
+import org.chromium.content_public.browser.LoadCommittedDetails;
 import org.chromium.content_public.browser.NavigationHandle;
+import org.chromium.content_public.browser.NavigationHistory;
 import org.chromium.content_public.browser.WebContents;
 import org.chromium.content_public.browser.WebContentsObserver;
 import org.chromium.url.GURL;
@@ -175,4 +179,21 @@ public class TabWebContentsObserver extends WebContentsObserver {
     public void hasEffectivelyFullscreenVideoChange(boolean isFullscreen) {
         mSession.getTab().onMediaFullscreen(isFullscreen);
     }
+
+    @Override
+    public void navigationEntryCommitted(LoadCommittedDetails details) {
+    }
+
+    @Override
+    public void navigationEntriesChanged() {
+        Log.w("VIVEBROWSER", "navigationEntriesChanged");
+        NavigationHistory navigationHistory = mWebContents.get().getNavigationController().getNavigationHistory();
+
+        if(navigationHistory != null){
+            if(mSession.getProgressDelegate() != null){
+                mSession.getProgressDelegate().onSessionStateChange(mSession, new SessionStateImpl(navigationHistory));
+            }
+        }
+    }
+
 }

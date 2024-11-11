@@ -56,6 +56,7 @@
 -keep class com.igalia.wolvic.utils.Environment {*;} # Keep state clases used by gson.
 -keep class com.google.gson.reflect.TypeToken { *; }    # Keep this specific gson class
 -keep class * extends com.google.gson.reflect.TypeToken # and its descendants.
+-keep class org.chromium.content_public.browser.* {*;} # Keep state clases used by gson.
 
 # --------------------------------------------------------------------
 # Keep classes from HTC SDK
@@ -64,9 +65,10 @@
 -keep class com.qualcomm.** {*;}
 
 # --------------------------------------------------------------------
-# App Services
+# AppServices & Components
 # --------------------------------------------------------------------
 -keep class mozilla.appservices.** {*;}
+-keep class mozilla.components.concept.engine.manifest.** {*;}
 
 # --------------------------------------------------------------------
 # Android ViewModel
@@ -77,6 +79,8 @@
 -keep class * extends androidx.lifecycle.AndroidViewModel {
     <init>(android.app.Application);
 }
+
+
 
 # ---------------------------------------------------------------------
 #HVR SDK

@@ -405,9 +405,11 @@ struct DeviceDelegateWaveVR::State {
 
         if (controller.interactionMode == WVR_InteractionMode_Hand) {
           if(handManager != nullptr) {
+            delegate->SetMode(controller.index, ControllerMode::Hand);
             handManager->updateHandState(controller);
           }
         } else {
+          delegate->SetMode(controller.index, ControllerMode::Device);
           controllerManager->updateControllerState(controller);
         }
       }
@@ -803,6 +805,14 @@ DeviceDelegateWaveVR::StartFrame(const FramePrediction aPrediction) {
       }
     }
   mShouldRender = true;
+  if (mImmersiveXrSessionType == DeviceDelegate::ImmersiveXRSessionType::AR && !WVR_IsPassthroughOverlayVisible()) {
+    WVR_ShowPassthroughUnderlay(true);
+    WVR_SetPassthroughOverlayAlpha(1.0f);
+  }
+  else if (mImmersiveXrSessionType == DeviceDelegate::ImmersiveXRSessionType::VR && WVR_IsPassthroughOverlayVisible()) {
+    WVR_ShowPassthroughOverlay(false);
+  }
+ 
 }
 
 WVR_DevicePosePair_t *DeviceDelegateWaveVR::findDevicePair(WVR_DeviceType type) {

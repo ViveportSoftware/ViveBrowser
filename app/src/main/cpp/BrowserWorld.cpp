@@ -1168,10 +1168,18 @@ BrowserWorld::StartFrame() {
   m.controllers->SetFrameId(frameId);
   m.CheckExitImmersive();
 
+  auto createPassthroughLayerIfNeeded = [this]() {
+      if (!m.device->IsPassthroughEnabled() || !m.device->usesPassthroughCompositorLayer() || m.layerPassthrough)
+          return;
+      m.layerPassthrough = m.device->CreateLayerPassthrough();
+      m.rootPassthroughParent->AddNode(VRLayerNode::Create(m.create, m.layerPassthrough));
+  };
+
   if (m.splashAnimation) {
     TickSplashAnimation();
   } else if (m.externalVR->IsPresenting()) {
     m.CheckBackButton();
+    createPassthroughLayerIfNeeded();
     TickImmersive();
   } else {
     bool relayoutWidgets = false;
@@ -1186,6 +1194,7 @@ BrowserWorld::StartFrame() {
     if (relayoutWidgets) {
       UpdateVisibleWidgets();
     }
+    createPassthroughLayerIfNeeded();
     TickWorld();
     m.externalVR->PushSystemState();
   }
@@ -1831,6 +1840,8 @@ void
 BrowserWorld::TickImmersive() {
   m.externalVR->SetCompositorEnabled(false);
   m.device->SetRenderMode(device::RenderMode::Immersive);
+  m.device->SetImmersiveBlendMode(m.externalVR->GetImmersiveBlendMode());
+  m.device->SetImmersiveXRSessionType(m.externalVR->GetImmersiveXRSessionType());
 
   const bool supportsFrameAhead = m.device->SupportsFramePrediction(DeviceDelegate::FramePrediction::ONE_FRAME_AHEAD);
   auto framePrediction = DeviceDelegate::FramePrediction::ONE_FRAME_AHEAD;
