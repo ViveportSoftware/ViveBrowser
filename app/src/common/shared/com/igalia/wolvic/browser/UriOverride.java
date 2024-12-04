@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.Log;
 
+import com.igalia.wolvic.browser.api.WSessionSettings;
 import com.igalia.wolvic.utils.SystemUtils;
 
 import org.json.JSONException;
@@ -137,7 +138,7 @@ public class UriOverride {
             while (iter.hasNext()) {
                 String key = iter.next();
                 try {
-                    String value = json.getString(key);
+                    String value = amendUserAgentForWave(json.getString(key));
                     Log.d(LOGTAG, mOverrideName + " override: " + key + " -> " + value);
                     mOverrideMap.put(key, value);
                 } catch (JSONException e) {
@@ -149,4 +150,10 @@ public class UriOverride {
             Log.e(LOGTAG, "Failed to import " + mOverrideName + " override JSON data: " + e.getMessage());
         }
     }
+
+    private String amendUserAgentForWave(String origin) {
+        int mode = origin.contains("X11") ? WSessionSettings.USER_AGENT_MODE_DESKTOP:WSessionSettings.USER_AGENT_MODE_VR;
+        return WSessionSettings.getDefaultUserAgent(mode);
+    }
+
 }

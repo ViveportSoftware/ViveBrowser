@@ -23,7 +23,7 @@ class ControllerDelegate;
 typedef std::shared_ptr<ControllerDelegate> ControllerDelegatePtr;
 
 enum class ControllerMode { None, Device, Hand };
-
+enum class BeamColor { Normal, Press };
 
 
 // Follows XR_EXT_hand_tracking' XrHandJointEXT enum
@@ -53,6 +53,7 @@ public:
   virtual void CreateController(const int32_t aControllerIndex, const int32_t aModelIndex, const std::string& aImmersiveName, const vrb::Matrix& aBeamTransform) = 0;
   virtual void SetImmersiveBeamTransform(const int32_t aControllerIndex, const vrb::Matrix& aImmersiveBeamTransform) = 0;
   virtual void SetBeamTransform(const int32_t aControllerIndex, const vrb::Matrix& aBeamTransform) = 0;
+  virtual void SetBeamColor(const int32_t aControllerIndex, const BeamColor beamColor) = 0;
   virtual void SetFocused(const int32_t aControllerIndex) = 0;
   virtual void DestroyController(const int32_t aControllerIndex) = 0;
   virtual uint32_t GetControllerCount() = 0;

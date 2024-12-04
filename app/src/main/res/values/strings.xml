@@ -1802,6 +1802,10 @@
          tray. The button it labels, when pressed, opens the Settings panel. -->
     <string name="settings_tooltip">Settings</string>
 
+    <string name="passthrough_tooltip">Show passthrough</string>
+
+    <string name="passthrough_disable_tooltip">Show VR</string>
+
     <!-- This string is for the tooltip that appears when the user hovers over the 'New Window' icon in the
          tray. The button it labels, when pressed, opens a new browser window. -->
     <string name="new_window_tooltip">Open a New Window</string>

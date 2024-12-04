@@ -217,12 +217,27 @@
 
             <com.igalia.wolvic.ui.views.UIButton
                 android:id="@+id/settingsButton"
-                style="@style/trayButtonEndTheme"
+                style="@style/trayButtonMiddleTheme"
                 android:tooltipText="@string/settings_tooltip"
                 app:tooltipDensity="@dimen/tray_tooltip_density"
                 app:tooltipPosition="bottom"
                 app:tooltipLayout="@layout/tooltip_tray"
-                android:src="@drawable/ic_icon_tray_settings_v3"/>
+                android:src="@drawable/ic_icon_tray_settings_v3"
+                app:regularModeBackground="@{traymodel.passthroughSupported ? @drawable/tray_background_unchecked_middle : @drawable/tray_background_unchecked_middleend}"
+                />
+
+            <com.igalia.wolvic.ui.views.UIButton
+                android:id="@+id/passthroughButton"
+                style="@style/trayButtonEndTheme"
+                android:tooltipText= "@{viewmodel.isPassthroughEnable ? @string/passthrough_disable_tooltip : @string/passthrough_tooltip}"
+                app:tooltipDensity="@dimen/tray_tooltip_density"
+                app:tooltipPosition="bottom"
+                app:tooltipLayout="@layout/tooltip_tray"
+                android:src="@{viewmodel.isPassthroughEnable ? @drawable/icon_passthrough_disable : @drawable/icon_passthrough}"
+                app:visibleGone="@{traymodel.passthroughSupported}"
+                />
+
+
         </LinearLayout>
 
     </RelativeLayout>

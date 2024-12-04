@@ -114,6 +114,9 @@ public class SettingsImpl implements WSessionSettings {
 
     @Override
     public void setUserAgentOverride(@Nullable String value) {
+        if (value == null) {
+            value = getDefaultUserAgent(getUserAgentMode());
+        }
         mSessionSettings.setUserAgentOverride(value);
     }
 
@@ -124,7 +127,8 @@ public class SettingsImpl implements WSessionSettings {
     }
 
     public String getDefaultUserAgent(int mode) {
-        return mSessionSettings.getDefaultUserAgent(toUserAgentMode(mode)) + " Wolvic/" + BuildConfig.VERSION_NAME;
+        //return mSessionSettings.getDefaultUserAgent(toUserAgentMode(mode)) + " Wolvic/" + BuildConfig.VERSION_NAME;
+        return WSessionSettings.getDefaultUserAgent(mode);
     }
 
     private SessionSettings.UserAgentMode toUserAgentMode(int mode) {

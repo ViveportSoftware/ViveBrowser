@@ -47,6 +47,7 @@ add_library( # Sets the name of the library.
              src/main/cpp/WidgetMover.cpp
              src/main/cpp/WidgetPlacement.cpp
              src/main/cpp/WidgetResizer.cpp
+             src/main/cpp/HandGeometry.cpp
            )
 
 if(WAVEVR)

@@ -1139,16 +1139,6 @@ public class Session implements WContentBlocking.Delegate, WSession.NavigationDe
             Log.d(LOGTAG, "Testing for UA override");
 
             String userAgentOverride = sUserAgentOverride.lookupOverride(uri);
-            Uri uri2 =  Uri.parse(uri);
-            String host = uri2.getHost();
-            if (host != null) {
-                String domainName = host.startsWith("www.") ? host.substring(4) : host;
-                String path = uri2.getPath();
-                if((domainName.equals("youtube.com")||domainName.equals("m.youtube.com")) && path.equals("/watch"))
-                {
-                    userAgentOverride="Mozilla/5.0 (Linux; Android 7.1.1; Quest) AppleWebKit/537.36 (KHTML, like Gecko) OculusBrowser/11.1.0.1.64.238873877 SamsungBrowser/4.0 Chrome/84.0.4147.125 Mobile VR Safari/537.36";
-                }
-            }
 
             // Set the User-Agent according to the current UA settings
             // unless we are in Desktop mode, which uses its own User-Agent value.

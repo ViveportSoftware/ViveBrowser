@@ -22,6 +22,7 @@ typedef std::shared_ptr<Widget> WidgetPtr;
 
 class Pointer {
 public:
+  enum class Shape { Ring, Circle };
   static PointerPtr Create(vrb::CreationContextPtr aContext);
   void Load(const DeviceDelegatePtr& aDevice);
   bool IsLoaded() const;
@@ -30,6 +31,7 @@ public:
   void SetScale(const float scale);
   void SetPointerColor(const vrb::Color& aColor);
   void SetHitWidget(const WidgetPtr& aWidget);
+  void SetShape(const Shape shape);
 
   vrb::NodePtr GetRoot() const;
   const WidgetPtr& GetHitWidget() const;

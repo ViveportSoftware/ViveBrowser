@@ -7,6 +7,7 @@
 #include "vrb/ConcreteClass.h"
 #include "vrb/Logger.h"
 #include "JNIUtil.h"
+#include "wvr/wvr.h"
 
 namespace {
 
@@ -72,6 +73,8 @@ const char* const kUpdateControllerBatteryLevelsName = "updateControllerBatteryL
 const char* const kUpdateControllerBatteryLevelsSignature = "(II)V";
 const char* const kOnAppFocusChangedName = "onAppFocusChanged";
 const char* const kOnAppFocusChangedSignature = "(Z)V";
+const char* const kSetIsPassthroughSupportedName = "setIsPassthroughSupported";
+const char* const kSetIsPassthroughSupportedSignature = "(Z)V";
 
 JNIEnv* sEnv = nullptr;
 jclass sBrowserClass = nullptr;
@@ -107,6 +110,7 @@ jmethodID sDisableLayers = nullptr;
 jmethodID sAppendAppNotesToCrashReport = nullptr;
 jmethodID sUpdateControllerBatteryLevels = nullptr;
 jmethodID sOnAppFocusChanged = nullptr;
+jmethodID sSetIsPassthroughSupported = nullptr;
 }
 
 namespace crow {
@@ -157,6 +161,7 @@ VRBrowser::InitializeJava(JNIEnv* aEnv, jobject aActivity) {
   sAppendAppNotesToCrashReport = FindJNIMethodID(sEnv, sBrowserClass, kAppendAppNotesToCrashReport, kAppendAppNotesToCrashReportSignature);
   sUpdateControllerBatteryLevels = FindJNIMethodID(sEnv, sBrowserClass, kUpdateControllerBatteryLevelsName, kUpdateControllerBatteryLevelsSignature);
   sOnAppFocusChanged = FindJNIMethodID(sEnv, sBrowserClass, kOnAppFocusChangedName, kOnAppFocusChangedSignature);
+  sSetIsPassthroughSupported = FindJNIMethodID(sEnv, sBrowserClass, kSetIsPassthroughSupportedName, kSetIsPassthroughSupportedSignature);
 }
 
 JNIEnv * VRBrowser::Env()
@@ -467,6 +472,17 @@ VRBrowser::OnAppFocusChanged(const bool aIsFocused) {
   if (!ValidateMethodID(sEnv, sActivity, sOnAppFocusChanged, __FUNCTION__)) { return; }
   sEnv->CallVoidMethod(sActivity, sOnAppFocusChanged, (jboolean) aIsFocused);
   CheckJNIException(sEnv, __FUNCTION__);
+}
+
+void
+VRBrowser::SetIsPassthroughSupported() {
+    if (!ValidateMethodID(sEnv, sActivity, sSetIsPassthroughSupported, __FUNCTION__)) { return; }
+    bool isSupported = false;
+    uint64_t supported = WVR_GetSupportedFeatures();
+    isSupported = (supported & WVR_SupportedFeature_PassthroughOverlay);
+    VRB_DEBUG("VRBROWSER, WVR_SupportedFeature_PassthroughOverlay %d: ", isSupported)
+    sEnv->CallVoidMethod(sActivity, sSetIsPassthroughSupported, (jboolean) isSupported);
+    CheckJNIException(sEnv, __FUNCTION__);
 }
 
 } // namespace crow

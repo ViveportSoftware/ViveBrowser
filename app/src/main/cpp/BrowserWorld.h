@@ -104,6 +104,8 @@ private:
   State& m;
   BrowserWorld() = delete;
   VRB_NO_DEFAULTS(BrowserWorld)
+
+  vrb::TransformPtr createSphereBackground(vrb::CreationContextPtr create);
 };
 
 } // namespace crow

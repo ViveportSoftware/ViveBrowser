@@ -75,6 +75,7 @@ public class WindowViewModel extends AndroidViewModel {
     private MediatorLiveData<ObservableBoolean> isUrlBarIconsVisible;
     private MutableLiveData<ObservableInt> mWidth;
     private MutableLiveData<ObservableInt> mHeight;
+    private MutableLiveData<ObservableBoolean> isPassthroughEnable;
 
     public WindowViewModel(Application application) {
         super(application);
@@ -183,6 +184,8 @@ public class WindowViewModel extends AndroidViewModel {
 
         mWidth = new MutableLiveData<>(new ObservableInt());
         mHeight = new MutableLiveData<>(new ObservableInt());
+
+        isPassthroughEnable = new MutableLiveData<>(new ObservableBoolean(false));
     }
 
     private Observer<ObservableBoolean> mIsTopBarVisibleObserver = new Observer<ObservableBoolean>() {
@@ -353,6 +356,7 @@ public class WindowViewModel extends AndroidViewModel {
         isDrmUsed.postValue(isDrmUsed.getValue());
         mWidth.postValue(mWidth.getValue());
         mHeight.postValue(mHeight.getValue());
+        isPassthroughEnable.postValue(isPassthroughEnable.getValue());
     }
 
     @NonNull
@@ -789,5 +793,13 @@ public class WindowViewModel extends AndroidViewModel {
 
     public void setHeight(int height) {
         this.mHeight.setValue(new ObservableInt(height));
+    }
+
+    public void setIsPassthroughEnable(boolean isPassthroughEnable) {
+        this.isPassthroughEnable.postValue(new ObservableBoolean(isPassthroughEnable));
+    }
+    @NonNull
+    public MutableLiveData<ObservableBoolean> getIsPassthroughEnable() {
+        return isPassthroughEnable;
     }
 }

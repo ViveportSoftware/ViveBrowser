@@ -26,7 +26,10 @@ public class PlatformActivity extends VRActivity {
     }
 
     public static boolean isNotSpecialKey(KeyEvent event) {
-        return true;
+        final int keyCode = event.getKeyCode();
+        return !(keyCode==KeyEvent.KEYCODE_VOLUME_UP||
+                keyCode==KeyEvent.KEYCODE_VOLUME_DOWN||
+                keyCode==KeyEvent.KEYCODE_VOLUME_MUTE);
     }
 
     public static boolean isPositionTrackingSupported() {

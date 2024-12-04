@@ -51,6 +51,7 @@ struct Controller {
   vrb::TransformPtr handActionButtonTransform;
   float selectFactor;
   vrb::TransformPtr beamParent;
+  vrb::TransformPtr modelParent;
   PointerPtr pointer;
   vrb::Matrix transformMatrix;
   vrb::Matrix beamTransformMatrix;

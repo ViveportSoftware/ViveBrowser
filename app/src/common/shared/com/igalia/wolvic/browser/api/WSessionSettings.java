@@ -167,4 +167,8 @@ public interface WSessionSettings {
      * @return The current user agent string or null if the agent is specified by ISessionSettings#USER_AGENT_MODE}
      */
     @Nullable String getUserAgentOverride();
+
+    static String getDefaultUserAgent(int mode) {
+        return WDefaultUserAgent.getDefaultUserAgent(mode) + " VIVEBrowser/" + com.igalia.wolvic.BuildConfig.VERSION_NAME;
+    }
 }

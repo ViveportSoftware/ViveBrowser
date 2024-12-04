@@ -37,10 +37,13 @@ struct ControllerContainer::State {
   TogglePtr root;
   GroupPtr pointerContainer;
   std::vector<GroupPtr> models;
-  GeometryPtr beamModel;
+  std::vector<GeometryPtr> beamModels;
+  vrb::TextureGLPtr beamTextureNormal;
+  vrb::TextureGLPtr beamTexturePress;
   bool visible = false;
   vrb::Color pointerColor;
   int gazeIndex = -1;
+  int handIndex = 2;
   uint64_t immersiveFrameId;
   uint64_t lastImmersiveFrameId;
   ModelLoaderAndroidPtr loader;
@@ -126,75 +129,96 @@ void ControllerContainer::SetControllerModelTask(const int32_t aModelIndex, cons
   m.loadTask.resize(aModelIndex + 1, aTask);
 }
 
+GeometryPtr InitializeBeamModel(CreationContextPtr create){
+    VRB_LOG("[ControllerContainer] InitializeBeamModel");
+
+    VertexArrayPtr array = VertexArray::Create(create);
+    const float kLength = -1.0f;
+    const float kHeight = 0.002f;
+
+    const int sgm=20;
+    //Vertex
+    for (int i = 1; i <= sgm; ++i) {
+        float  x=  cosf(((float )i/sgm)*2*M_PI)*kHeight;
+        float  y=  sinf(((float )i/sgm)*2*M_PI)*kHeight;
+        array->AppendVertex(Vector(x, y, 0.0f));
+
+        //UV
+        const float u = (float) i-1 / (float) sgm;
+        const float  v = 1.0f;
+        array->AppendUV(Vector(u, v, 0.0f));
+    }
+    array->AppendVertex(Vector(0.0f, 0.0f, kLength)); // Tip
+    //UV
+    array->AppendUV(Vector(0, 0, 0.0f));
+
+    //Normal
+    for (int i = 1; i <= sgm; ++i) {
+        float  x=  cosf(((float )i/sgm)*2*M_PI);
+        float  y=  sinf(((float )i/sgm)*2*M_PI);
+        array->AppendNormal(Vector(x, y, 0.0f));
+    }
+    array->AppendNormal(Vector(0.0f, 0.0f, -1.0f).Normalize()); // in to the screen
+
+    ProgramPtr program = create->GetProgramFactory()->CreateProgram(create, vrb::FeatureTexture);
+    RenderStatePtr state = RenderState::Create(create);
+    state->SetProgram(program);
+    state->SetMaterial(Color(1.0f, 1.0f, 1.0f),
+                       Color(1.0f, 1.0f, 1.0f),
+                       Color(0.0f, 0.0f, 0.0f),
+                       0.0f);
+    state->SetLightsEnabled(false);
+    //VRB_LOG("LoadTexture texture->GetHeight %d ", texture->GetHeight());
+    GeometryPtr geometry = Geometry::Create(create);
+    geometry->SetVertexArray(array);
+    geometry->SetRenderState(state);
+
+    std::vector<int> index;
+    std::vector<int> uvIndex;
+
+    for (int i = 1; i <= sgm; ++i) {
+        index.clear();
+        int p=i+1>sgm?i+1-sgm:i+1;
+        index.push_back(p);
+        index.push_back(i);
+        index.push_back(sgm+1);
+        geometry->AddFace(index, index, index);
+    }
+    index.clear();
+    for (int i = 1; i <= sgm; ++i){
+        index.push_back(i);
+    }
+    geometry->AddFace(index, index, index);
+    return geometry;
+}
+
 void
 ControllerContainer::InitializeBeam() {
-  if (m.beamModel) {
-    return;
+  VRB_LOG("[ControllerContainer] InitializeBeam");
+
+  if(m.beamModels.size() == beamSize){
+      return;
   }
-  CreationContextPtr create = m.context.lock();
-  VertexArrayPtr array = VertexArray::Create(create);
-  const float kLength = -1.0f;
-  const float kHeight = 0.002f;
 
-  array->AppendVertex(Vector(-kHeight, -kHeight, 0.0f)); // Bottom left
-  array->AppendVertex(Vector(kHeight, -kHeight, 0.0f)); // Bottom right
-  array->AppendVertex(Vector(kHeight, kHeight, 0.0f)); // Top right
-  array->AppendVertex(Vector(-kHeight, kHeight, 0.0f)); // Top left
-  array->AppendVertex(Vector(0.0f, 0.0f, kLength)); // Tip
+  m.beamModels.resize(beamSize);
+  for (int i = 0; i < beamSize; ++i) {
+      CreationContextPtr create = m.context.lock();
+      m.beamTextureNormal = create->LoadTexture("beam_white.png") ;
+      m.beamTexturePress  = create->LoadTexture("beam_blue.png") ;
+      GeometryPtr gp= InitializeBeamModel(create);
+      gp->GetRenderState()->SetTexture(m.beamTextureNormal);
+      m.beamModels[i] = std::move(gp);
+  }
 
-  array->AppendNormal(Vector(-1.0f, -1.0f, 0.0f).Normalize()); // Bottom left
-  array->AppendNormal(Vector(1.0f, -1.0f, 0.0f).Normalize()); // Bottom right
-  array->AppendNormal(Vector(1.0f, 1.0f, 0.0f).Normalize()); // Top right
-  array->AppendNormal(Vector(-1.0f, 1.0f, 0.0f).Normalize()); // Top left
-  array->AppendNormal(Vector(0.0f, 0.0f, -1.0f).Normalize()); // in to the screen
-
-  ProgramPtr program = create->GetProgramFactory()->CreateProgram(create, 0);
-  RenderStatePtr state = RenderState::Create(create);
-  state->SetProgram(program);
-  state->SetMaterial(Color(1.0f, 1.0f, 1.0f), Color(1.0f, 1.0f, 1.0f), Color(0.0f, 0.0f, 0.0f), 0.0f);
-  state->SetLightsEnabled(false);
-  GeometryPtr geometry = Geometry::Create(create);
-  geometry->SetVertexArray(array);
-  geometry->SetRenderState(state);
-
-  std::vector<int> index;
-  std::vector<int> uvIndex;
-
-  index.push_back(2);
-  index.push_back(1);
-  index.push_back(5);
-  geometry->AddFace(index, uvIndex, index);
-
-  index.clear();
-  index.push_back(3);
-  index.push_back(2);
-  index.push_back(5);
-  geometry->AddFace(index, uvIndex, index);
-
-  index.clear();
-  index.push_back(4);
-  index.push_back(3);
-  index.push_back(5);
-  geometry->AddFace(index, uvIndex, index);
-
-  index.clear();
-  index.push_back(1);
-  index.push_back(4);
-  index.push_back(5);
-  geometry->AddFace(index, uvIndex, index);
-
-  index.clear();
-  index.push_back(1);
-  index.push_back(2);
-  index.push_back(3);
-  index.push_back(4);
-  geometry->AddFace(index, uvIndex, index);
-
-  m.beamModel = std::move(geometry);
-  for (Controller& controller: m.list) {
-    if (controller.beamParent) {
-      controller.beamParent->AddNode(m.beamModel);
-    }
+  VRB_LOG("[ControllerContainer] InitializeBeam m.list.size(): %zu", m.list.size());
+  for (int i = 0; i < m.list.size(); ++i) {
+      Controller& controller = m.list[i];
+      if (controller.beamParent && i <= beamSize) {
+          GeometryPtr beamModel = m.beamModels[i];
+          if(!beamModel)
+              VRB_ERROR("[ControllerContainer] InitializeBeam beamModel is null");
+          controller.beamParent->AddNode(beamModel);
+      }
   }
 }
 
@@ -308,6 +332,7 @@ ControllerContainer::CreateController(const int32_t aControllerIndex, const int3
 
 void
 ControllerContainer::CreateController(const int32_t aControllerIndex, const int32_t aModelIndex, const std::string& aImmersiveName, const vrb::Matrix& aBeamTransform) {
+  VRB_LOG("[ControllerContainer] CreateController aControllerIndex: %d, aModelIndex: %d, aImmersiveName: %s", aControllerIndex, aModelIndex, aImmersiveName.c_str());
   if ((size_t)aControllerIndex >= m.list.size()) {
     m.list.resize((size_t)aControllerIndex + 1);
   }
@@ -329,19 +354,46 @@ ControllerContainer::CreateController(const int32_t aControllerIndex, const int3
 
   if (aControllerIndex != m.gazeIndex) {
     if ((m.models.size() >= aModelIndex) && m.models[aModelIndex]) {
-      controller.modelToggle = vrb::Toggle::Create(create);
-      controller.modelToggle->AddNode(m.models[aModelIndex]);
-      controller.transform->AddNode(controller.modelToggle);
-      controller.modelToggle->ToggleAll(true);
-      controller.beamToggle = vrb::Toggle::Create(create);
-      controller.beamToggle->ToggleAll(true);
-      vrb::TransformPtr beamTransform = Transform::Create(create);
-      beamTransform->SetTransform(aBeamTransform);
-      controller.beamParent = beamTransform;
-      controller.beamToggle->AddNode(beamTransform);
-      controller.transform->AddNode(controller.beamToggle);
-      if (m.beamModel && controller.beamParent) {
-        controller.beamParent->AddNode(m.beamModel);
+
+
+      if(aControllerIndex >= m.handIndex) {//is hand
+        controller.modelParent = Transform::Create(create);
+        controller.modelParent->SetTransform(aBeamTransform);
+        controller.modelParent->AddNode(m.models[aModelIndex]);
+
+        controller.modelToggle = vrb::Toggle::Create(create);
+        controller.modelToggle->AddNode(controller.modelParent);
+        controller.modelToggle->ToggleAll(true);
+
+        controller.beamParent = Transform::Create(create);
+        controller.beamParent->SetTransform(aBeamTransform);
+
+        controller.beamToggle = vrb::Toggle::Create(create);
+        controller.beamToggle->AddNode(controller.beamParent);
+        controller.beamToggle->ToggleAll(true);
+
+        controller.transform->AddNode(controller.beamToggle);
+        controller.transform->AddNode(controller.modelToggle);
+      } else {
+        controller.modelToggle = vrb::Toggle::Create(create);
+        controller.modelToggle->AddNode(m.models[aModelIndex]);
+        controller.modelToggle->ToggleAll(true);
+
+        controller.beamParent = Transform::Create(create);
+        controller.beamParent->SetTransform(aBeamTransform);
+
+        controller.beamToggle = vrb::Toggle::Create(create);
+        controller.beamToggle->AddNode(controller.beamParent);
+        controller.beamToggle->ToggleAll(true);
+
+        controller.transform->AddNode(controller.beamToggle);
+        controller.transform->AddNode(controller.modelToggle);
+      }
+
+
+      if(m.beamModels.size()==beamSize && aControllerIndex <= beamSize && controller.beamParent){
+          GeometryPtr beamModel = m.beamModels[aControllerIndex];
+          controller.beamParent->AddNode(beamModel);
       }
 
       // If the model is not yet loaded we trigger the load task
@@ -374,14 +426,44 @@ ControllerContainer::SetImmersiveBeamTransform(const int32_t aControllerIndex,
 }
 
 void
-ControllerContainer::SetBeamTransform(const int32_t aControllerIndex, const vrb::Matrix& aBeamTransform) {
+ControllerContainer::SetBeamTransform(const int32_t aControllerIndex,
+                                      const vrb::Matrix &aBeamTransform) {
   if (!m.Contains(aControllerIndex)) {
     return;
   }
-  if (m.list[aControllerIndex].beamParent) {
-    m.list[aControllerIndex].beamParent->SetTransform(aBeamTransform);
+  Controller &controller = m.list[aControllerIndex];
+  vrb::Matrix new_transform = aBeamTransform;
+  if (aControllerIndex >= m.handIndex) {
+    //lerp Translation
+    Vector oldTranslation = controller.beamTransformMatrix.GetTranslation();
+    Vector newTranslation = aBeamTransform.GetTranslation();
+    float lerpRatio = 0.5f;
+    Vector lerpedTranslation = oldTranslation * lerpRatio + newTranslation * (1.0f - lerpRatio);
+    new_transform = aBeamTransform.Translate(lerpedTranslation - aBeamTransform.GetTranslation());
   }
-  m.list[aControllerIndex].beamTransformMatrix = aBeamTransform;
+
+  if (controller.beamParent) {
+    controller.beamParent->SetTransform(new_transform);
+  }
+  controller.beamTransformMatrix = new_transform;
+}
+
+void
+ControllerContainer::SetBeamColor(const int32_t aControllerIndex, const BeamColor beamColor) {
+    VRB_LOG("[ControllerContainer] SetBeamColor aControllerIndex: %d, beamColor: %d", aControllerIndex, beamColor);
+    if (!m.Contains(aControllerIndex)) {
+        return;
+    }
+    if(aControllerIndex>=m.beamModels.size()){
+        return;
+    }
+
+    if(beamColor== BeamColor::Normal){
+        m.beamModels[aControllerIndex]->GetRenderState()->SetTexture(m.beamTextureNormal);
+
+    } else if (beamColor== BeamColor::Press){
+        m.beamModels[aControllerIndex]->GetRenderState()->SetTexture(m.beamTexturePress);
+    }
 }
 
 void
@@ -457,9 +539,16 @@ ControllerContainer::SetTransform(const int32_t aControllerIndex, const vrb::Mat
     return;
   }
   Controller& controller = m.list[aControllerIndex];
-  controller.transformMatrix = aTransform;
-  if (controller.transform) {
-    controller.transform->SetTransform(aTransform);
+  if(aControllerIndex>=m.handIndex){//is hand
+    controller.transformMatrix = Matrix::Identity();
+    if(controller.modelParent){
+      controller.modelParent->SetTransform(aTransform);
+    }
+  } else{
+    controller.transformMatrix = aTransform;
+    if (controller.transform) {
+      controller.transform->SetTransform(aTransform);
+    }
   }
 }
 

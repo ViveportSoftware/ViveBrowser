@@ -28,6 +28,7 @@ public class TrayViewModel extends AndroidViewModel {
     private MutableLiveData<ObservableInt> leftControllerBatteryLevel;
     private MutableLiveData<ObservableInt> rightControllerIcon;
     private MutableLiveData<ObservableInt> rightControllerBatteryLevel;
+    private MutableLiveData<ObservableBoolean> isPassthroughSupported;
 
 
     public TrayViewModel(@NonNull Application application) {
@@ -51,6 +52,7 @@ public class TrayViewModel extends AndroidViewModel {
         leftControllerBatteryLevel = new MutableLiveData<>(new ObservableInt(R.drawable.ic_icon_statusbar_indicator));
         rightControllerIcon = new MutableLiveData<>(new ObservableInt(R.drawable.ic_icon_statusbar_controller_generic));
         rightControllerBatteryLevel = new MutableLiveData<>(new ObservableInt(R.drawable.ic_icon_statusbar_indicator));
+        isPassthroughSupported = new MutableLiveData<>(new ObservableBoolean(true));
     }
 
     Observer<ObservableBoolean> mIsVisibleObserver = new Observer<ObservableBoolean>() {
@@ -76,6 +78,7 @@ public class TrayViewModel extends AndroidViewModel {
         leftControllerBatteryLevel.setValue(leftControllerBatteryLevel.getValue());
         rightControllerIcon.setValue(rightControllerIcon.getValue());
         rightControllerBatteryLevel.setValue(rightControllerBatteryLevel.getValue());
+        isPassthroughSupported = new MutableLiveData<>(isPassthroughSupported.getValue());
     }
 
     public void setIsMaxWindows(boolean isMaxWindows) {
@@ -181,5 +184,13 @@ public class TrayViewModel extends AndroidViewModel {
 
     public MutableLiveData<ObservableInt> getRightControllerBatteryLevel() {
         return rightControllerBatteryLevel;
+    }
+
+    public void setPassthroughSupported(boolean support) {
+        this.isPassthroughSupported.setValue(new ObservableBoolean(support));
+    }
+
+    public MutableLiveData<ObservableBoolean> getPassthroughSupported() {
+        return isPassthroughSupported;
     }
 }

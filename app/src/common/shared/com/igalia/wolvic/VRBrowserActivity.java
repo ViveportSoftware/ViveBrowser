@@ -247,6 +247,7 @@ public class VRBrowserActivity extends PlatformActivity implements WidgetManager
     private boolean mIsPassthroughEnabled = false;
     private long mLastBatteryUpdate = System.nanoTime();
     private int mLastBatteryLevel = -1;
+    private boolean mIsPassthroughSupported = false;
 
     private boolean callOnAudioManager(Consumer<AudioManager> fn) {
         if (mAudioManager == null) {
@@ -1503,6 +1504,16 @@ public class VRBrowserActivity extends PlatformActivity implements WidgetManager
         });
     }
 
+    @Keep
+    @SuppressWarnings("unused")
+    private void setIsPassthroughSupported(final boolean aIsSupported) {
+        Log.d("VRBROWSER", "setIsPassthroughSupported: " + aIsSupported);
+        mIsPassthroughSupported = aIsSupported;
+        if(mTray != null){
+            runOnUiThread(() -> mTray.setIsPassthroughSupport(mIsPassthroughSupported));
+        }
+    }
+
     private SurfaceTexture createSurfaceTexture() {
         int[] ids = new int[1];
         GLES20.glGenTextures(1, ids, 0);
@@ -1913,6 +1924,9 @@ public class VRBrowserActivity extends PlatformActivity implements WidgetManager
     @Override
     public void togglePassthrough() {
         mIsPassthroughEnabled = !mIsPassthroughEnabled;
+        if(mTray != null){
+            mTray.setIsPassthroughEnable(mIsPassthroughEnabled);
+        }
         queueRunnable(() -> togglePassthroughNative());
     }
 
@@ -1922,8 +1936,11 @@ public class VRBrowserActivity extends PlatformActivity implements WidgetManager
     }
     @Override
     public boolean isPassthroughSupported() {
+        if(DeviceType.isWaveBuild()){
+            return mIsPassthroughSupported;
+        }
         return DeviceType.isOculusBuild() || DeviceType.isLynx() || DeviceType.isSnapdragonSpaces() ||
-               (DeviceType.isPicoXR() && Build.ID.compareTo(kPicoVersionPassthroughUpdate) >= 0);
+                (DeviceType.isPicoXR() && Build.ID.compareTo(kPicoVersionPassthroughUpdate) >= 0);
     }
 
     @Override

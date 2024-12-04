@@ -67,8 +67,10 @@ namespace crow {
 
   private:
     float getPinchStrength(const crow::ElbowModel::HandEnum hand);
+    float getPinchDist(const crow::ElbowModel::HandEnum hand);
 
     vrb::Matrix getRayMatrix(const crow::ElbowModel::HandEnum hand);
+    vrb::Matrix getHandMatrix(const crow::ElbowModel::HandEnum hand);
 
     Vector4 calculateJointWorldPosition(const int handIndex, uint32_t jID) const;
     Vector3 getModelJointLocalPosition(const int handIndex, uint32_t iJointID) const;

@@ -98,6 +98,9 @@ public class TrayWidget extends UIWidget implements WidgetManagerDelegate.Update
     private int mRightControllerBatteryLevel;
     private ConnectivityReceiver mConnectivityReceived;
 
+    private int mLittleBtnMinPadding = 6;
+    private int mLittleBtnMaxPadding = 7;
+
     public TrayWidget(Context aContext) {
         super(aContext);
         initialize(aContext);
@@ -124,6 +127,7 @@ public class TrayWidget extends UIWidget implements WidgetManagerDelegate.Update
         mTrayViewModel.getIsVisible().observe((VRBrowserActivity) getContext(), mIsVisibleObserver);
 
         mTrayViewModel.setHeadsetBatteryLevel(R.drawable.ic_icon_statusbar_indicator_10);
+        mTrayViewModel.setPassthroughSupported(((VRBrowserActivity)getContext()).isPassthroughSupported());
         updateUI();
 
         mIsWindowAttached = false;
@@ -132,6 +136,8 @@ public class TrayWidget extends UIWidget implements WidgetManagerDelegate.Update
 
         mMinPadding = WidgetPlacement.pixelDimension(getContext(), R.dimen.tray_icon_padding_min);
         mMaxPadding = WidgetPlacement.pixelDimension(getContext(), R.dimen.tray_icon_padding_max);
+        mLittleBtnMinPadding = WidgetPlacement.pixelDimension(getContext(), R.dimen.tray_little_icon_padding_min);
+        mLittleBtnMaxPadding = WidgetPlacement.pixelDimension(getContext(), R.dimen.tray_little_icon_padding_max);
 
         mAudio = AudioEngine.fromContext(aContext);
 
@@ -352,6 +358,18 @@ public class TrayWidget extends UIWidget implements WidgetManagerDelegate.Update
 
         updateTime();
         updateWifi();
+
+        mBinding.passthroughButton.setOnHoverListener(mLittleButtonScaleHoverListener);
+        mBinding.passthroughButton.setOnClickListener(view -> {
+            if (isImmersive()) {
+                return;
+            }
+            if (mAudio != null) {
+                mAudio.playSound(AudioEngine.Sound.CLICK);
+            }
+            mWidgetManager.togglePassthrough();
+            view.requestFocusFromTouch();
+        });
     }
 
     public void start(Context context) {
@@ -412,6 +430,30 @@ public class TrayWidget extends UIWidget implements WidgetManagerDelegate.Update
             case MotionEvent.ACTION_HOVER_EXIT:
                 if (!ViewUtils.isInsideView(view, (int)motionEvent.getRawX(), (int)motionEvent.getRawY())) {
                     animateViewPadding(view, mMinPadding, mMaxPadding, ICON_ANIMATION_DURATION);
+                }
+                return false;
+        }
+
+        return false;
+    };
+
+    private OnHoverListener mLittleButtonScaleHoverListener = (view, motionEvent) -> {
+        UIButton button = (UIButton)view;
+        if (button.isActive() || button.isPrivate()) {
+            return false;
+        }
+
+        int ev = motionEvent.getActionMasked();
+        switch (ev) {
+            case MotionEvent.ACTION_HOVER_ENTER:
+                if (!view.isPressed() && ViewUtils.isInsideView(view, (int)motionEvent.getRawX(), (int)motionEvent.getRawY())) {
+                    animateViewPadding(view, mLittleBtnMaxPadding, mLittleBtnMinPadding, ICON_ANIMATION_DURATION);
+                }
+                return false;
+
+            case MotionEvent.ACTION_HOVER_EXIT:
+                if (!ViewUtils.isInsideView(view, (int)motionEvent.getRawX(), (int)motionEvent.getRawY())) {
+                    animateViewPadding(view, mLittleBtnMinPadding, mLittleBtnMaxPadding, ICON_ANIMATION_DURATION);
                 }
                 return false;
         }
@@ -564,7 +606,7 @@ public class TrayWidget extends UIWidget implements WidgetManagerDelegate.Update
     @Override
     public void detachFromWindow() {
         hideNotifications();
-        
+
         if (mSession != null) {
             mSession = null;
         }
@@ -601,6 +643,7 @@ public class TrayWidget extends UIWidget implements WidgetManagerDelegate.Update
         mViewModel.getIsPrivateSession().observe((VRBrowserActivity)getContext(), mIsPrivateSession);
 
         mBinding.setViewmodel(mViewModel);
+        setIsPassthroughEnable(mWidgetManager.isPassthroughEnabled());
 
         SessionStore.get().getBookmarkStore().addListener(mBookmarksListener);
 
@@ -658,6 +701,18 @@ public class TrayWidget extends UIWidget implements WidgetManagerDelegate.Update
 
     public void setAddWindowVisible(boolean aVisible) {
         mTrayViewModel.setIsMaxWindows(!aVisible);
+    }
+
+    public void setIsPassthroughEnable(boolean isPassthroughEnable){
+        if(mViewModel != null){
+            mViewModel.setIsPassthroughEnable(isPassthroughEnable);
+        }
+    }
+
+    public void setIsPassthroughSupport(boolean isPassthroughSupport){
+        if(mTrayViewModel != null){
+            mTrayViewModel.setPassthroughSupported(isPassthroughSupport);
+        }
     }
 
     // WidgetManagerDelegate.UpdateListener
@@ -836,7 +891,7 @@ public class TrayWidget extends UIWidget implements WidgetManagerDelegate.Update
             return wifiManager.getConnectionInfo().getRssi();
         }
     }
-    
+
     private void updateWifi() {
         // We are collecting sensitive data here, so we should ensure the user granted permissions.
         if (!(SettingsStore.getInstance(getContext()).isTermsServiceAccepted() &&

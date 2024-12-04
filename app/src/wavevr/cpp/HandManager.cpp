@@ -17,6 +17,7 @@
 #include "vrb/RenderState.h"
 #include "vrb/Color.h"
 #include "vrb/Vector4.h"
+#include "HandGeometry.h"
 
 namespace crow {
   static const std::string kHandGeometryName = "HandGeometry";
@@ -26,6 +27,9 @@ namespace crow {
   static const vrb::Color kBlueColor = vrb::Color(29.0f / 255.0f, 189.0f / 255.0f, 247.0f / 255.0f);
   static const vrb::Color kBlue2Color = vrb::Color(191.0f / 255.0f, 182.0f / 255.0f,
                                                    182.0f / 255.0f);
+  /*大約在食指與拇指的距離於0.02上下時wave sdk會判斷為 is pinch*/
+  static const float kPinchOffset = 0.0f;
+  static const float kPinchStart = 0.05;
 
   void WVR_HandJointData_tToMatrix4(const WVR_Pose_t &iPose, uint64_t iValidBitMask,
                                     Matrix4 &ioPoseMat) {
@@ -256,6 +260,7 @@ namespace crow {
         mHandPoseMats[handType] = Matrix4();
       }
 
+
       //2. Ray data.
       if (handPose->base.type == WVR_HandPoseType_Pinch &&
           mTrackingType == WVR_HandTrackerType_Natural) {
@@ -278,21 +283,21 @@ namespace crow {
 
   vrb::Matrix HandManager::getRayMatrix(const ElbowModel::HandEnum hand) {
     WVR_HandPoseState_t *handPose;
-    Matrix4 handPoseMat, palmMat;
+    Matrix4 handPoseMat, rayPoseMatrix;
     if (hand == ElbowModel::HandEnum::Left) {
       handPose = &mHandPoseData.left;
       handPoseMat = mHandPoseMats[Hand_Left];
-      //palmMat = mJointMats[Hand_Left][WVR_HandJoint_Palm];
+      rayPoseMatrix = mHandRayMats[Hand_Left];
     } else {
       handPose = &mHandPoseData.right;
       handPoseMat = mHandPoseMats[Hand_Right];
-      //palmMat = mJointMats[Hand_Right][WVR_HandJoint_Palm];
+      rayPoseMatrix = mHandRayMats[Hand_Right];
     }
 
     WVR_HandPoseType poseType = handPose->base.type;
-    float pinchStrength = handPose->pinch.strength;
-    float pinchTHR = mHandTrackerInfo.pinchTHR;
-    WVR_HandTrackerType trackingType = mTrackingType;
+//    float pinchStrength = handPose->pinch.strength;
+//    float pinchTHR = mHandTrackerInfo.pinchTHR;
+//    WVR_HandTrackerType trackingType = mTrackingType;
 
     Vector3 rayUp(handPoseMat[4], handPoseMat[5], handPoseMat[6]);
     rayUp.normalize();
@@ -301,19 +306,34 @@ namespace crow {
     Vector3 rayOri = Vector3(handPoseMat[12], handPoseMat[13], handPoseMat[14]);
     //use pinch ray direction
     Vector3 negRayForward = Vector3(handPose->pinch.direction.v) * -1.0f;
-
+    rayOri = Vector3(handPose->pinch.origin.v);
     vrb::Matrix matrix = vrb::Matrix::FromColumnMajor(handPoseMat.get());
 
     if (poseType == WVR_HandPoseType_Pinch) {//while pinch is vaid
-      Matrix4 rayMatrix = Matrix_LookAtFrom(rayOri, negRayForward, rayUp);
-      matrix = vrb::Matrix::FromColumnMajor(rayMatrix.get());
+      //Matrix4 rayMatrix = Matrix_LookAtFrom(rayOri, negRayForward, rayUp);
+      matrix = vrb::Matrix::FromColumnMajor(rayPoseMatrix.get());
     } else if (poseType == WVR_HandPoseType_Invalid) {//while pinch is invaid
       //use hand pose forward
       negRayForward = Vector3(handPoseMat[8], handPoseMat[9], handPoseMat[10]);
       Matrix4 rayMatrix = Matrix_LookAtFrom(rayOri, negRayForward, rayUp);
+      rayMatrix.scale(0);
       matrix = vrb::Matrix::FromColumnMajor(rayMatrix.get());
     }
 
+    return matrix;
+  }
+
+  vrb::Matrix HandManager::getHandMatrix(const ElbowModel::HandEnum hand) {
+    WVR_HandPoseState_t *handPose;
+    Matrix4 handPoseMat, palmMat;
+    if (hand == ElbowModel::HandEnum::Left) {
+      handPose = &mHandPoseData.left;
+      handPoseMat = mHandPoseMats[Hand_Left];
+    } else {
+      handPose = &mHandPoseData.right;
+      handPoseMat = mHandPoseMats[Hand_Right];
+    }
+    vrb::Matrix matrix = vrb::Matrix::FromColumnMajor(handPoseMat.get());
     return matrix;
   }
 
@@ -333,8 +353,7 @@ namespace crow {
     if (!isHandAvailable(controller.hand)) {
       return;
     }
-    controller.transform = getRayMatrix(controller.hand);
-      //VRB_ERROR("umodel trans: %s scale: %s", controller.transform.GetTranslation().ToString().c_str(), controller.transform.GetScale().ToString().c_str())
+    //VRB_ERROR("umodel trans: %s scale: %s", controller.transform.GetTranslation().ToString().c_str(), controller.transform.GetScale().ToString().c_str())
     const int handIndex = int(controller.hand);
     auto jointMat = mJointMats[handIndex];
     auto skeletonMatrices = mSkeletonMatrices[handIndex];
@@ -343,6 +362,10 @@ namespace crow {
     auto finalSkeletonPoses = mFinalSkeletonPoses[handIndex];
     auto skeletonPoses = mSkeletonPoses[handIndex];
     auto modelSkeletonPoses = mModelSkeletonPoses[handIndex];
+
+    vrb::Matrix rayMatrix  = getRayMatrix(controller.hand);
+    vrb::Matrix HandMatrix = getHandMatrix(controller.hand);
+    controller.transform = HandMatrix;
 
     Matrix4 wristPose = jointMat[HandBone_Wrist];
     auto wristPoseInv = Matrix4(wristPose);
@@ -372,45 +395,87 @@ namespace crow {
 
     if (renderMode == device::RenderMode::StandAlone) {
       controller.transform.TranslateInPlace(kAverageHeight);
+      rayMatrix.TranslateInPlace(kAverageHeight);
     }
 
-
+    delegate->SetBeamTransform(controller.index, rayMatrix);
     delegate->SetTransform(controller.index, controller.transform);
     delegate->SetJointsMatrices(controller.index, kHandGeometryName, skeletonMatrices);
   }
 
-  void HandManager::updateHandState(Controller &controller) {
-    float bumperPressure = getPinchStrength(controller.hand);
-
-    if (bumperPressure < 0.1) {
-      bumperPressure = -1.0;
-    } else if (bumperPressure > 0.9) {
-      bumperPressure = 1.0;
+  float HandManager::getPinchDist(const ElbowModel::HandEnum hand) {
+        Vector3 thumbTip, indexTip;
+        if(hand == ElbowModel::HandEnum::Left){
+            thumbTip = Vector3(mHandTrackingData.left.joints[WVR_HandJoint_Thumb_Tip].position.v[0],
+                              mHandTrackingData.left.joints[WVR_HandJoint_Thumb_Tip].position.v[1],
+                               mHandTrackingData.left.joints[WVR_HandJoint_Thumb_Tip].position.v[2]);
+            indexTip = Vector3(mHandTrackingData.left.joints[WVR_HandJoint_Index_Tip].position.v[0],
+                               mHandTrackingData.left.joints[WVR_HandJoint_Index_Tip].position.v[1],
+                               mHandTrackingData.left.joints[WVR_HandJoint_Index_Tip].position.v[2]);
+        }
+        else{
+            thumbTip = Vector3(mHandTrackingData.right.joints[WVR_HandJoint_Thumb_Tip].position.v[0],
+                               mHandTrackingData.right.joints[WVR_HandJoint_Thumb_Tip].position.v[1],
+                               mHandTrackingData.right.joints[WVR_HandJoint_Thumb_Tip].position.v[2]);
+            indexTip = Vector3(mHandTrackingData.right.joints[WVR_HandJoint_Index_Tip].position.v[0],
+                               mHandTrackingData.right.joints[WVR_HandJoint_Index_Tip].position.v[1],
+                               mHandTrackingData.right.joints[WVR_HandJoint_Index_Tip].position.v[2]);
+        }
+        return thumbTip.distance(indexTip);
     }
-    bool bumperPressed = bumperPressure > 0.4;
 
-    delegate->SetSelectActionStop(controller.index);
-    delegate->SetFocused(controller.index);
-    delegate->SetButtonCount(controller.index, 1);
-    delegate->SetButtonState(controller.index, ControllerDelegate::BUTTON_TRIGGER,
-                             device::kImmersiveButtonTrigger, bumperPressed,
-                             bumperPressed, bumperPressure);
-  }
+  void HandManager::updateHandState(Controller &controller) {
+        float bumperPressure = getPinchStrength(controller.hand);
+
+        if (bumperPressure < 0.1) {
+            bumperPressure = -1.0;
+        } else if (bumperPressure > 0.9) {
+            bumperPressure = 1.0;
+        }
+        bool bumperPressed = bumperPressure > 0.4;
+
+        if(bumperPressure >= 1.0){
+            delegate->SetSelectFactor(controller.index, 1);
+        }
+        else{
+            float dist = getPinchDist(controller.hand);
+            if(dist > kPinchStart){
+                delegate->SetSelectFactor(controller.index, 0);
+            }
+            else{
+                float selectFactor = 1 - (dist - kPinchOffset) / (kPinchStart - kPinchOffset);
+                if(selectFactor > 1.0) selectFactor = 1.0;
+                delegate->SetSelectFactor(controller.index, selectFactor);
+            }
+        }
+
+        delegate->SetSelectActionStop(controller.index);
+        delegate->SetFocused(controller.index);
+        delegate->SetButtonCount(controller.index, 1);
+        delegate->SetButtonState(controller.index, ControllerDelegate::BUTTON_TRIGGER,
+                                 device::kImmersiveButtonTrigger, bumperPressed,
+                                 bumperPressed, bumperPressure);
+    }
 
   Vector4 HandManager::calculateJointWorldPosition(const int handIndex, uint32_t jID) const {
-    Vector4 wp;
-    Vector3 lp = getModelJointLocalPosition(handIndex, jID);
+        Vector4 wp;
+        Vector3 lp = getModelJointLocalPosition(handIndex, jID);
 
-    if (mJointParentTable[handIndex][jID] == sIdentityJoint) {
-      wp = Vector4(lp.x, lp.y, lp.z, 1.0f);
-    } else {
-      uint32_t parentJointID = mJointParentTable[handIndex][jID];
-      Matrix4 parentJointTrans = mFinalSkeletonPoses[handIndex][parentJointID];
-      wp = parentJointTrans * Vector4(lp.x, lp.y, lp.z, 1.0f);
+        if (mJointParentTable[handIndex][jID] == sIdentityJoint) {
+            wp = Vector4(lp.x, lp.y, lp.z, 1.0f);
+        } else {
+            uint32_t parentJointID = mJointParentTable[handIndex][jID];
+            if(parentJointID >= sMaxSupportJointNumbers){
+                VRB_ERROR("VRBROWSER parentJointID error")
+                wp = Vector4(lp.x, lp.y, lp.z, 1.0f);
+                return wp;
+            }
+            Matrix4 parentJointTrans = mFinalSkeletonPoses[handIndex][parentJointID];
+            wp = parentJointTrans * Vector4(lp.x, lp.y, lp.z, 1.0f);
+
+        }
+        return wp;
     }
-
-    return wp;
-  }
 
   Vector3 HandManager::getModelJointLocalPosition(const int handIndex, uint32_t iJointID) const {
     Vector3 result;
@@ -423,11 +488,10 @@ namespace crow {
     return result;
   }
 
-
   vrb::LoadTask HandManager::getHandModelTask(ControllerMetaInfo controllerMetaInfo) {
     return [this, controllerMetaInfo](vrb::CreationContextPtr &aContext) -> vrb::GroupPtr {
       vrb::GroupPtr root = vrb::Group::Create(aContext);
-      VRB_LOG("[WaveVR] (%p) Loading internal hand model: %d", this, controllerMetaInfo.hand);
+        VRB_LOG("[WaveVR] (%p) Loading internal hand model: %d", this, controllerMetaInfo.hand);
 
       if (modelCachedData == nullptr) {
         WVR_GetCurrentNaturalHandModel(&modelCachedData);
@@ -468,6 +532,8 @@ namespace crow {
         size_t texture_size = srcTexture.stride * srcTexture.height;
         std::unique_ptr<uint8_t[]> data = std::make_unique<uint8_t[]>(texture_size);
         memcpy(data.get(), (void *) srcTexture.bitmap, texture_size);
+        VRB_LOG("[WaveVR] srcTexture.width: [%d], srcTexture.height: [%d], srcTexture.stride: [%d]",
+                srcTexture.width, srcTexture.height, srcTexture.stride);
 
         mTexture = vrb::TextureGL::Create(aContext);
         mTexture->SetImageData(
@@ -477,6 +543,8 @@ namespace crow {
             (int) srcTexture.height,
             GL_RGBA
         );
+        //vrb::TextureGLPtr  texture = aContext->LoadTexture("Hand_alpha.png") ;
+
       } else {
         VRB_LOG("[WaveVR] (%p) [%d]: Texture initialized already", this, controllerMetaInfo.type);
       }
@@ -541,12 +609,10 @@ namespace crow {
                 texCoords.size, texCoords.dimension);
         return nullptr;
       }
-
       uint32_t texCoordsComponents = texCoords.dimension;
       if (texCoordsComponents == 2) {
         for (uint32_t i = 0; i < texCoords.size; i += texCoordsComponents) {
-          auto textCoord = vrb::Vector(texCoords.buffer[i], texCoords.buffer[i + 1],
-                                       0);
+          auto textCoord = vrb::Vector(texCoords.buffer[i], texCoords.buffer[i + 1],0);
           array->AppendUV(textCoord);
         }
       } else {
@@ -554,6 +620,27 @@ namespace crow {
                   controllerMetaInfo.type,
                   texCoordsComponents)
       }
+
+        // UV2
+        WVR_VertexBuffer_t &texCoords2 = handModel.texCoord2s;
+        if (texCoords2.buffer == nullptr || texCoords2.size == 0 ||
+                texCoords2.dimension == 0) {
+            VRB_LOG("Parameter invalid!!! iData(%p), iSize(%u), iType(%u)", texCoords2.buffer,
+                    texCoords2.size, texCoords2.dimension);
+            return nullptr;
+        }
+        uint32_t texCoordsComponents2 = texCoords2.dimension;
+        if (texCoordsComponents2 == 2) {
+            for (uint32_t i = 0; i < texCoords2.size; i += texCoordsComponents2) {
+                auto textCoord = vrb::Vector(texCoords2.buffer[i], texCoords2.buffer[i + 1],0);
+                array->AppendUV2(textCoord);
+                //array->AppendUV(textCoord);
+            }
+        } else {
+            VRB_ERROR("[WaveVR] (%p) [%d]: UV2s with wrong dimension: %d", this,
+                      controllerMetaInfo.type,
+                      texCoordsComponents2)
+        }
 
       // Bones
       WVR_BoneIDBuffer_t &jointsIds = handModel.boneIDs;
@@ -608,15 +695,22 @@ namespace crow {
       vrb::RenderStatePtr state = vrb::RenderState::Create(aContext);
       state->SetProgram(program);
       state->SetLightsEnabled(false);
-      state->SetTintColor(kBlueColor);
+      state->SetTintColor(kWhiteColor);
       state->SetTexture(mTexture);
       state->SetJointsCount(sMaxSupportJointNumbers);
 
+      vrb::ProgramPtr contouringProgram = aContext->GetProgramFactory()->CreateProgram(aContext,
+                                                                             vrb::FeatureTexture,
+                                                                                       GetHandContouringFragment(),
+                                                                             sMaxSupportJointNumbers);
+
       // Geometry
-      vrb::GeometryPtr geometry = vrb::Geometry::Create(aContext);
+      HandGeometryPtr geometry = HandGeometry::Create(aContext);
       geometry->SetName(kHandGeometryName);
       geometry->SetVertexArray(array);
       geometry->SetRenderState(state);
+      geometry->SetFillingProgram(program);
+      geometry->SetContouringProgram(contouringProgram);
 
       // Indices
       WVR_IndexBuffer_t &indices = handModel.indices;

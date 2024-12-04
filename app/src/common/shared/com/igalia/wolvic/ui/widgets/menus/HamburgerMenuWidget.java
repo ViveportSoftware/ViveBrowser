@@ -301,19 +301,19 @@ public class HamburgerMenuWidget extends UIWidget implements
                 .withIcon(R.drawable.ic_icon_resize)
                 .build());
 
-        if (mWidgetManager != null && mWidgetManager.isPassthroughSupported()) {
-            mItems.add(new HamburgerMenuAdapter.MenuItem.Builder(
-                    HamburgerMenuAdapter.MenuItem.TYPE_DEFAULT,
-                    (menuItem) -> {
-                        if (mDelegate != null) {
-                            mDelegate.onPassthrough();
-                        }
-                        return null;
-                    })
-                    .withTitle(getContext().getString(R.string.hamburger_menu_toggle_passthrough))
-                    .withIcon(mDelegate != null && mDelegate.isPassthroughEnabled() ? R.drawable.baseline_visibility_24 : R.drawable.baseline_visibility_off_24)
-                    .build());
-        }
+//        if (mWidgetManager != null && mWidgetManager.isPassthroughSupported()) {
+//            mItems.add(new HamburgerMenuAdapter.MenuItem.Builder(
+//                    HamburgerMenuAdapter.MenuItem.TYPE_DEFAULT,
+//                    (menuItem) -> {
+//                        if (mDelegate != null) {
+//                            mDelegate.onPassthrough();
+//                        }
+//                        return null;
+//                    })
+//                    .withTitle(getContext().getString(R.string.hamburger_menu_toggle_passthrough))
+//                    .withIcon(mDelegate != null && mDelegate.isPassthroughEnabled() ? R.drawable.baseline_visibility_24 : R.drawable.baseline_visibility_off_24)
+//                    .build());
+//        }
 
         mAdapter.setItems(mItems);
         mAdapter.notifyDataSetChanged();

@@ -55,6 +55,7 @@
 #include "vrb/Transform.h"
 #include "vrb/VertexArray.h"
 #include "vrb/Vector.h"
+#include "wvr/wvr_system.h"
 
 #include <android/asset_manager_jni.h>
 #include <array>
@@ -85,9 +86,8 @@ const float kScrollFactor = 20.0f; // Just picked what fell right.
 const double kHoverRate = 1.0 / 10.0;
 
 // 'azure' color, for active pinch gesture while on hand mode
-const vrb::Color kPointerColorSelected = vrb::Color(0.32f, 0.56f, 0.88f);
-// How big is the pointer target while in hand-tracking mode
-const float kPointerSize = 3.0;
+static const vrb::Color kPointerColorSelected = vrb::Color(0.0f, 179.0f / 255.0f, 227.0f / 255.0f);
+static const vrb::Color kPointerColorNormal = vrb::Color(1.0f, 1.0f, 1.0f);
 
 class SurfaceObserver;
 typedef std::shared_ptr<SurfaceObserver> SurfaceObserverPtr;
@@ -170,6 +170,8 @@ struct BrowserWorld::State {
   TransformPtr rootOpaque;
   TransformPtr rootTransparent;
   TransformPtr rootWebXRInterstitial;
+  TransformPtr webXRInterstitialWidget;
+  TransformPtr webXRInterstitialBackground;
   TransformPtr rootEnvironment;
   VRLayerProjectionPtr layerEnvironment;
   GroupPtr rootController;
@@ -235,9 +237,17 @@ struct BrowserWorld::State {
     rootController = Group::Create(create);
     light = Light::Create(create);
     rootOpaqueParent = Group::Create(create);
-    rootOpaqueParent->AddNode(rootOpaque);
+    if(rootOpaqueParent)
+      rootOpaqueParent->AddNode(rootOpaque);
+    else
+      VRB_ERROR("Failed to create rootOpaqueParent in BrowserWorld::State.");
     rootPassthroughParent = Group::Create(create);
     rootWebXRInterstitial = Transform::Create(create);
+    webXRInterstitialWidget = Transform::Create(create);
+    if(rootWebXRInterstitial)
+      rootWebXRInterstitial->AddNode(webXRInterstitialWidget);
+    else
+      VRB_ERROR("Failed to create rootWebXRInterstitial in BrowserWorld::State.");
     //rootOpaque->AddLight(light);
     //rootTransparent->AddLight(light);
     cullVisitor = CullVisitor::Create(create);
@@ -261,7 +271,11 @@ struct BrowserWorld::State {
     webXRInterstialState = WebXRInterstialState::FORCED;
     widgetsYaw = vrb::Matrix::Identity();
 #if defined(WAVEVR)
-    monitor->SetPerformanceDelta(15.0);
+    if(monitor){
+      monitor->SetPerformanceDelta(15.0);
+    }else{
+      VRB_ERROR("Failed to call monitor::SetPerformanceDelta in BrowserWorld::State.");
+    }
 #endif
   }
 
@@ -465,7 +479,9 @@ BrowserWorld::State::UpdateControllers(bool& aRelayoutWidgets) {
     const bool wasPressed = controller.lastButtonState & ControllerDelegate::BUTTON_TRIGGER ||
                             controller.lastButtonState & ControllerDelegate::BUTTON_TOUCHPAD ||
                             controller.lastButtonState & ControllerDelegate::BUTTON_A ||
-                            controller.lastButtonState & ControllerDelegate::BUTTON_X;;
+                            controller.lastButtonState & ControllerDelegate::BUTTON_X;
+
+
 
     if (!controller.focused) {
       const bool focusRequested = pressed && !wasPressed;
@@ -524,31 +540,71 @@ BrowserWorld::State::UpdateControllers(bool& aRelayoutWidgets) {
       }
     }
 
+
     if (controller.focused && (!hitWidget || !hitWidget->IsResizing()) && resizingWidget) {
       resizingWidget->HoverExitResize();
       resizingWidget.reset();
     }
 
     if (controller.pointer) {
-      controller.pointer->SetVisible(hitWidget.get() != nullptr && controller.hasAim);
-      controller.pointer->SetHitWidget(hitWidget);
-      if (hitWidget && controller.hasAim) {
-        vrb::Matrix translation = vrb::Matrix::Translation(hitPoint);
-        vrb::Matrix localRotation = vrb::Matrix::Rotation(hitNormal);
-        vrb::Matrix reorient = rootTransparent->GetTransform();
-        controller.pointer->SetTransform(reorient.AfineInverse().PostMultiply(translation).PostMultiply(localRotation));
+          controller.pointer->SetVisible(hitWidget.get() != nullptr && controller.hasAim);
+          controller.pointer->SetHitWidget(hitWidget);
+          if (controller.selectFactor >= 1.0f){ //hand click
+              if (hitWidget && controller.hasAim) {
+                  vrb::Matrix translation = vrb::Matrix::Translation(hitPoint);
+                  vrb::Matrix localRotation = vrb::Matrix::Rotation(hitNormal);
+                  vrb::Matrix reorient = rootTransparent->GetTransform();
+                  controller.pointer->SetTransform(reorient.AfineInverse().PostMultiply(translation).PostMultiply(localRotation));
 
-        const float scale = (hitPoint - device->GetHeadTransform().MultiplyPosition(vrb::Vector(0.0f, 0.0f, 0.0f))).Magnitude();
-        controller.pointer->SetScale(scale + kPointerSize - controller.selectFactor * kPointerSize);
-        if (controller.selectFactor >= 1.0f)
-          controller.pointer->SetPointerColor(kPointerColorSelected);
-        else
-          controller.pointer->SetPointerColor(VRBrowser::GetPointerColor());
-      }
+                  const float scale = (hitPoint - device->GetHeadTransform().MultiplyPosition(vrb::Vector(0.0f, 0.0f, 0.0f))).Magnitude();
+                  controller.pointer->SetScale(scale);
+                  controller.pointer->SetShape(crow::Pointer::Shape::Circle);
+
+              }
+              //TODO Christ 觸發射線按下時的變化
+              //controllers->SetBeamColor(controller.index, BeamColor::Press);
+          }
+          else{ //hand normal
+              if (hitWidget && controller.hasAim) {
+                  vrb::Matrix translation = vrb::Matrix::Translation(hitPoint);
+                  vrb::Matrix localRotation = vrb::Matrix::Rotation(hitNormal);
+                  vrb::Matrix reorient = rootTransparent->GetTransform();
+                  controller.pointer->SetTransform(reorient.AfineInverse().PostMultiply(translation).PostMultiply(localRotation));
+
+
+                  float normalFactor = 1 - controller.selectFactor;
+                  const float scale = (hitPoint - device->GetHeadTransform().MultiplyPosition(vrb::Vector(0.0f, 0.0f, 0.0f))).Magnitude();
+                  controller.pointer->SetScale((scale) * normalFactor );
+                  controller.pointer->SetShape(crow::Pointer::Shape::Ring);
+                  //vrb::Color normalColor = vrb::Color(VRBrowser::GetPointerColor());
+
+                  vrb::Color color = vrb::Color(kPointerColorSelected.Red() * controller.selectFactor + kPointerColorNormal.Red() * normalFactor,
+                                                kPointerColorSelected.Green() * controller.selectFactor + kPointerColorNormal.Green() * normalFactor,
+                                                kPointerColorSelected.Blue() * controller.selectFactor + kPointerColorNormal.Blue() * normalFactor
+                          );
+                  controller.pointer->SetPointerColor(color);
+
+              }
+
+              //TODO Christ 觸發射線平常時的變化
+              //controllers->SetBeamColor(controller.index, BeamColor::Normal);
+          }
     }
 
-    if (controller.beamToggle)
+
+    if (controller.beamToggle){
       controller.beamToggle->ToggleAll(controller.hasAim);
+
+      const bool trigger_pressed = controller.buttonState & ControllerDelegate::BUTTON_TRIGGER ;
+      const bool trigger_wasPressed = controller.lastButtonState & ControllerDelegate::BUTTON_TRIGGER;
+
+      if(trigger_pressed&&!trigger_wasPressed){//press
+          controllers->SetBeamColor(controller.index, BeamColor::Press);
+      }
+      if(!trigger_pressed&&trigger_wasPressed){//release
+          controllers->SetBeamColor(controller.index, BeamColor::Normal);
+      }
+    }
 
 #if !defined(WAVEVR)
     if (controller.modelToggle)
@@ -958,11 +1014,13 @@ BrowserWorld::IsPaused() const {
 void
 BrowserWorld::InitializeJava(JNIEnv* aEnv, jobject& aActivity, jobject& aAssetManager) {
   ASSERT_ON_RENDER_THREAD();
-  VRB_LOG("BrowserWorld::InitializeJava");
+  VRB_WARN("VRBROWSER BrowserWorld::InitializeJava");
   if (m.context) {
+      VRB_WARN("VRBROWSER BrowserWorld::InitializeJava  if (m.context)");
     m.context->InitializeJava(aEnv, aActivity, aAssetManager);
     // This must be initialized after initializing Java but before using Gecko. Gecko could fail to
     // detect XR runtimes if we try to load some URL before setting the external context.
+      VRB_WARN("VRBROWSER BrowserWorld::InitializeJava RegisterExternalContext")
     VRBrowser::RegisterExternalContext((jlong)m.externalVR->GetSharedData());
   }
   m.env = aEnv;
@@ -1020,11 +1078,15 @@ BrowserWorld::InitializeJava(JNIEnv* aEnv, jobject& aActivity, jobject& aAssetMa
     });
     m.modelsLoaded = true;
   }
+    VRB_WARN("VRBROWSER BrowserWorld::InitializeJava SetThreadName")
   SetThreadName("VRB Render");
 
+
+    VRB_WARN("VRBROWSER BrowserWorld::InitializeJava RegisterExternalContext")
   // This must be initialized before using Gecko. Gecko could fail to detect XR runtimes if
   // we try to load some URL before setting the external context for example.
   VRBrowser::RegisterExternalContext((jlong)m.externalVR->GetSharedData());
+  VRBrowser::SetIsPassthroughSupported();
 }
 
 void
@@ -1251,17 +1313,22 @@ BrowserWorld::SetTemporaryFilePath(const std::string& aPath) {
 
 void
 BrowserWorld::TogglePassthrough() {
-  ASSERT_ON_RENDER_THREAD();
-  m.device->TogglePassthroughEnabled();
-  if (m.device->IsPassthroughEnabled()) {
-    if (m.device->usesPassthroughCompositorLayer() && !m.layerPassthrough) {
-      m.layerPassthrough = m.device->CreateLayerPassthrough();
-      m.rootPassthroughParent->AddNode(VRLayerNode::Create(m.create, m.layerPassthrough));
+    ASSERT_ON_RENDER_THREAD();
+    m.device->TogglePassthroughEnabled();
+    if (m.device->IsPassthroughEnabled()) {
+#if WAVEVR
+        WVR_ShowPassthroughUnderlay(true);
+#else
+        if (m.device->usesPassthroughCompositorLayer() && !m.layerPassthrough) {
+            m.layerPassthrough = m.device->CreateLayerPassthrough();
+            m.rootPassthroughParent->AddNode(VRLayerNode::Create(m.create, m.layerPassthrough));
+        }
+#endif
+
+    } else {
+        // Make environment changes during pass through mode on to take effect
+        UpdateEnvironment();
     }
-  } else {
-    // Make environment changes during pass through mode on to take effect
-    UpdateEnvironment();
-  }
 }
 
 void
@@ -1364,7 +1431,11 @@ BrowserWorld::AddWidget(int32_t aHandle, const WidgetPlacementPtr& aPlacement) {
         m.rootOpaque->AddNode(widget->GetRoot());
         break;
       case WidgetPlacement::Scene::WEBXR_INTERSTITIAL:
-        m.rootWebXRInterstitial->AddNode(widget->GetRoot());
+        m.webXRInterstitialWidget->AddNode(widget->GetRoot());
+        if(m.webXRInterstitialBackground == nullptr){
+              m.webXRInterstitialBackground = createSphereBackground( m.create);
+              m.rootWebXRInterstitial->AddNode(m.webXRInterstitialBackground);
+        }
         break;
   }
 
@@ -1791,7 +1862,7 @@ BrowserWorld::DrawWorld(device::Eye aEye) {
       m.rootPassthroughParent->Cull(*m.cullVisitor, *m.drawList);
     else
       m.rootOpaqueParent->Cull(*m.cullVisitor, *m.drawList);
-    m.drawList->Draw(*camera);
+      m.drawList->Draw(*camera);
   }
 
   // Draw environment if available
@@ -1800,7 +1871,6 @@ BrowserWorld::DrawWorld(device::Eye aEye) {
     m.layerEnvironment->Bind();
     VRB_GL_CHECK(glViewport(0, 0, m.layerEnvironment->GetWidth(), m.layerEnvironment->GetHeight()));
     VRB_GL_CHECK(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-
   }
   if (m.rootEnvironment) {
     m.drawList->Reset();
@@ -1825,15 +1895,21 @@ BrowserWorld::DrawWorld(device::Eye aEye) {
       m.device->DrawHandMesh(controller.index, *camera);
   }
 
-  // Draw controllers
+  //Christ: re-order draw order to ensure controllers be draw after widges
+  // Draw widges
+  m.drawList->Reset();
+  m.rootTransparent->Cull(*m.cullVisitor, *m.drawList);
+  GLboolean depthMask = GL_TRUE;
+  VRB_GL_CHECK(glGetBooleanv(GL_DEPTH_WRITEMASK, &depthMask));
+  VRB_GL_CHECK(glDepthMask(GL_FALSE));
+  m.drawList->Draw(*camera);
+  VRB_GL_CHECK(glDepthMask(depthMask));
+
+  //Draw controllers
   m.drawList->Reset();
   m.rootController->Cull(*m.cullVisitor, *m.drawList);
   m.drawList->Draw(*camera);
-  VRB_GL_CHECK(glDepthMask(GL_FALSE));
-  m.drawList->Reset();
-  m.rootTransparent->Cull(*m.cullVisitor, *m.drawList);
-  m.drawList->Draw(*camera);
-  VRB_GL_CHECK(glDepthMask(GL_TRUE));
+
 }
 
 void
@@ -1920,6 +1996,7 @@ void
 BrowserWorld::TickWebXRInterstitial() {
   if (!m.device->ShouldRender())
     return;
+
   m.rootWebXRInterstitial->SetTransform(m.device->GetReorientTransform());
   m.drawHandler = [=](device::Eye eye) {
       DrawWebXRInterstitial(eye);
@@ -2024,6 +2101,78 @@ BrowserWorld::CreateSkyBox(const std::string& aBasePath, const std::string& aExt
 void BrowserWorld::OnReorient() {
   m.reorientRequested = true;
   VRBrowser::ResetWindowsPosition();
+}
+
+vrb::TransformPtr
+BrowserWorld::createSphereBackground(vrb::CreationContextPtr create) {
+    const int kCols = 16;
+    const int kRows = 16;
+    const float kRadius = 10.0f;
+
+    vrb::VertexArrayPtr array = vrb::VertexArray::Create(create);
+
+    for (float row = 0; row <= kRows; row+= 1.0f) {
+        const float alpha = row * (float)M_PI / kRows;
+        const float sinAlpha = sinf(alpha);
+        const float cosAlpha = cosf(alpha);
+
+        for (float col = 0; col <= kCols; col++) {
+            const float beta = col * 2.0f* (float)M_PI / kCols;
+            const float sinBeta = sinf(beta);
+            const float cosBeta = cosf(beta);
+
+            vrb::Vector vertex;
+            vrb::Vector uv;
+            vrb::Vector normal;
+            normal.x() = cosBeta * sinAlpha;
+            normal.y() = cosAlpha;
+            normal.z() = sinBeta * sinAlpha;
+            uv.x() = (col / kCols);  // u
+            uv.y() = (row / kRows); // v
+            vertex.x() = kRadius * normal.x();
+            vertex.y() = kRadius * normal.y();
+            vertex.z() = kRadius * normal.z();
+
+            array->AppendVertex(vertex);
+            array->AppendUV(uv);
+            array->AppendNormal(vertex.Normalize());
+        }
+    }
+
+    std::vector<int> indices;
+
+    vrb::ProgramPtr program = create->GetProgramFactory()->CreateProgram(create, 0);
+    vrb::RenderStatePtr state = vrb::RenderState::Create(create);
+    state->SetMaterial(vrb::Color(0.0f, 0.0f, 0.0f), vrb::Color(0.0f, 0.0f, 0.0f), vrb::Color(0.0f, 0.0f, 0.0f), 0.0f);
+    state->SetProgram(program);
+    int aWidth=-1;
+    int aHeight=-1;
+    vrb::GeometryPtr geometry = vrb::Geometry::Create(create);
+    geometry->SetVertexArray(array);
+    geometry->SetRenderState(state);
+
+    for (int row = 0; row < kRows; row++) {
+        for (int col = 0; col < kCols; col++) {
+            int first = 1 + (row * (kCols + 1)) + col;
+            int second = first + kCols + 1;
+
+            indices.clear();
+            indices.push_back(first);
+            indices.push_back(second);
+            indices.push_back(first + 1);
+
+            indices.push_back(second);
+            indices.push_back(second + 1);
+            indices.push_back(first + 1);
+            geometry->AddFace(indices, indices, indices);
+        }
+    }
+
+    vrb::TransformPtr transform = vrb::Transform::Create(create);
+    transform->SetTransform(vrb::Matrix::Rotation(vrb::Vector(0.0f, 1.0f, 0.0f), (float) M_PI * -0.5f));
+    transform->AddNode(geometry);
+
+    return transform;
 }
 
 } // namespace crow
